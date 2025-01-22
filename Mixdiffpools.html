@@ -36,16 +36,18 @@
         }
 
         .content {
+            display: flex;
+            justify-content: space-between;
             margin-top: 60px;
-            max-width: 600px;
-            margin-left: 10px;
+            padding: 10px;
         }
 
-        form {
+        .form-container {
             background-color: #fff;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 48%;
         }
 
         h1 {
@@ -67,14 +69,18 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"] {
+        input[type="submit"], button {
             background-color: #283ba7;
             color: white;
             border: none;
             cursor: pointer;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border-radius: 3px;
+            width: 100%;
         }
 
-        input[type="submit"]:hover {
+        input[type="submit"]:hover, button:hover {
             background-color: #283ba7;
         }
 
@@ -91,51 +97,111 @@
     </div>
 
     <div class="content">
-        <div id="date-container">
-            <h1>Today's Date: <span id="date"></span></h1>
+        <div class="form-container">
+            <div id="date-container">
+                <h1>Today's Date: <span id="date"></span></h1>
+            </div>
+
+            <form id="calculationForm">
+                <label for="project">projectPool</label>
+                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
+
+                <label for="application">Kies een optie:</label>
+                <select id="application" name="application" required>
+                    <option value="WGS">WGS</option>
+                    <option value="RNAseq">RNAseq</option>
+                    <option value="MGX">MGX</option>
+                    <option value="Amplicon">Amplicon</option>
+                </select>
+
+                <label for="size">genomeSize</label>
+                <input type="text" id="size" name="size" placeholder="Voer hier het genomeSize in" required>
+
+                <label for="coverage">coverage/depth</label>
+                <input type="text" id="coverage" name="coverage" placeholder="Voer hier de coverage/depth in" required>
+
+                <label for="sampleCount">sampleCount</label>
+                <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
+
+                <label for="conc">conc</label>
+                <input type="text" id="conc" name="conc" placeholder="Voer hier de conc in" pattern="\d{1,2}(,\d{1,2})?" title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." required>
+
+                <label for="avgLibSize">avgLibSize</label>
+                <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
+
+                <label for="cycli">cycli</label>
+                <select id="cycli" name="cycli" required>
+                    <option value="300" selected>300</option>
+                    <option value="600">600</option>
+                </select>
+
+                <button type="button" onclick="performCalculations()">Calculate</button>
+            </form>
         </div>
 
-        <form action="process_form.php" method="POST" id="eventForm">
-            <label for="project">projectPool</label>
-            <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
+        <div class="form-container">
+            <div id="date-container">
+                <h1>Calculations</h1>
+            </div>
 
-            <label for="application">Kies een optie:</label>
-            <select id="application" name="application" required>
-                <option value="WGS">WGS</option>
-                <option value="RNAseq">RNAseq</option>
-                <option value="MGX">MGX</option>
-                <option value="Amplicon">Amplicon</option>
-            </select>
+            <form action="process_form.php" method="POST" id="submitForm">
+                <label for="clusters">Clusters</label>
+                <input type="text" id="clusters" name="clusters" placeholder="Voer hier de clusters in" required>
 
-            <label for="size">genomeSize</label>
-            <input type="text" id="size" name="size" placeholder="Voer hier het genomeSize in" required>
+                <label for="%P2">% P2</label>
+                <input type="text" id="%P2" name="%P2" placeholder="Voer hier het % P2 in" required>
 
-            <label for="coverage">coverage/depth</label>
-            <input type="text" id="coverage" name="coverage" placeholder="Voer hier de coverage/depth in" required>
+                <label for="nM">nM</label>
+                <input type="text" id="nM" name="nM" placeholder="Voer hier de nM in" required>
 
-            <label for="sampleCount">sampleCount</label>
-            <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
+                <label for="%samplePerP2">% sample per P2</label>
+                <input type="text" id="%samplePerP2" name="%samplePerP2" placeholder="Voer hier het % sample per P2 in" required>
 
-            <label for="conc">conc</label>
-            <input type="text" id="conc" name="conc" placeholder="Voer hier de conc in" pattern="\d{1,2}(,\d{1,2})?" title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." required>
+                <label for="ulNGSPool">ul NGS pool</label>
+                <input type="text" id="ulNGSPool" name="ulNGSPool" placeholder="Voer hier de ul NGS pool in" required>
 
-            <label for="avgLibSize">avgLibSize</label>
-            <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
-
-            <label for="cycli">cycli</label>
-            <select id="cycli" name="cycli" required>
-                <option value="150" selected>150</option>
-                <option value="300">300</option>
-            </select>
-
-            <input type="submit" value="Calculate">
-        </form>
+                <input type="submit" value="Submit to database">
+            </form>
+        </div>
     </div>
     <script>
         function displayDate() {
             var today = new Date();
             var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
             document.getElementById('date').innerHTML = date;
+        }
+
+        function performCalculations() {
+            var application = document.getElementById('application').value;
+            var size = parseFloat(document.getElementById('size').value);
+            var coverage = parseFloat(document.getElementById('coverage').value);
+            var sampleCount = parseFloat(document.getElementById('sampleCount').value);
+            var cycli = parseInt(document.getElementById('cycli').value);
+
+            var factor1 = (cycli == 300) ? 270 : 450;
+            var clusters;
+
+            switch (application) {
+                case "WGS":
+                    clusters = (size * coverage * sampleCount) / factor1;
+                    break;
+                case "RNAseq":
+                case "Amplicon":
+                case "MGX":
+                    clusters = coverage * sampleCount;
+                    break;
+                default:
+                    clusters = 0;
+            }
+
+            clusters = clusters.toExponential(2);
+
+            document.getElementById('clusters').value = clusters;
+            // Placeholder values for other fields
+            document.getElementById('%P2').value = "Placeholder";
+            document.getElementById('nM').value = "Placeholder";
+            document.getElementById('%samplePerP2').value = "Placeholder";
+            document.getElementById('ulNGSPool').value = "Placeholder";
         }
     </script>
 </body>

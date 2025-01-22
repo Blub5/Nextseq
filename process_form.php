@@ -23,40 +23,31 @@ $coverage = $_POST['coverage'];
 $sampleCount = $_POST['sampleCount'];
 $conc = $_POST['conc'];
 $avgLibSize = $_POST['avgLibSize'];
-$cycli = 270;
+$cycli = $_POST['cycli'];
 
 // Define application types
 $RNA = "RNAseq";
 $MGX = "MGX";
 $WGS = "WGS";
 $AMP = "Amplicon";
-$AI = "AI"; 
-
-$Fixed_cycli = 450; 
-
-$lookup_table = [
-    150 => 1,
-];
-
-// Lookup function
-function vlookup($key, $table) {
-    return isset($table[$key]) ? $table[$key] : 1; 
-}
 
 // Function to calculate clusters
-function calculate_clusters($application, $size, $coverage, $sampleCount, $conc, $lookup_table, $RNA, $MGX, $WGS, $AMP, $AI, $Fixed_cycli) {
-    if (in_array($application, [$WGS, $AMP, $AI])) {
-        return ($size * $coverage * $sampleCount) / 270;
-    } elseif ($application == $MGX) {
-        return (1 / vlookup($Fixed_cycli, $lookup_table)) * $size * $coverage * $sampleCount;
-    } elseif ($application == $RNA) {
-        return $sampleCount * 1000000;
-    } else {
-        return 0;
+function calculate_clusters($application, $size, $coverage, $sampleCount, $cycli) {
+    $factor1 = ($cycli == 300) ? 270 : 450;
+
+    switch ($application) {
+        case "WGS":
+            return ($size * $coverage * $sampleCount) / $factor1;
+        case "RNAseq":
+        case "Amplicon":
+        case "MGX":
+            return $coverage * $sampleCount;
+        default:
+            return 0;
     }
 }
 
-$clusters = calculate_clusters($application, $size, $coverage, $sampleCount, $conc, $lookup_table, $RNA, $MGX, $WGS, $AMP, $AI, $Fixed_cycli);
+$clusters = calculate_clusters($application, $size, $coverage, $sampleCount, $cycli);
 
 // Format clusters in scientific notation
 $clusters = sprintf("%.2E", $clusters);
