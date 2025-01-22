@@ -30,7 +30,8 @@ body {
 
 .content {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
     margin-top: 60px;
     padding: 10px;
 }
@@ -40,7 +41,9 @@ body {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 48%;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
 h1 {
@@ -74,7 +77,7 @@ input[type="submit"], button {
 }
 
 input[type="submit"]:hover, button:hover {
-    background-color: #283ba7;
+    background-color: #1f2d7a;
 }
 
 #date-container {

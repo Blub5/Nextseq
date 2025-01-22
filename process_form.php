@@ -24,37 +24,15 @@ $sampleCount = $_POST['sampleCount'];
 $conc = $_POST['conc'];
 $avgLibSize = $_POST['avgLibSize'];
 $cycli = $_POST['cycli'];
-
-// Define application types
-$RNA = "RNAseq";
-$MGX = "MGX";
-$WGS = "WGS";
-$AMP = "Amplicon";
-
-// Function to calculate clusters
-function calculate_clusters($application, $size, $coverage, $sampleCount, $cycli) {
-    $factor1 = ($cycli == 300) ? 270 : 450;
-
-    switch ($application) {
-        case "WGS":
-            return ($size * $coverage * $sampleCount) / $factor1;
-        case "RNAseq":
-        case "Amplicon":
-        case "MGX":
-            return $coverage * $sampleCount;
-        default:
-            return 0;
-    }
-}
-
-$clusters = calculate_clusters($application, $size, $coverage, $sampleCount, $cycli);
-
-// Format clusters in scientific notation
-$clusters = sprintf("%.2E", $clusters);
+$clusters = $_POST['clusters'];
+$flowcell = $_POST['%flowcell'];
+$nm = $_POST['nM'];
+$sample_per_flowcell = $_POST['%samplePerP2'];
+$ul_ngs_pool = $_POST['ulNGSPool'];
 
 // Prepare and bind
-$stmt = $conn->prepare("INSERT INTO project_data (project, application, size, coverage, sampleCount, conc, avgLibSize, cycli, clusters) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssssssss", $project, $application, $size, $coverage, $sampleCount, $conc, $avgLibSize, $cycli, $clusters);
+$stmt = $conn->prepare("INSERT INTO project_data (project, application, size, coverage, sampleCount, conc, avgLibSize, cycli, clusters, flowcell, nm, sample_per_flowcell, ul_ngs_pool) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssssssssss", $project, $application, $size, $coverage, $sampleCount, $conc, $avgLibSize, $cycli, $clusters, $flowcell, $nm, $sample_per_flowcell, $ul_ngs_pool);
 
 try {
     if ($stmt->execute()) {
@@ -73,7 +51,7 @@ try {
             setTimeout(function(){
                 window.location.href = 'mixdiffpools.html';
             }, 2000);
-          </script>";
+        </script>";
     $stmt->close();
     $conn->close();
 }

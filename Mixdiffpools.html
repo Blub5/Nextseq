@@ -14,14 +14,14 @@
     </div>
 
     <div class="content">
-        <div class="form-container">
-            <div id="date-container">
-                <h1>Today's Date: <span id="date"></span></h1>
-            </div>
+        <div id="date-container">
+            <h1>Today's Date: <span id="date"></span></h1>
+        </div>
 
-            <form id="calculationForm">
+        <form action="process_form.php" method="POST" id="combinedForm">
+            <div class="form-container">
                 <label for="project">projectPool</label>
-                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
+                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required onblur="prependNGS()">
 
                 <label for="application">Kies een optie:</label>
                 <select id="application" name="application" required>
@@ -53,15 +53,9 @@
                 </select>
 
                 <button type="button" onclick="performCalculations()">Calculate</button>
-            </form>
-        </div>
-
-        <div class="form-container">
-            <div id="date-container">
-                <h1>Calculations</h1>
             </div>
 
-            <form action="process_form.php" method="POST" id="submitForm">
+            <div class="form-container">
                 <label for="clusters">Clusters</label>
                 <input type="text" id="clusters" name="clusters" placeholder="Voer hier de clusters in" required>
 
@@ -77,24 +71,32 @@
                 <label for="ulNGSPool">ul NGS pool</label>
                 <input type="text" id="ulNGSPool" name="ulNGSPool" placeholder="Voer hier de ul NGS pool in" required>
 
-                <input type="hidden" name="project" id="hiddenProject">
-                <input type="hidden" name="application" id="hiddenApplication">
-                <input type="hidden" name="size" id="hiddenSize">
-                <input type="hidden" name="coverage" id="hiddenCoverage">
-                <input type="hidden" name="sampleCount" id="hiddenSampleCount">
-                <input type="hidden" name="conc" id="hiddenConc">
-                <input type="hidden" name="avgLibSize" id="hiddenAvgLibSize">
-                <input type="hidden" name="cycli" id="hiddenCycli">
+                <!-- Hidden fields to store left form data -->
+                <input type="hidden" name="hiddenProject" id="hiddenProject">
+                <input type="hidden" name="hiddenApplication" id="hiddenApplication">
+                <input type="hidden" name="hiddenSize" id="hiddenSize">
+                <input type="hidden" name="hiddenCoverage" id="hiddenCoverage">
+                <input type="hidden" name="hiddenSampleCount" id="hiddenSampleCount">
+                <input type="hidden" name="hiddenConc" id="hiddenConc">
+                <input type="hidden" name="hiddenAvgLibSize" id="hiddenAvgLibSize">
+                <input type="hidden" name="hiddenCycli" id="hiddenCycli">
 
-                <input type="submit" value="Submit to database">
-            </form>
-        </div>
+                <button type="submit" onclick="copyLeftFormData()">Submit to database</button>
+            </div>
+        </form>
     </div>
     <script>
         function displayDate() {
             var today = new Date();
             var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
             document.getElementById('date').innerHTML = date;
+        }
+
+        function prependNGS() {
+            var projectField = document.getElementById('project');
+            if (!projectField.value.startsWith("NGS-")) {
+                projectField.value = "NGS-" + projectField.value;
+            }
         }
 
         function performCalculations() {
@@ -106,7 +108,6 @@
 
             var factor1 = (cycli == 300) ? 270 : 450;
             var clusters;
-            var maxClusters = (cycli == 300) ? 800000000 : 1600000000; // Example values for max clusters
 
             switch (application) {
                 case "WGS":
@@ -122,15 +123,34 @@
             }
 
             clusters = clusters.toExponential(2);
-            var flowcell = (clusters * 100) / maxClusters;
+
+            var flowcellOptions = [
+                { name: "P1", maxClusters: 100000000 },
+                { name: "P2", maxClusters: 400000000 },
+                { name: "P3", maxClusters: 1200000000 },
+                { name: "P4", maxClusters: 1800000000 }
+            ];
+
+            var selectedFlowcell = flowcellOptions.find(option => clusters <= option.maxClusters);
+
+            if (!selectedFlowcell) {
+                alert("The calculated clusters exceed the maximum capacity of all available flowcells.");
+                return;
+            }
+
+            var flowcellPercentage = (clusters * 100) / selectedFlowcell.maxClusters;
 
             document.getElementById('clusters').value = clusters;
-            document.getElementById('%flowcell').value = flowcell.toFixed(2);
+            document.getElementById('%flowcell').value = flowcellPercentage.toFixed(2);
+            document.getElementById('flowcell').value = selectedFlowcell.name;
             // Placeholder values for other fields
             document.getElementById('nM').value = "Placeholder";
             document.getElementById('%samplePerP2').value = "Placeholder";
             document.getElementById('ulNGSPool').value = "Placeholder";
- document.getElementById('hiddenProject').value = document.getElementById('project').value;
+        }
+
+        function copyLeftFormData() {
+            document.getElementById('hiddenProject').value = document.getElementById('project').value;
             document.getElementById('hiddenApplication').value = document.getElementById('application').value;
             document.getElementById('hiddenSize').value = document.getElementById('size').value;
             document.getElementById('hiddenCoverage').value = document.getElementById('coverage').value;
