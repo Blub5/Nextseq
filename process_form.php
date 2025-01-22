@@ -7,12 +7,15 @@ $username = "root";
 $password = "";
 $dbname = "nextseq";
 
+// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Retrieve POST data
 $project = $_POST['project'];
 $application = $_POST['application'];
 $size = $_POST['size'];
@@ -22,8 +25,7 @@ $conc = $_POST['conc'];
 $avgLibSize = $_POST['avgLibSize'];
 $cycli = 270;
 
-
-/*applications*/
+// Define application types
 $RNA = "RNAseq";
 $MGX = "MGX";
 $WGS = "WGS";
@@ -36,11 +38,12 @@ $lookup_table = [
     150 => 1,
 ];
 
+// Lookup function
 function vlookup($key, $table) {
     return isset($table[$key]) ? $table[$key] : 1; 
 }
 
-// Function to calculate clusters based on the given formula
+// Function to calculate clusters
 function calculate_clusters($application, $size, $coverage, $sampleCount, $conc, $lookup_table, $RNA, $MGX, $WGS, $AMP, $AI, $Fixed_cycli) {
     if (in_array($application, [$WGS, $AMP, $AI])) {
         return ($size * $coverage * $sampleCount) / 270;
@@ -51,8 +54,6 @@ function calculate_clusters($application, $size, $coverage, $sampleCount, $conc,
     } else {
         return 0;
     }
-    
-    
 }
 
 $clusters = calculate_clusters($application, $size, $coverage, $sampleCount, $conc, $lookup_table, $RNA, $MGX, $WGS, $AMP, $AI, $Fixed_cycli);
@@ -60,6 +61,7 @@ $clusters = calculate_clusters($application, $size, $coverage, $sampleCount, $co
 // Format clusters in scientific notation
 $clusters = sprintf("%.2E", $clusters);
 
+// Prepare and bind
 $stmt = $conn->prepare("INSERT INTO project_data (project, application, size, coverage, sampleCount, conc, avgLibSize, cycli, clusters) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("sssssssss", $project, $application, $size, $coverage, $sampleCount, $conc, $avgLibSize, $cycli, $clusters);
 
