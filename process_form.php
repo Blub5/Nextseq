@@ -23,7 +23,7 @@ $avgLibSize = $_POST['avgLibSize'];
 $cycli = 270;
 
 
-
+/*applications*/
 $RNA = "RNAseq";
 $MGX = "MGX";
 $WGS = "WGS";
