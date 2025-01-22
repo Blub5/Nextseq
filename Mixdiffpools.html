@@ -59,17 +59,8 @@
                 <label for="clusters">Clusters</label>
                 <input type="text" id="clusters" name="clusters" placeholder="Voer hier de clusters in" required>
 
-                <label for="%flowcell">% flowcell</label>
-                <input type="text" id="%flowcell" name="%flowcell" placeholder="Voer hier het % flowcell in" required>
-
                 <label for="nM">nM</label>
                 <input type="text" id="nM" name="nM" placeholder="Voer hier de nM in" required>
-
-                <label for="%samplePerP2">% sample per P2</label>
-                <input type="text" id="%samplePerP2" name="%samplePerP2" placeholder="Voer hier het % sample per P2 in" required>
-
-                <label for="ulNGSPool">ul NGS pool</label>
-                <input type="text" id="ulNGSPool" name="ulNGSPool" placeholder="Voer hier de ul NGS pool in" required>
 
                 <!-- Hidden fields to store left form data -->
                 <input type="hidden" name="hiddenProject" id="hiddenProject">
@@ -105,6 +96,8 @@
             var coverage = parseFloat(document.getElementById('coverage').value);
             var sampleCount = parseFloat(document.getElementById('sampleCount').value);
             var cycli = parseInt(document.getElementById('cycli').value);
+            var conc = parseFloat(document.getElementById('conc').value.replace(',', '.'));
+            var avgLibSize = parseFloat(document.getElementById('avgLibSize').value);
 
             var factor1 = (cycli == 300) ? 270 : 450;
             var clusters;
@@ -140,13 +133,11 @@
 
             var flowcellPercentage = (clusters * 100) / selectedFlowcell.maxClusters;
 
+            var nM = (conc * 1000) / (649 * avgLibSize) * 1000;
+
             document.getElementById('clusters').value = clusters;
-            document.getElementById('%flowcell').value = flowcellPercentage.toFixed(2);
+            document.getElementById('nM').value = nM.toFixed(1);
             document.getElementById('flowcell').value = selectedFlowcell.name;
-            // Placeholder values for other fields
-            document.getElementById('nM').value = "Placeholder";
-            document.getElementById('%samplePerP2').value = "Placeholder";
-            document.getElementById('ulNGSPool').value = "Placeholder";
         }
 
         function copyLeftFormData() {

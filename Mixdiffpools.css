@@ -27,7 +27,6 @@ body {
     background-color: #ddd;
     color: black;
 }
-
 .content {
     display: flex;
     flex-direction: column;
@@ -36,16 +35,40 @@ body {
     padding: 10px;
 }
 
+.form-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .form-container {
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: 48%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 200%;
     box-sizing: border-box;
     margin-bottom: 20px;
 }
 
+@media (max-width: 1200px) {
+    .form-wrapper {
+        flex-direction: column;
+    }
+
+    .form-container {
+        width: 100%;
+    }
+}
 h1 {
     color: #333;
 }
