@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextSeq2000-loading-scheme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .content {
+            margin-top: 60px;
+            max-width: 600px;
+            margin-left: 10px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="submit"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #283ba7;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #283ba7;
+        }
+
+        #date-container {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body onload="displayDate()">
+    <div class="navbar">
+        <a href="Mixdiffpools.html">Mix diff pools</a>
+        <a href="NLP.html">NLP</a>
+        <a href="Database.html">Database</a>
+    </div>
+
+    <div class="content">
+        <div id="date-container">
+            <h1>Today's Date: <span id="date"></span></h1>
+        </div>
+
+        <form action="process_form.php" method="POST" id="eventForm">
+            <label for="project">projectPool</label>
+            <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
+
+            <label for="application">Kies een optie:</label>
+            <select id="application" name="application" required>
+                <option value="WGS">WGS</option>
+                <option value="RNAseq">RNAseq</option>
+                <option value="MGX">MGX</option>
+                <option value="Amplicon">Amplicon</option>
+            </select>
+
+            <label for="size">genomeSize</label>
+            <input type="text" id="size" name="size" placeholder="Voer hier het genomeSize in" required>
+
+            <label for="coverage">coverage/depth</label>
+            <input type="text" id="coverage" name="coverage" placeholder="Voer hier de coverage/depth in" required>
+
+            <label for="sampleCount">sampleCount</label>
+            <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
+
+            <label for="conc">conc</label>
+            <input type="text" id="conc" name="conc" placeholder="Voer hier de conc in" pattern="\d{1,2}(,\d{1,2})?" title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." required>
+
+            <label for="avgLibSize">avgLibSize</label>
+            <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
+
+            <label for="cycli">cycli</label>
+            <select id="cycli" name="cycli" required>
+                <option value="150" selected>150</option>
+                <option value="300">300</option>
+            </select>
+
+            <input type="submit" value="Calculate">
+        </form>
+    </div>
+    <script>
+        function displayDate() {
+            var today = new Date();
+            var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+            document.getElementById('date').innerHTML = date;
+        }
+    </script>
+</body>
+</html>
