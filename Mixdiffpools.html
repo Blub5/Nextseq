@@ -3,91 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Mixdiffpools.css">
     <title>NextSeq2000-loading-scheme</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar {
-            overflow: hidden;
-            background-color: #333;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-
-        .content {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 60px;
-            padding: 10px;
-        }
-
-        .form-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 48%;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            color: #333;
-        }
-
-        input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="submit"], select {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 20px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"], button {
-            background-color: #283ba7;
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            margin: 5px 0 20px;
-            border-radius: 3px;
-            width: 100%;
-        }
-
-        input[type="submit"]:hover, button:hover {
-            background-color: #283ba7;
-        }
-
-        #date-container {
-            margin: 20px 0;
-        }
-    </style>
 </head>
 <body onload="displayDate()">
     <div class="navbar">
@@ -148,8 +65,8 @@
                 <label for="clusters">Clusters</label>
                 <input type="text" id="clusters" name="clusters" placeholder="Voer hier de clusters in" required>
 
-                <label for="%P2">% P2</label>
-                <input type="text" id="%P2" name="%P2" placeholder="Voer hier het % P2 in" required>
+                <label for="%flowcell">% flowcell</label>
+                <input type="text" id="%flowcell" name="%flowcell" placeholder="Voer hier het % flowcell in" required>
 
                 <label for="nM">nM</label>
                 <input type="text" id="nM" name="nM" placeholder="Voer hier de nM in" required>
@@ -159,6 +76,15 @@
 
                 <label for="ulNGSPool">ul NGS pool</label>
                 <input type="text" id="ulNGSPool" name="ulNGSPool" placeholder="Voer hier de ul NGS pool in" required>
+
+                <input type="hidden" name="project" id="hiddenProject">
+                <input type="hidden" name="application" id="hiddenApplication">
+                <input type="hidden" name="size" id="hiddenSize">
+                <input type="hidden" name="coverage" id="hiddenCoverage">
+                <input type="hidden" name="sampleCount" id="hiddenSampleCount">
+                <input type="hidden" name="conc" id="hiddenConc">
+                <input type="hidden" name="avgLibSize" id="hiddenAvgLibSize">
+                <input type="hidden" name="cycli" id="hiddenCycli">
 
                 <input type="submit" value="Submit to database">
             </form>
@@ -180,6 +106,7 @@
 
             var factor1 = (cycli == 300) ? 270 : 450;
             var clusters;
+            var maxClusters = (cycli == 300) ? 800000000 : 1600000000; // Example values for max clusters
 
             switch (application) {
                 case "WGS":
@@ -195,13 +122,22 @@
             }
 
             clusters = clusters.toExponential(2);
+            var flowcell = (clusters * 100) / maxClusters;
 
             document.getElementById('clusters').value = clusters;
+            document.getElementById('%flowcell').value = flowcell.toFixed(2);
             // Placeholder values for other fields
-            document.getElementById('%P2').value = "Placeholder";
             document.getElementById('nM').value = "Placeholder";
             document.getElementById('%samplePerP2').value = "Placeholder";
             document.getElementById('ulNGSPool').value = "Placeholder";
+ document.getElementById('hiddenProject').value = document.getElementById('project').value;
+            document.getElementById('hiddenApplication').value = document.getElementById('application').value;
+            document.getElementById('hiddenSize').value = document.getElementById('size').value;
+            document.getElementById('hiddenCoverage').value = document.getElementById('coverage').value;
+            document.getElementById('hiddenSampleCount').value = document.getElementById('sampleCount').value;
+            document.getElementById('hiddenConc').value = document.getElementById('conc').value;
+            document.getElementById('hiddenAvgLibSize').value = document.getElementById('avgLibSize').value;
+            document.getElementById('hiddenCycli').value = document.getElementById('cycli').value;
         }
     </script>
 </body>
