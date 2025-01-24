@@ -7,8 +7,8 @@
 
 body {
     min-height: 100vh;
-    background: url('koe.jpg') no-repeat;
-    background-size: cover;
+    background: url('Pictures/koeien.jpg') no-repeat;
+    background-size: fill;
     background-position: center;
 }
 
@@ -17,32 +17,49 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 15x 100px;
-    background: #fff;
+    padding: 15px 100px;
+    background: transparent;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 100;
+    transition: top 0.3s ease-in-out; /* Smooth transition */
 }
 
-.logo{ 
+.hidden {
+    top: -100px; /* Move the header up out of view */
+}
+
+.logo {
     font-size: 50px;
     color: #fff;
     text-decoration: none;
     font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add text shadow */
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    padding: 5px 10px; /* Add some padding for better readability */
+    border-radius: 5px; /* Optional: Add rounded corners */
+}
+
+.logo img {
+    margin-top: 10px; /* Move the logo 10px down */
 }
 
 .navbar a {
-   position: relative;
+    position: relative;
     font-size: 18px;
-   color: #000000;
-   font-weight: 500;
-   text-decoration: none;
-   margin-left: 40px;
-   right: 50px;
+    color: #ffffff;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 40px;
+    right: 50px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add text shadow */
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    padding: 5px 10px; /* Add some padding for better readability */
+    border-radius: 5px; /* Optional: Add rounded corners */
 }
 
-.navbar a::before { 
+.navbar a::before {
     content: ' ';
     position: absolute;
     top: 100%;
@@ -109,6 +126,6 @@ input[type="submit"]:hover, button:hover {
 }
 
 .content {
-    margin-top: 75px; 
+    margin-top: 100px; /* Adjusted margin-top */
     padding: 20px;
 }
