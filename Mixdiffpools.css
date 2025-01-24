@@ -17,17 +17,44 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 20px 100px;
-    background: transparent;
+    padding: 15x 100px;
+    background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 100;
 }
 
-.navbar {
-    background: #007c00;
-    padding: 10px;
+.logo{ 
+    font-size: 50px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.navbar a {
+   position: relative;
+    font-size: 18px;
+   color: #000000;
+   font-weight: 500;
+   text-decoration: none;
+   margin-left: 40px;
+   right: 50px;
+}
+
+.navbar a::before { 
+    content: ' ';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #000000;
+    transition: .3s;
+}
+
+.navbar a:hover::before {
+    width: 100%;
 }
 
 .form-wrapper {
@@ -81,6 +108,7 @@ input[type="submit"]:hover, button:hover {
     background-color: #1f2d7a;
 }
 
-#date-container {
-    margin: 20px 0;
+.content {
+    margin-top: 75px; 
+    padding: 20px;
 }

@@ -5,23 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="Mixdiffpools.css">
     <title>NextSeq2000-loading-scheme</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+        .content {
+            margin-top: 100px; /* Adjust this value as needed */
+            padding: 20px;
+        }
+    </style>
 </head>
-<body>
+<body onload="displayDate()">
 
     <header class="header">
-        <a href="#" class="logo">logo</a>
+        <a href="Wit-Wur.png" class="logo">
+            <img src="Wur.png" alt="logo" style="height: 50px;">
+        </a>
+
         <nav class="navbar">
             <a href="Mixdiffpools.html">Mix diff pools</a>
             <a href="NLP.html">NLP</a>
             <a href="Database.html">Database</a>
+            <a href="#">Calculation</a>
         </nav>
     </header>
 
     <div class="content">
-        <div id="date-container">
-            <h1>Today's Date: <span id="date"></span></h1>
-        </div>
-
         <form action="process_form.php" method="POST" id="combinedForm">
             <div class="form-container">
                 <label for="project">projectPool</label>
@@ -79,7 +88,17 @@
             </div>
         </form>
     </div>
+
     <script>
+        window.addEventListener('scroll', function() {
+            var header = document.querySelector('.header');
+            if (window.scrollY > 50) { // Adjust the value as needed
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+        });
+
         function displayDate() {
             var today = new Date();
             var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
