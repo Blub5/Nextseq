@@ -1,41 +1,37 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    font-family: Verdana, Arial, Tahoma, sans-serif, "Segoe UI Emoji";
+}
+
+body {
+    min-height: 100vh;
+    background: url('koe.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px;
+    background: transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
 }
 
 .navbar {
-    overflow: hidden;
-    background-color: #333;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-}
-
-.navbar a {
-    float: left;
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 20px;
-    text-decoration: none;
-}
-
-.navbar a:hover {
-    background-color: #ddd;
-    color: black;
-}
-.content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 60px;
+    background: #007c00;
     padding: 10px;
 }
 
 .form-wrapper {
+    min-height: 100vh;
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -50,15 +46,6 @@ body {
     box-sizing: border-box;
     margin-bottom: 20px;
 }
-.form-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 200%;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-}
 
 @media (max-width: 1200px) {
     .form-wrapper {
@@ -68,15 +55,6 @@ body {
     .form-container {
         width: 100%;
     }
-}
-h1 {
-    color: #333;
-}
-
-label {
-    display: block;
-    margin: 10px 0 5px;
-    color: #333;
 }
 
 input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="submit"], select {

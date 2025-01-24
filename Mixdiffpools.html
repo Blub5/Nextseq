@@ -6,12 +6,16 @@
     <link rel="stylesheet" href="Mixdiffpools.css">
     <title>NextSeq2000-loading-scheme</title>
 </head>
-<body onload="displayDate()">
-    <div class="navbar">
-        <a href="Mixdiffpools.html">Mix diff pools</a>
-        <a href="NLP.html">NLP</a>
-        <a href="Database.html">Database</a>
-    </div>
+<body>
+
+    <header class="header">
+        <a href="#" class="logo">logo</a>
+        <nav class="navbar">
+            <a href="Mixdiffpools.html">Mix diff pools</a>
+            <a href="NLP.html">NLP</a>
+            <a href="Database.html">Database</a>
+        </nav>
+    </header>
 
     <div class="content">
         <div id="date-container">
@@ -62,7 +66,6 @@
                 <label for="nM">nM</label>
                 <input type="text" id="nM" name="nM" placeholder="Voer hier de nM in" required>
 
-                <!-- Hidden fields to store left form data -->
                 <input type="hidden" name="hiddenProject" id="hiddenProject">
                 <input type="hidden" name="hiddenApplication" id="hiddenApplication">
                 <input type="hidden" name="hiddenSize" id="hiddenSize">
