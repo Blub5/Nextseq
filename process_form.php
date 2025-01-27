@@ -20,28 +20,41 @@ $project = $_POST['project'] ?? '';
 $application = $_POST['application'] ?? '';
 $size = $_POST['size'] ?? '';
 $coverage = $_POST['coverage'] ?? '';
-$sampleCount = $_POST['sampleCount'] ?? '';
+$samplecount = $_POST['sampleCount'] ?? '';
 $conc = $_POST['conc'] ?? '';
 $avgLibSize = $_POST['avgLibSize'] ?? '';
 $cycli = $_POST['cycli'] ?? '';
 $clusters = $_POST['clusters'] ?? '';
-$flowcell = $_POST['flowcell'] ?? '';
 $nm = $_POST['nM'] ?? '';
-$sample_per_flowcell = $_POST['samplePerP2'] ?? '';
-$ul_ngs_pool = $_POST['ulNGSPool'] ?? '';
 
-// Prepare and bind
-$stmt = $conn->prepare("INSERT INTO project_data (project, application, size, coverage, sampleCount, conc, avgLibSize, cycli, clusters, flowcell, nm, sample_per_flowcell, ul_ngs_pool) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssssssssssss", $project, $application, $size, $coverage, $sampleCount, $conc, $avgLibSize, $cycli, $clusters, $flowcell, $nm, $sample_per_flowcell, $ul_ngs_pool);
+// Start transaction
+$conn->begin_transaction();
 
 try {
-    if ($stmt->execute()) {
-        echo "New record created successfully";
-    } else {
-        throw new Exception($stmt->error);
+    // Insert into Info_user table
+    $stmt1 = $conn->prepare("INSERT INTO Info_user (project, application, size, coverage, samplecount, conc, avgLibSize, cycli) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt1->bind_param("ssssssss", $project, $application, $size, $coverage, $samplecount, $conc, $avgLibSize, $cycli);
+
+    if (!$stmt1->execute()) {
+        throw new Exception($stmt1->error);
     }
-} catch (mysqli_sql_exception $e) {
-    if ($e->getCode() == 1062) {
+
+    // Insert into uitkomst table
+    $stmt2 = $conn->prepare("INSERT INTO uitkomst (project, clusters, nm) VALUES (?, ?, ?)");
+    $stmt2->bind_param("sss", $project, $clusters, $nm);
+
+    if (!$stmt2->execute()) {
+        throw new Exception($stmt2->error);
+    }
+
+    // Commit transaction
+    $conn->commit();
+    echo "New record created successfully";
+
+} catch (Exception $e) {
+    // Rollback transaction
+    $conn->rollback();
+    if ($conn->errno == 1062) {
         echo "Error: ProjectPool must be unique. The projectPool you entered already exists.";
     } else {
         echo "Error: " . $e->getMessage();
@@ -49,10 +62,11 @@ try {
 } finally {
     echo "<script>
             setTimeout(function(){
-                window.location.href = 'mixdiffpools.html';
+                window.location.href = 'Mixdiffpools.html';
             }, 2000);
         </script>";
-    $stmt->close();
+    $stmt1->close();
+    $stmt2->close();
     $conn->close();
 }
 ?>

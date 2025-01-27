@@ -8,21 +8,23 @@
 </head>
 <body onload="displayDate()">
 
-    <header class="header">
-        <a href="Mixdiffpools.html" class="logo">
-            <img src="Pictures/Wur.png" alt="logo">
-        </a>
+<header class="header">
+    <a href="Mixdiffpools.html" class="logo">
+        <img src="Pictures/Wur.png" alt="logo">
+    </a>
 
-        <nav class="navbar">
-            <a href="Mixdiffpools.html">Mix diff pools</a>
-            <a href="NLP.html">NLP</a>
-            <a href="Database.html">Database</a>
-            <a href="#">Calculation</a>
-        </nav>
-    </header>
+    <nav class="navbar">
+        <a href="Mixdiffpools.html">Mix diff pools</a>
+        <a href="NLP.html">NLP</a>
+        <a href="Database.html">Database</a>
+        <a href="#">Calculation</a>
+    </nav>
+</header>
 
-    <div class="content">
-        <form action="process_form.php" method="POST" id="combinedForm">
+<div class="content">
+    <form action="process_form.php" method="POST" id="combinedForm">
+        <div class="form-wrapper">
+            <!-- Form Section -->
             <div class="form-container">
                 <label for="project">projectPool</label>
                 <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required onblur="prependNGS()">
@@ -56,113 +58,151 @@
                     <option value="600">600</option>
                 </select>
 
-                <button type="button" onclick="performCalculations()">Calculate</button>
+                <button type="button" onclick="performCalculationsAndSubmit()">Calculate & Submit</button>
             </div>
 
+            <!-- Table Section -->
             <div class="form-container">
-                <label for="clusters">Clusters</label>
-                <input type="text" id="clusters" name="clusters" placeholder="Voer hier de clusters in" required>
-
-                <label for="nM">nM</label>
-                <input type="text" id="nM" name="nM" placeholder="Voer hier de nM in" required>
-
-                <input type="hidden" name="hiddenProject" id="hiddenProject">
-                <input type="hidden" name="hiddenApplication" id="hiddenApplication">
-                <input type="hidden" name="hiddenSize" id="hiddenSize">
-                <input type="hidden" name="hiddenCoverage" id="hiddenCoverage">
-                <input type="hidden" name="hiddenSampleCount" id="hiddenSampleCount">
-                <input type="hidden" name="hiddenConc" id="hiddenConc">
-                <input type="hidden" name="hiddenAvgLibSize" id="hiddenAvgLibSize">
-                <input type="hidden" name="hiddenCycli" id="hiddenCycli">
-
-                <button type="submit" onclick="copyLeftFormData()">Submit to database</button>
+                <table id="projectTable" border="1" cellspacing="0" cellpadding="10">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>ProjectPool</th>
+                            <th>Clusters</th>
+                            <th>nM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+                <button type="button" onclick="calculateFlowcellForSelected()">Calculate Flowcell for Selected</button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 
-    <script>
-        window.addEventListener('scroll', function() {
-            var header = document.querySelector('.header');
-            if (window.scrollY > 50) { 
-                header.classList.add('hidden');
-            } else {
-                header.classList.remove('hidden');
+<script>
+    const projectTableBody = document.querySelector("#projectTable tbody");
+
+    function prependNGS() {
+        var projectField = document.getElementById('project');
+        if (!projectField.value.startsWith("NGS-")) {
+            projectField.value = "NGS-" + projectField.value;
+        }
+    }
+
+    function performCalculationsAndSubmit() {
+        const project = document.getElementById('project').value;
+        const application = document.getElementById('application').value;
+        const size = parseFloat(document.getElementById('size').value);
+        const coverage = parseFloat(document.getElementById('coverage').value);
+        const sampleCount = parseFloat(document.getElementById('sampleCount').value);
+        const cycli = parseInt(document.getElementById('cycli').value);
+        const conc = parseFloat(document.getElementById('conc').value.replace(',', '.'));
+        const avgLibSize = parseFloat(document.getElementById('avgLibSize').value);
+
+        const factor1 = (cycli === 300) ? 270 : 450;
+        let clusters;
+
+        switch (application) {
+            case "WGS":
+                clusters = (size * coverage * sampleCount) / factor1;
+                break;
+            case "RNAseq":
+            case "Amplicon":
+            case "MGX":
+                clusters = coverage * sampleCount;
+                break;
+            default:
+                clusters = 0;
+        }
+
+        clusters = clusters.toExponential(2);
+
+        const nM = (conc * 1000) / (649 * avgLibSize) * 1000;
+
+        // Insert data into the database
+        fetch('process_form.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                project,
+                application,
+                size,
+                coverage,
+                sampleCount,
+                conc,
+                avgLibSize,
+                cycli,
+                clusters,
+                nM
+            })
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert('Data submitted successfully');
+            addRowToTable(project, clusters, nM.toFixed(1));
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function addRowToTable(project, clusters, nM) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="checkbox" class="row-select"></td>
+            <td>${project}</td>
+            <td>${clusters}</td>
+            <td>${nM}</td>
+        `;
+        projectTableBody.appendChild(row);
+    }
+
+    function calculateFlowcellForSelected() {
+        const rows = document.querySelectorAll('#projectTable tbody tr');
+        let totalClusters = 0;
+
+        rows.forEach(row => {
+            const checkbox = row.querySelector('.row-select');
+            if (checkbox.checked) {
+                const clusters = parseFloat(row.cells[2].textContent);
+                totalClusters += clusters;
             }
         });
 
-        function displayDate() {
-            var today = new Date();
-            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            document.getElementById('date').innerHTML = date;
+        const flowcellOptions = [
+            { name: "P1", maxClusters: 100000000 },
+            { name: "P2", maxClusters: 400000000 },
+            { name: "P3", maxClusters: 1200000000 },
+            { name: "P4", maxClusters: 1800000000 }
+        ];
+
+        const selectedFlowcell = flowcellOptions.find(option => totalClusters <= option.maxClusters);
+
+        if (selectedFlowcell) {
+            alert(`Selected Flowcell: ${selectedFlowcell.name}`);
+        } else {
+            alert("The total clusters exceed the capacity of all available flowcells.");
+        }
+    }
+
+    let lastScrollTop = 0;
+    const navbar = document.querySelector('.header');
+
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+        if (currentScroll > lastScrollTop) {
+            // Scrolling down - hide navbar
+            navbar.classList.add('hidden');
+        } else {
+            // Scrolling up - show navbar
+            navbar.classList.remove('hidden');
         }
 
-        function prependNGS() {
-            var projectField = document.getElementById('project');
-            if (!projectField.value.startsWith("NGS-")) {
-                projectField.value = "NGS-" + projectField.value;
-            }
-        }
-
-        function performCalculations() {
-            var application = document.getElementById('application').value;
-            var size = parseFloat(document.getElementById('size').value);
-            var coverage = parseFloat(document.getElementById('coverage').value);
-            var sampleCount = parseFloat(document.getElementById('sampleCount').value);
-            var cycli = parseInt(document.getElementById('cycli').value);
-            var conc = parseFloat(document.getElementById('conc').value.replace(',', '.'));
-            var avgLibSize = parseFloat(document.getElementById('avgLibSize').value);
-
-            var factor1 = (cycli == 300) ? 270 : 450;
-            var clusters;
-
-            switch (application) {
-                case "WGS":
-                    clusters = (size * coverage * sampleCount) / factor1;
-                    break;
-                case "RNAseq":
-                case "Amplicon":
-                case "MGX":
-                    clusters = coverage * sampleCount;
-                    break;
-                default:
-                    clusters = 0;
-            }
-
-            clusters = clusters.toExponential(2);
-
-            var flowcellOptions = [
-                { name: "P1", maxClusters: 100000000 },
-                { name: "P2", maxClusters: 400000000 },
-                { name: "P3", maxClusters: 1200000000 },
-                { name: "P4", maxClusters: 1800000000 }
-            ];
-
-            var selectedFlowcell = flowcellOptions.find(option => clusters <= option.maxClusters);
-
-            if (!selectedFlowcell) {
-                alert("The calculated clusters exceed the maximum capacity of all available flowcells.");
-                return;
-            }
-
-            var flowcellPercentage = (clusters * 100) / selectedFlowcell.maxClusters;
-
-            var nM = (conc * 1000) / (649 * avgLibSize) * 1000;
-
-            document.getElementById('clusters').value = clusters;
-            document.getElementById('nM').value = nM.toFixed(1);
-            document.getElementById('flowcell').value = selectedFlowcell.name;
-        }
-
-        function copyLeftFormData() {
-            document.getElementById('hiddenProject').value = document.getElementById('project').value;
-            document.getElementById('hiddenApplication').value = document.getElementById('application').value;
-            document.getElementById('hiddenSize').value = document.getElementById('size').value;
-            document.getElementById('hiddenCoverage').value = document.getElementById('coverage').value;
-            document.getElementById('hiddenSampleCount').value = document.getElementById('sampleCount').value;
-            document.getElementById('hiddenConc').value = document.getElementById('conc').value;
-            document.getElementById('hiddenAvgLibSize').value = document.getElementById('avgLibSize').value;
-            document.getElementById('hiddenCycli').value = document.getElementById('cycli').value;
-        }
-    </script>
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Avoid negative scroll values
+    });
+    
+</script>
 </body>
 </html>
