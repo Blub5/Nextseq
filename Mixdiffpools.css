@@ -169,3 +169,15 @@ input[type="checkbox"] {
 ::-webkit-scrollbar {
     width: 0px; /* Essentially hides the scrollbar */
 }
+/* Error Message Styling */
+.error-message {
+    color: #ff0000;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    display: none; /* Verborgen standaard */
+}
+
+.error-message.active {
+    display: block;
+}

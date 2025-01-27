@@ -27,7 +27,14 @@
             <!-- Form Section -->
             <div class="form-container">
                 <label for="project">projectPool</label>
-                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required onblur="prependNGS()">
+                <input 
+                    type="text" 
+                    id="project" 
+                    name="project" 
+                    placeholder="Voer hier het projectPool nummer" 
+                    required 
+                    onblur="prependNGS()"
+                >
 
                 <label for="application">Kies een optie:</label>
                 <select id="application" name="application" required>
@@ -47,7 +54,15 @@
                 <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
 
                 <label for="conc">conc</label>
-                <input type="text" id="conc" name="conc" placeholder="Voer hier de conc in" pattern="\d{1,2}(,\d{1,2})?" title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." required>
+                <input 
+                    type="text" 
+                    id="conc" 
+                    name="conc" 
+                    placeholder="Voer hier de conc in" 
+                    pattern="\d{1,2}(,\d{1,2})?" 
+                    title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." 
+                    required
+                >
 
                 <label for="avgLibSize">avgLibSize</label>
                 <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
@@ -86,14 +101,23 @@
     const projectTableBody = document.querySelector("#projectTable tbody");
 
     function prependNGS() {
-        var projectField = document.getElementById('project');
+        const projectField = document.getElementById('project');
         if (!projectField.value.startsWith("NGS-")) {
             projectField.value = "NGS-" + projectField.value;
         }
     }
 
     function performCalculationsAndSubmit() {
-        const project = document.getElementById('project').value;
+        const project = document.getElementById('project').value.trim();
+        const existingProjects = Array.from(projectTableBody.querySelectorAll('tr')).map(
+            row => row.cells[1].textContent
+        );
+
+        if (existingProjects.includes(project)) {
+            alert('ProjectPool moet uniek zijn!');
+            return;
+        }
+
         const application = document.getElementById('application').value;
         const size = parseFloat(document.getElementById('size').value);
         const coverage = parseFloat(document.getElementById('coverage').value);
@@ -122,29 +146,7 @@
 
         const nM = (conc * 1000) / (649 * avgLibSize) * 1000;
 
-        // Insert data into the database
-        fetch('process_form.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                project,
-                application,
-                size,
-                coverage,
-                sampleCount,
-                conc,
-                avgLibSize,
-                cycli,
-                clusters,
-                nM
-            })
-        })
-        .then(response => response.text())
-        .then(data => {
-            alert('Data submitted successfully');
-            addRowToTable(project, clusters, nM.toFixed(1));
-        })
-        .catch(error => console.error('Error:', error));
+        addRowToTable(project, clusters, nM.toFixed(1));
     }
 
     function addRowToTable(project, clusters, nM) {
@@ -186,21 +188,13 @@
         }
     }
 
-    let lastScrollTop = 0; // Houdt de laatste scrollpositie bij
-    const navbar = document.querySelector('.header'); // Selecteer de navbar
+    let lastScrollTop = 0;
+    const navbar = document.querySelector('.header');
 
     window.addEventListener('scroll', () => {
         const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (currentScroll > lastScrollTop) {
-            // Naar beneden scrollen - verberg de navbar
-            navbar.style.top = "-100px"; // Verberg de navbar buiten het scherm
-        } else {
-            // Naar boven scrollen - toon de navbar
-            navbar.style.top = "0";
-        }
-
-        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Zorg ervoor dat de waarde niet negatief wordt
+        navbar.style.top = currentScroll > lastScrollTop ? "-100px" : "0";
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
     });
 </script>
 </body>
