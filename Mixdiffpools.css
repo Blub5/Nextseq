@@ -23,11 +23,11 @@ body {
     justify-content: space-between;
     align-items: center;
     z-index: 100;
-    transition: top 0.3s ease-in-out; /* Smooth transition */
+    transition: top 0.3s ease-in-out; 
 }
 
 .hidden {
-    top: -100px; /* Move the header up out of view */
+    top: -100px; 
 }
 
 .logo {
@@ -35,14 +35,14 @@ body {
     color: #fff;
     text-decoration: none;
     font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add text shadow */
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    padding: 5px 10px; /* Add some padding for better readability */
-    border-radius: 5px; /* Optional: Add rounded corners */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    background-color: rgba(0, 0, 0, 0.1); 
+    padding: 5px 10px; 
+    border-radius: 5px; 
 }
 
 .logo img {
-    margin-top: 10px; /* Move the logo 10px down */
+    margin-top: 10px; 
 }
 
 .navbar a {
@@ -53,10 +53,10 @@ body {
     text-decoration: none;
     margin-left: 40px;
     right: 50px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Add text shadow */
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    padding: 5px 10px; /* Add some padding for better readability */
-    border-radius: 5px; /* Optional: Add rounded corners */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.5); 
+    padding: 5px 10px; 
+    border-radius: 5px; 
 }
 
 .navbar a::before {
@@ -126,6 +126,6 @@ input[type="submit"]:hover, button:hover {
 }
 
 .content {
-    margin-top: 100px; /* Adjusted margin-top */
+    margin-top: 100px;
     padding: 20px;
 }
