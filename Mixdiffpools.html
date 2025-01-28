@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="Mixdiffpools.css">
-    <title>NextSeq2000-loading-scheme</title>
+    <title>NextSeq2000 Loading Scheme</title>
 </head>
-<body onload="displayDate()">
+<body>
 
 <header class="header">
     <a href="Mixdiffpools.html" class="logo">
@@ -22,20 +22,13 @@
 </header>
 
 <main class="content">
-    <form action="process_form.php" method="POST" id="combinedForm">
+    <form id="combinedForm">
         <div class="form-wrapper">
+            <!-- Left Form Section -->
             <div class="form-container">
-                <label for="project">projectPool</label>
-                <input 
-                    type="text" 
-                    id="project" 
-                    name="project" 
-                    placeholder="Voer hier het projectPool nummer" 
-                    required 
-                    onblur="prependNGS()"
-                    aria-describedby="projectHelp"
-                >
-
+                <h2>Invoer</h2>
+                <label for="project">ProjectPool</label>
+                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
 
                 <label for="application">Kies een optie:</label>
                 <select id="application" name="application" required>
@@ -45,56 +38,51 @@
                     <option value="Amplicon">Amplicon</option>
                 </select>
 
-                <label for="size">genomeSize</label>
+                <label for="size">GenomeSize</label>
                 <input type="text" id="size" name="size" placeholder="Voer hier het genomeSize in" required>
 
-                <label for="coverage">coverage/depth</label>
+                <label for="coverage">Coverage/Depth</label>
                 <input type="text" id="coverage" name="coverage" placeholder="Voer hier de coverage/depth in" required>
 
-                <label for="sampleCount">sampleCount</label>
+                <label for="sampleCount">SampleCount</label>
                 <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
 
-                <label for="conc">conc</label>
-                <input 
-                    type="text" 
-                    id="conc" 
-                    name="conc" 
-                    placeholder="Voer hier de conc in" 
-                    pattern="\d{1,2}(,\d{1,2})?" 
-                    title="Maximaal 2 getallen voor de komma en maximaal 2 getallen na de komma." 
-                    required
-                >
+                <label for="conc">Concentration</label>
+                <input type="text" id="conc" name="conc" placeholder="Voer hier de concentration in" required>
 
-                <label for="avgLibSize">avgLibSize</label>
+                <label for="avgLibSize">Average Library Size</label>
                 <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
 
-                <label for="cycli">cycli</label>
+                <label for="cycli">Cycli</label>
                 <select id="cycli" name="cycli" required>
                     <option value="300" selected>300</option>
                     <option value="600">600</option>
                 </select>
 
-                <button type="button" onclick="performCalculationsAndSubmit()">Calculate & Submit</button>
+                <button type="button" id="calculateButton">Calculate & Place</button>
             </div>
 
-        
-            <div class="form-container">
+            <!-- Right Table Section -->
+            <div class="form-container" id="rightForm">
+                <h2>Resultaten</h2>
                 <div class="table-wrapper">
-                    <table id="projectTable" border="1" cellspacing="0" cellpadding="10">
+                    <table id="projectTable">
                         <thead>
                             <tr>
                                 <th>Select</th>
                                 <th>ProjectPool</th>
+                                <th>Application</th>
                                 <th>Clusters</th>
                                 <th>nM</th>
                             </tr>
                         </thead>
                         <tbody>
-                    
+                            <!-- Dynamically generated rows will appear here -->
                         </tbody>
                     </table>
                 </div>
-                <button type="button" onclick="calculateFlowcellForSelected()">Calculate Flowcell for Selected</button>
+                <button type="button" id="calculateFlowcellButton">Bereken Flowcell</button>
+                <p id="flowcellOutput"></p>
             </div>
         </div>
     </form>
