@@ -7,15 +7,13 @@ $username = "root";
 $password = "";
 $dbname = "nextseq";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve POST data with default values
+// Retrieve POST data
 $project = $_POST['project'] ?? '';
 $application = $_POST['application'] ?? '';
 $size = $_POST['size'] ?? '';
@@ -27,7 +25,11 @@ $cycli = $_POST['cycli'] ?? '';
 $clusters = $_POST['clusters'] ?? '';
 $nm = $_POST['nM'] ?? '';
 
-// Start transaction
+// Validate inputs
+if (empty($project) || empty($application) || empty($size) || !is_numeric($size)) {
+    die("Invalid input. Please fill out all required fields correctly.");
+}
+
 $conn->begin_transaction();
 
 try {
@@ -36,7 +38,7 @@ try {
     $stmt1->bind_param("ssssssss", $project, $application, $size, $coverage, $samplecount, $conc, $avgLibSize, $cycli);
 
     if (!$stmt1->execute()) {
-        throw new Exception($stmt1->error);
+        throw new Exception("Info_user table: " . $stmt1->error);
     }
 
     // Insert into uitkomst table
@@ -44,27 +46,16 @@ try {
     $stmt2->bind_param("sss", $project, $clusters, $nm);
 
     if (!$stmt2->execute()) {
-        throw new Exception($stmt2->error);
+        throw new Exception("uitkomst table: " . $stmt2->error);
     }
 
-    // Commit transaction
     $conn->commit();
     echo "New record created successfully";
 
 } catch (Exception $e) {
-    // Rollback transaction
     $conn->rollback();
-    if ($conn->errno == 1062) {
-        echo "Error: ProjectPool must be unique. The projectPool you entered already exists.";
-    } else {
-        echo "Error: " . $e->getMessage();
-    }
+    echo "Error: " . $e->getMessage();
 } finally {
-    echo "<script>
-            setTimeout(function(){
-                window.location.href = 'Mixdiffpools.html';
-            }, 2000);
-        </script>";
     $stmt1->close();
     $stmt2->close();
     $conn->close();

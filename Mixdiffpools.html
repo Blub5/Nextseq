@@ -10,7 +10,7 @@
 
 <header class="header">
     <a href="Mixdiffpools.html" class="logo">
-        <img src="Pictures/Wur.png" alt="logo">
+        <img src="Pictures/Wur.png" alt="WUR Logo">
     </a>
 
     <nav class="navbar">
@@ -21,10 +21,9 @@
     </nav>
 </header>
 
-<div class="content">
+<main class="content">
     <form action="process_form.php" method="POST" id="combinedForm">
         <div class="form-wrapper">
-            <!-- Form Section -->
             <div class="form-container">
                 <label for="project">projectPool</label>
                 <input 
@@ -34,7 +33,9 @@
                     placeholder="Voer hier het projectPool nummer" 
                     required 
                     onblur="prependNGS()"
+                    aria-describedby="projectHelp"
                 >
+
 
                 <label for="application">Kies een optie:</label>
                 <select id="application" name="application" required>
@@ -76,126 +77,29 @@
                 <button type="button" onclick="performCalculationsAndSubmit()">Calculate & Submit</button>
             </div>
 
-            <!-- Table Section -->
+        
             <div class="form-container">
-                <table id="projectTable" border="1" cellspacing="0" cellpadding="10">
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>ProjectPool</th>
-                            <th>Clusters</th>
-                            <th>nM</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Rows will be dynamically added here -->
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table id="projectTable" border="1" cellspacing="0" cellpadding="10">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>ProjectPool</th>
+                                <th>Clusters</th>
+                                <th>nM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    
+                        </tbody>
+                    </table>
+                </div>
                 <button type="button" onclick="calculateFlowcellForSelected()">Calculate Flowcell for Selected</button>
             </div>
         </div>
     </form>
-</div>
+</main>
 
-<script>
-    const projectTableBody = document.querySelector("#projectTable tbody");
-
-    function prependNGS() {
-        const projectField = document.getElementById('project');
-        if (!projectField.value.startsWith("NGS-")) {
-            projectField.value = "NGS-" + projectField.value;
-        }
-    }
-
-    function performCalculationsAndSubmit() {
-        const project = document.getElementById('project').value.trim();
-        const existingProjects = Array.from(projectTableBody.querySelectorAll('tr')).map(
-            row => row.cells[1].textContent
-        );
-
-        if (existingProjects.includes(project)) {
-            alert('ProjectPool moet uniek zijn!');
-            return;
-        }
-
-        const application = document.getElementById('application').value;
-        const size = parseFloat(document.getElementById('size').value);
-        const coverage = parseFloat(document.getElementById('coverage').value);
-        const sampleCount = parseFloat(document.getElementById('sampleCount').value);
-        const cycli = parseInt(document.getElementById('cycli').value);
-        const conc = parseFloat(document.getElementById('conc').value.replace(',', '.'));
-        const avgLibSize = parseFloat(document.getElementById('avgLibSize').value);
-
-        const factor1 = (cycli === 300) ? 270 : 450;
-        let clusters;
-
-        switch (application) {
-            case "WGS":
-                clusters = (size * coverage * sampleCount) / factor1;
-                break;
-            case "RNAseq":
-            case "Amplicon":
-            case "MGX":
-                clusters = coverage * sampleCount;
-                break;
-            default:
-                clusters = 0;
-        }
-
-        clusters = clusters.toExponential(2);
-
-        const nM = (conc * 1000) / (649 * avgLibSize) * 1000;
-
-        addRowToTable(project, clusters, nM.toFixed(1));
-    }
-
-    function addRowToTable(project, clusters, nM) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="checkbox" class="row-select"></td>
-            <td>${project}</td>
-            <td>${clusters}</td>
-            <td>${nM}</td>
-        `;
-        projectTableBody.appendChild(row);
-    }
-
-    function calculateFlowcellForSelected() {
-        const rows = document.querySelectorAll('#projectTable tbody tr');
-        let totalClusters = 0;
-
-        rows.forEach(row => {
-            const checkbox = row.querySelector('.row-select');
-            if (checkbox.checked) {
-                const clusters = parseFloat(row.cells[2].textContent);
-                totalClusters += clusters;
-            }
-        });
-
-        const flowcellOptions = [
-            { name: "P1", maxClusters: 100000000 },
-            { name: "P2", maxClusters: 400000000 },
-            { name: "P3", maxClusters: 1200000000 },
-            { name: "P4", maxClusters: 1800000000 }
-        ];
-
-        const selectedFlowcell = flowcellOptions.find(option => totalClusters <= option.maxClusters);
-
-        if (selectedFlowcell) {
-            alert(`Selected Flowcell: ${selectedFlowcell.name}`);
-        } else {
-            alert("The total clusters exceed the capacity of all available flowcells.");
-        }
-    }
-
-    let lastScrollTop = 0;
-    const navbar = document.querySelector('.header');
-
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-        navbar.style.top = currentScroll > lastScrollTop ? "-100px" : "0";
-        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    });
-</script>
+<script src="script.js"></script>
 </body>
 </html>
