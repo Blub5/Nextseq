@@ -26,11 +26,11 @@
         <div class="form-wrapper">
             <!-- Left Form Section -->
             <div class="form-container">
-                <h2>Invoer</h2>
+                <h2>Enter Data</h2>
                 <label for="project">ProjectPool</label>
-                <input type="text" id="project" name="project" placeholder="Voer hier het projectPool nummer" required>
+                <input type="text" id="project" name="project" placeholder="Enter the ProjectPool number here" required>
 
-                <label for="application">Kies een optie:</label>
+                <label for="application">Choose a option:</label>
                 <select id="application" name="application" required>
                     <option value="WGS">WGS</option>
                     <option value="RNAseq">RNAseq</option>
@@ -39,19 +39,19 @@
                 </select>
 
                 <label for="size">GenomeSize</label>
-                <input type="text" id="size" name="size" placeholder="Voer hier het genomeSize in" required>
+                <input type="text" id="size" name="size" placeholder="Enter the genomeSize here" required>
 
                 <label for="coverage">Coverage/Depth</label>
-                <input type="text" id="coverage" name="coverage" placeholder="Voer hier de coverage/depth in" required>
+                <input type="text" id="coverage" name="coverage" placeholder="Enter the coverage/depth here " required>
 
                 <label for="sampleCount">SampleCount</label>
-                <input type="text" id="sampleCount" name="sampleCount" placeholder="Voer hier de sampleCount in" required>
+                <input type="text" id="sampleCount" name="sampleCount" placeholder="Enter the sampleCount here" required>
 
                 <label for="conc">Concentration</label>
-                <input type="text" id="conc" name="conc" placeholder="Voer hier de concentration in" required>
+                <input type="text" id="conc" name="conc" placeholder="Enter the Conc here" required>
 
                 <label for="avgLibSize">Average Library Size</label>
-                <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Voer hier de avgLibSize in" required>
+                <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Enter the avgLibSize here" required>
 
                 <label for="cycli">Cycli</label>
                 <select id="cycli" name="cycli" required>
@@ -59,12 +59,12 @@
                     <option value="600">600</option>
                 </select>
 
-                <button type="button" id="calculateButton">Calculate & Place</button>
+                <button type="button" id="calculateButton">Calculate & Push</button>
             </div>
 
             <!-- Right Table Section -->
             <div class="form-container" id="rightForm">
-                <h2>Resultaten</h2>
+                <h2>Flowcell Calculation</h2>
                 <div class="table-wrapper">
                     <table id="projectTable">
                         <thead>
@@ -82,10 +82,11 @@
                     </table>
                 </div>
                 <div>
-                    <button type="button" id="calculateFlowcellButton">Bereken Flowcell</button>
+                    <button type="button" id="calculateFlowcellButton">Calculating Flowcell</button>
                     <p id="flowcellOutput"></p>
                 </div>
-                
+
+                <div id="flowcellOutput"></div>
             </div>
         </div>
     </form>

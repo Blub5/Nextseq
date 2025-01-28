@@ -172,3 +172,8 @@ tbody tr:nth-child(even) {
     font-size: 14px;
     color: #333;
 }
+
+#selectedProjectsForm {
+    width: 48%;
+    margin-top: 20px; /* Space below the left form */
+}

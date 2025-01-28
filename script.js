@@ -1,5 +1,5 @@
+// Bereken clusters en voeg project toe aan tabel
 document.getElementById("calculateButton").addEventListener("click", function () {
-    // Haal de waarden op
     const project = document.getElementById("project").value.trim();
     const application = document.getElementById("application").value;
     const genomeSize = parseFloat(document.getElementById("size").value.trim());
@@ -7,26 +7,23 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     const sampleCount = parseInt(document.getElementById("sampleCount").value.trim());
     const avgLibSize = parseFloat(document.getElementById("avgLibSize").value.trim());
     const concentration = parseFloat(document.getElementById("conc").value.trim());
-    const cycli = parseInt(document.getElementById("cycli").value.trim()); // Haal cycli op (300 of 600)
+    const cycli = parseInt(document.getElementById("cycli").value.trim());
 
-    // Controleer of alle invoervelden geldig zijn
     if (!project || isNaN(genomeSize) || isNaN(coverage) || isNaN(sampleCount) || isNaN(avgLibSize) || isNaN(concentration) || isNaN(cycli)) {
-        alert("Zorg ervoor dat alle velden correct zijn ingevuld!");
+        alert("Make sure all fields are filled in correctly!");
         return;
     }
 
-    // Stel factor1 in op basis van het aantal cycli
     let factor1;
     if (cycli === 300) {
         factor1 = 270;
     } else if (cycli === 600) {
         factor1 = 450;
     } else {
-        alert("Onbekend aantal cycli geselecteerd! Kies 300 of 600.");
+        alert("Unknown number of cycles selected! Please select 300 or 600.");
         return;
     }
 
-    // Bereken clusters op basis van de geselecteerde toepassing
     let clusters;
     switch (application) {
         case "WGS":
@@ -38,19 +35,17 @@ document.getElementById("calculateButton").addEventListener("click", function ()
             clusters = coverage * sampleCount;
             break;
         default:
-            alert("Onbekende toepassing geselecteerd!");
+            alert("Unknown application selected.");
             return;
     }
 
-    // Controleer of de berekening logisch is
     if (clusters <= 0) {
-        alert("Er ging iets mis met de berekening van clusters. Controleer de ingevoerde gegevens.");
+        alert("Something went wrong with the calculation of clusters. Please check the data entered.");
         return;
     }
 
-    clusters = clusters.toExponential(2); // Wetenschappelijke notatie met 2 significante cijfers
+    clusters = clusters.toExponential(2);
 
-    // Voeg de waarden toe aan de tabel
     const tableBody = document.querySelector("#projectTable tbody");
     const newRow = `
         <tr>
@@ -63,6 +58,61 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     `;
     tableBody.insertAdjacentHTML("beforeend", newRow);
 
-    // Reset het formulier na toevoegen
     document.getElementById("combinedForm").reset();
+});
+
+// Bereken Flowcell
+document.getElementById("calculateFlowcellButton").addEventListener("click", function () {
+    const rows = Array.from(document.querySelectorAll("#projectTable tbody tr"));
+
+    if (rows.length === 0) {
+        alert("There are no projects in the table to calculate!");
+        return;
+    }
+
+    const selectedRows = rows.filter(row => row.querySelector("td:first-child input").checked);
+
+    if (selectedRows.length === 0) {
+        alert("Select at least one project!");
+        return;
+    }
+
+    let totalClusters = 0;
+    selectedRows.forEach(row => {
+        const clusters = parseFloat(row.querySelector("td:nth-child(4)").textContent);
+        totalClusters += clusters;
+    });
+
+    let flowcellCapacity, flowcellType;
+    if (totalClusters <= 100e6) {
+        flowcellCapacity = 100e6;
+        flowcellType = "P1";
+    } else if (totalClusters <= 400e6) {
+        flowcellCapacity = 400e6;
+        flowcellType = "P2";
+    } else if (totalClusters <= 1200e6) {
+        flowcellCapacity = 1200e6;
+        flowcellType = "P3";
+    } else if (totalClusters <= 1800e6) {
+        flowcellCapacity = 1800e6;
+        flowcellType = "P4";
+    } else {
+        alert("The total clusters exceed the maximum capacity of P4 (1.8B clusters).");
+        return;
+    }
+
+    const percentageFilled = (totalClusters / flowcellCapacity) * 100;
+
+    // Controleer of de flowcell boven 90% gevuld is
+    let warningMessage = "";
+    if (percentageFilled > 90) {
+        warningMessage = `<p style="color: red;">Warning: The ${flowcellType} flowcell is filled above 90%x(${percentageFilled.toFixed(2)}%).</p>`;
+    }
+
+    // Update de totale clusters en het percentage
+    document.getElementById("flowcellOutput").innerHTML = `
+        <p>Total clusters(Selected projectpools): ${totalClusters.toExponential(2)}</p>
+        <p>${flowcellType} capacity: ${percentageFilled.toFixed(2)}% filled</p>
+        ${warningMessage}
+    `;
 });
