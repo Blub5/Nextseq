@@ -1,93 +1,68 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const calculateButton = document.getElementById("calculateButton");
-    const calculateFlowcellButton = document.getElementById("calculateFlowcellButton");
-    const projectTableBody = document.querySelector("#projectTable tbody");
-    const flowcellOutput = document.getElementById("flowcellOutput");
+document.getElementById("calculateButton").addEventListener("click", function () {
+    // Haal de waarden op
+    const project = document.getElementById("project").value.trim();
+    const application = document.getElementById("application").value;
+    const genomeSize = parseFloat(document.getElementById("size").value.trim());
+    const coverage = parseFloat(document.getElementById("coverage").value.trim());
+    const sampleCount = parseInt(document.getElementById("sampleCount").value.trim());
+    const avgLibSize = parseFloat(document.getElementById("avgLibSize").value.trim());
+    const concentration = parseFloat(document.getElementById("conc").value.trim());
+    const cycli = parseInt(document.getElementById("cycli").value.trim()); // Haal cycli op (300 of 600)
 
-    const projectSet = new Set(); // Houd bij welke projectpools al zijn toegevoegd.
+    // Controleer of alle invoervelden geldig zijn
+    if (!project || isNaN(genomeSize) || isNaN(coverage) || isNaN(sampleCount) || isNaN(avgLibSize) || isNaN(concentration) || isNaN(cycli)) {
+        alert("Zorg ervoor dat alle velden correct zijn ingevuld!");
+        return;
+    }
 
-    // Berekening en toevoegen aan tabel
-    calculateButton.addEventListener("click", () => {
-        const project = document.getElementById("project").value.trim();
-        const application = document.getElementById("application").value;
-        const size = parseFloat(document.getElementById("size").value);
-        const coverage = parseFloat(document.getElementById("coverage").value);
-        const sampleCount = parseInt(document.getElementById("sampleCount").value, 10);
-        const conc = parseFloat(document.getElementById("conc").value);
-        const avgLibSize = parseFloat(document.getElementById("avgLibSize").value);
-        const cycli = parseInt(document.getElementById("cycli").value, 10);
+    // Stel factor1 in op basis van het aantal cycli
+    let factor1;
+    if (cycli === 300) {
+        factor1 = 270;
+    } else if (cycli === 600) {
+        factor1 = 450;
+    } else {
+        alert("Onbekend aantal cycli geselecteerd! Kies 300 of 600.");
+        return;
+    }
 
-        if (!project || isNaN(size) || isNaN(coverage) || isNaN(sampleCount) || isNaN(conc) || isNaN(avgLibSize)) {
-            alert("Vul alle velden correct in.");
+    // Bereken clusters op basis van de geselecteerde toepassing
+    let clusters;
+    switch (application) {
+        case "WGS":
+            clusters = (genomeSize * coverage * sampleCount) / factor1;
+            break;
+        case "RNAseq":
+        case "Amplicon":
+        case "MGX":
+            clusters = coverage * sampleCount;
+            break;
+        default:
+            alert("Onbekende toepassing geselecteerd!");
             return;
-        }
+    }
 
-        if (projectSet.has(project)) {
-            alert("Dit project bestaat al in de tabel.");
-            return;
-        }
+    // Controleer of de berekening logisch is
+    if (clusters <= 0) {
+        alert("Er ging iets mis met de berekening van clusters. Controleer de ingevoerde gegevens.");
+        return;
+    }
 
-        const factor = cycli === 300 ? 270 : 450;
-        const clusters =
-            application === "WGS"
-                ? (size * coverage * sampleCount) / factor
-                : coverage * sampleCount;
+    clusters = clusters.toExponential(2); // Wetenschappelijke notatie met 2 significante cijfers
 
-        const nM = (conc * 1000) / (649 * avgLibSize) * 1000;
-
-        // Rij toevoegen aan tabel
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-            <td><input type="checkbox" class="rowSelector"></td>
+    // Voeg de waarden toe aan de tabel
+    const tableBody = document.querySelector("#projectTable tbody");
+    const newRow = `
+        <tr>
+            <td><input type="checkbox"></td>
             <td>${project}</td>
             <td>${application}</td>
-            <td>${clusters.toExponential(2)}</td>
-            <td>${nM.toFixed(1)}</td>
-        `;
-        projectTableBody.appendChild(newRow);
+            <td>${clusters}</td>
+            <td>${concentration}</td>
+        </tr>
+    `;
+    tableBody.insertAdjacentHTML("beforeend", newRow);
 
-        // Voeg project toe aan de set
-        projectSet.add(project);
-
-        // Velden leegmaken
-        document.getElementById("project").value = "";
-    });
-
-    // Flowcell-berekening
-    calculateFlowcellButton.addEventListener("click", () => {
-        const selectedRows = document.querySelectorAll(".rowSelector:checked");
-
-        if (selectedRows.length === 0) {
-            flowcellOutput.textContent = "Selecteer ten minste één project.";
-            return;
-        }
-
-        const flowcellCapacity = 1100000000; // Capaciteit van een enkele flowcell
-        let totalClusters = 0;
-        let flowcellMapping = {};
-
-        selectedRows.forEach((row, index) => {
-            const clustersCell = row.parentElement.parentElement.cells[3];
-            const clusters = parseFloat(clustersCell.textContent);
-            totalClusters += clusters;
-
-            // Bereken de flowcell per cluster
-            const flowcellNumber = Math.floor(totalClusters / flowcellCapacity) + 1;
-            const flowcellName = `P${flowcellNumber}`;
-
-            if (!flowcellMapping[flowcellName]) {
-                flowcellMapping[flowcellName] = 0;
-            }
-            flowcellMapping[flowcellName] += clusters;
-        });
-
-        // Genereer output
-        const flowcellDetails = Object.entries(flowcellMapping)
-            .map(([flowcell, clusters]) => `${flowcell}: ${clusters.toExponential(2)} clusters`)
-            .join(" | ");
-
-        flowcellOutput.textContent = `Totale clusters: ${totalClusters.toExponential(
-            2
-        )} | Flowcell verdeling: ${flowcellDetails}`;
-    });
+    // Reset het formulier na toevoegen
+    document.getElementById("combinedForm").reset();
 });
