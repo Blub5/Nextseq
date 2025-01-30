@@ -24,7 +24,7 @@
 <main class="content">
     <form id="combinedForm">
         <div class="form-wrapper">
-            <!-- Left Form Section -->
+            <!-- Left Form Section (reverted) -->
             <div class="form-container">
                 <h2>Enter Data</h2>
                 <label for="project">ProjectPool</label>
@@ -73,6 +73,7 @@
                                 <th>ProjectPool</th>
                                 <th>Application</th>
                                 <th>Clusters</th>
+                                <th>#</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,14 +81,10 @@
                         </tbody>
                     </table>
                 </div>
-                
                 <div>
                     <button type="button" id="calculateFlowcellButton">Calculating Flowcell</button>
                     <p id="flowcellOutput"></p>
                 </div>
-
-
-                <div id="flowcellOutput"></div>
             </div>
         </div>
     </form>

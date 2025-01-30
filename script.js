@@ -1,63 +1,130 @@
+// Bereken clusters en voeg project toe aan tabel
 document.getElementById("calculateButton").addEventListener("click", function () {
-    let valid = true;
-
-    // Validate all input fields
-    document.querySelectorAll("#combinedForm input").forEach(input => {
-        const errorMsg = input.nextElementSibling;
-        if (input.value.trim() === "") {
-            valid = false;
-            input.style.borderColor = "red";
-            if (errorMsg) {
-                errorMsg.style.display = "block";
-                errorMsg.textContent = "This field is required.";
-            }
-        } else {
-            input.style.borderColor = "#ccc";
-            if (errorMsg) errorMsg.style.display = "none";
-        }
-    });
-
-    if (!valid) return;
-
-    // Get input values
     const project = document.getElementById("project").value.trim();
     const application = document.getElementById("application").value;
-    const genomeSize = parseFloat(document.getElementById("size").value);
-    const coverage = parseFloat(document.getElementById("coverage").value);
-    const sampleCount = parseInt(document.getElementById("sampleCount").value);
-    const cycli = parseInt(document.getElementById("cycli").value);
+    const genomeSize = parseFloat(document.getElementById("size").value.trim());
+    const coverage = parseFloat(document.getElementById("coverage").value.trim());
+    const sampleCount = parseInt(document.getElementById("sampleCount").value.trim());
+    const avgLibSize = parseFloat(document.getElementById("avgLibSize").value.trim());
+    const concentration = parseFloat(document.getElementById("conc").value.trim());
+    const cycli = parseInt(document.getElementById("cycli").value.trim());
 
-    // Check if the project already exists in the table
-    const existingProjects = [...document.querySelectorAll("#projectTable tbody tr td:nth-child(2)")].map(td => td.textContent);
-    if (existingProjects.includes(project)) {
-        alert(`ProjectPool "${project}" already exists! Choose a different name.`);
+    if (!project || isNaN(genomeSize) || isNaN(coverage) || isNaN(sampleCount) || isNaN(avgLibSize) || isNaN(concentration) || isNaN(cycli)) {
+        alert("Make sure all fields are filled in correctly!");
         return;
     }
 
-    // Calculate clusters
-    let clusters = (application === "WGS") ? 
-        (genomeSize * coverage * sampleCount) / (cycli === 300 ? 270 : 450) :
-        coverage * sampleCount;
+    let factor1;
+    if (cycli === 300) {
+        factor1 = 270;
+    } else if (cycli === 600) {
+        factor1 = 450;
+    } else {
+        alert("Unknown number of cycles selected! Please select 300 or 600.");
+        return;
+    }
+
+    let clusters;
+    switch (application) {
+        case "WGS":
+            clusters = (genomeSize * coverage * sampleCount) / factor1;
+            break;
+        case "RNAseq":
+        case "Amplicon":
+        case "MGX":
+            clusters = coverage * sampleCount;
+            break;
+        default:
+            alert("Unknown application selected.");
+            return;
+    }
+
+    // Debugging: Log the clusters value
+    console.log("Calculated Clusters:", clusters);
+
+    if (clusters <= 0) {
+        alert("Something went wrong with the calculation of clusters. Please check the data entered.");
+        return;
+    }
 
     clusters = clusters.toExponential(2);
 
-    // Create a new row
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `
-        <td><input type="checkbox"></td>
-        <td>${project}</td>
-        <td>${application}</td>
-        <td>${clusters} <button class="delete-row-btn">X</button></td> <!-- X delete button -->
-    `;
-
-    // Append new row to table
-    document.querySelector("#projectTable tbody").appendChild(newRow);
-
-    // Attach event listener to the "X" delete button
-    newRow.querySelector(".delete-row-btn").addEventListener("click", function () {
-        newRow.remove();
+    const tableBody = document.querySelector("#projectTable tbody");
+    // Log the values being inserted into the table
+    console.log({
+        project,
+        application,
+        clusters,
+        concentration
     });
 
-    // Reset form after submission
+    const newRow = `
+        <tr>
+            <td><input type="checkbox"></td>
+            <td>${project}</td>
+            <td>${application}</td>
+            <td>${clusters}</td>
+            <td>${concentration}</td>
+        </tr>
+    `;
+    tableBody.insertAdjacentHTML("beforeend", newRow);
+
+    // Reset the form after adding the row
     document.getElementById("combinedForm").reset();
+});
+
+// Bereken Flowcell
+document.getElementById("calculateFlowcellButton").addEventListener("click", function () {
+    const rows = Array.from(document.querySelectorAll("#projectTable tbody tr"));
+
+    if (rows.length === 0) {
+        alert("There are no projects in the table to calculate!");
+        return;
+    }
+
+    const selectedRows = rows.filter(row => row.querySelector("td:first-child input").checked);
+
+    if (selectedRows.length === 0) {
+        alert("Select at least one project!");
+        return;
+    }
+
+    let totalClusters = 0;
+    selectedRows.forEach(row => {
+        const clusters = parseFloat(row.querySelector("td:nth-child(4)").textContent);
+        totalClusters += clusters;
+    });
+
+    let flowcellCapacity, flowcellType;
+    if (totalClusters <= 100e6) {
+        flowcellCapacity = 100e6;
+        flowcellType = "P1";
+    } else if (totalClusters <= 400e6) {
+        flowcellCapacity = 400e6;
+        flowcellType = "P2";
+    } else if (totalClusters <= 1200e6) {
+        flowcellCapacity = 1200e6;
+        flowcellType = "P3";
+    } else if (totalClusters <= 1800e6) {
+        flowcellCapacity = 1800e6;
+        flowcellType = "P4";
+    } else {
+        alert("The total clusters exceed the maximum capacity of P4 (1.8B clusters).");
+        return;
+    }
+
+    const percentageFilled = (totalClusters / flowcellCapacity) * 100;
+
+    // Controleer of de flowcell boven 90% gevuld is
+    let warningMessage = "";
+    if (percentageFilled > 90) {
+        warningMessage = `<p style="color: red;">Warning: The ${flowcellType} flowcell is filled above 90%x(${percentageFilled.toFixed(2)}%).</p>`;
+    }
+
+    // Update de totale clusters en het percentage
+    document.getElementById("flowcellOutput").innerHTML = `
+        <p>Total clusters (Selected projectpools): ${totalClusters.toExponential(2)}</p>
+        <p>${flowcellType} capacity: ${percentageFilled.toFixed(2)}% filled</p>
+        ${warningMessage}
+    `;
 });
