@@ -7,11 +7,13 @@ document.getElementById("calculateButton").addEventListener("click", function ()
         if (input.value.trim() === "") {
             valid = false;
             input.style.borderColor = "red";
-            errorMsg.style.display = "block";
-            errorMsg.textContent = "This field is required.";
+            if (errorMsg) {
+                errorMsg.style.display = "block";
+                errorMsg.textContent = "This field is required.";
+            }
         } else {
             input.style.borderColor = "#ccc";
-            errorMsg.style.display = "none";
+            if (errorMsg) errorMsg.style.display = "none";
         }
     });
 
@@ -23,7 +25,6 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     const genomeSize = parseFloat(document.getElementById("size").value);
     const coverage = parseFloat(document.getElementById("coverage").value);
     const sampleCount = parseInt(document.getElementById("sampleCount").value);
-    const concentration = parseFloat(document.getElementById("conc").value);
     const cycli = parseInt(document.getElementById("cycli").value);
 
     // Check if the project already exists in the table
@@ -40,15 +41,22 @@ document.getElementById("calculateButton").addEventListener("click", function ()
 
     clusters = clusters.toExponential(2);
 
-    // Add new row to table
-    document.querySelector("#projectTable tbody").insertAdjacentHTML("beforeend", `
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>${project}</td>
-            <td>${application}</td>
-            <td>${clusters}</td>
-        </tr>
-    `);
+    // Create a new row
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+        <td><input type="checkbox"></td>
+        <td>${project}</td>
+        <td>${application}</td>
+        <td>${clusters} <button class="delete-row-btn">X</button></td> <!-- X delete button -->
+    `;
+
+    // Append new row to table
+    document.querySelector("#projectTable tbody").appendChild(newRow);
+
+    // Attach event listener to the "X" delete button
+    newRow.querySelector(".delete-row-btn").addEventListener("click", function () {
+        newRow.remove();
+    });
 
     // Reset form after submission
     document.getElementById("combinedForm").reset();
