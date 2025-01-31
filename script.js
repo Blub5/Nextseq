@@ -224,9 +224,18 @@ function getSelectedProjects() {
 }
 
 async function submitToDatabase(projects, csrfToken) {
-    const formData = new FormData();
-    formData.append('projects', JSON.stringify(projects));
-    formData.append('csrf_token', csrfToken);
+    const response = await fetch('Submit.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded', // Match server expectations
+      },
+      body: new URLSearchParams({
+        projects: JSON.stringify(projects),
+        csrf_token: csrfToken
+      })
+    });
+    // ... rest of the code
+  }
 
     try {
         const response = await fetch('Submit.php', {
@@ -249,4 +258,3 @@ async function submitToDatabase(projects, csrfToken) {
         UIManager.showError(error.message);
         throw error;
     }
-}

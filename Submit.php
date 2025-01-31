@@ -1,12 +1,14 @@
 <?php
 session_start();
-header('Content-Type: application/json');
-
-// Generate CSRF token if not already set
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+  http_response_code(403);
+  die("Invalid CSRF token");
 }
-
+$projects = json_decode($_POST['projects'], true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+  http_response_code(400);
+  die("Invalid JSON");
+}
 error_log('Session CSRF Token: ' . $_SESSION['csrf_token']);
 error_log('Form CSRF Token: ' . $_POST['csrf_token']);
 
