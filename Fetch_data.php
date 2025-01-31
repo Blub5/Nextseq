@@ -1,7 +1,6 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
 try {
     $config = require_once 'config.php';
     $db = Database::getInstance($config['database']);

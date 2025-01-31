@@ -15,11 +15,10 @@ const CONFIG = {
 class ClusterCalculator {
     static calculate(params) {
         const { application, genomeSize, coverage, sampleCount, cycli } = params;
-        
+
         if (!CONFIG.cycleFactors[cycli]) {
             throw new Error("Invalid number of cycles");
         }
-
         switch (application) {
             case "WGS":
                 return (genomeSize * coverage * sampleCount) / CONFIG.cycleFactors[cycli];
@@ -51,10 +50,17 @@ class UIManager {
 
     static updateFlowcellOutput(clusters) {
         const recommendedFlowcell = CONFIG.flowcells.find(fc => fc.capacity >= clusters);
-        const message = recommendedFlowcell 
-            ? `Recommended Flowcell: ${recommendedFlowcell.type}` 
-            : "Clusters exceed maximum flowcell capacity";
-        
+        let message;
+        if (recommendedFlowcell) {
+            const fillPercentage = (clusters / recommendedFlowcell.capacity) * 100;
+            message = `Recommended Flowcell: ${recommendedFlowcell.type} (${fillPercentage.toFixed(2)}% full)`;
+            if (fillPercentage >= 90) {
+                message += " - Warning: Flowcell is over 90% full!";
+            }
+        } else {
+            message = "Clusters exceed maximum flowcell capacity";
+        }
+
         document.getElementById("flowcellOutput").textContent = message;
     }
 }
@@ -65,22 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateButton = document.getElementById('calculateButton');
     const calculateFlowcellButton = document.getElementById('calculateFlowcellButton');
     const submitButton = document.getElementById('submitToDatabase');
-
     if (form) {
         form.addEventListener('submit', handleFormSubmit);
     }
-
     if (calculateButton) {
         calculateButton.addEventListener('click', handleCalculateClick);
     }
-
     if (calculateFlowcellButton) {
         calculateFlowcellButton.addEventListener('click', handleFlowcellCalculation);
     }
-
     if (submitButton) {
         submitButton.addEventListener('click', handleDatabaseSubmit);
     }
+    document.querySelector("#projectTable").addEventListener('click', handleRemoveButtonClick);
 });
 
 // Event Handlers
@@ -89,11 +92,11 @@ async function handleFormSubmit(e) {
     try {
         const formData = getFormData();
         validateFormData(formData);
-        
+
         const clusters = ClusterCalculator.calculate(formData);
         addProjectToTable(formData, clusters);
-        
-        form.reset();
+
+        document.getElementById('combinedForm').reset();
         document.getElementById("project").focus();
     } catch (error) {
         UIManager.showError(error.message);
@@ -103,17 +106,22 @@ async function handleFormSubmit(e) {
 async function handleDatabaseSubmit() {
     try {
         UIManager.showLoading(true);
-        
+
         const selectedProjects = getSelectedProjects();
         if (selectedProjects.length === 0) {
             throw new Error("Please select at least one project");
         }
 
-        const response = await submitToDatabase(selectedProjects);
+        const csrfTokenElement = document.getElementById('csrf_token');
+        if (!csrfTokenElement) {
+            throw new Error("CSRF token not found");
+        }
+
+        const response = await submitToDatabase(selectedProjects, csrfTokenElement.value);
         if (response.success) {
             window.location.href = 'mixdiffpools2.html';
         } else {
-            throw new Error(response.message || 'Submission failed');
+            throw new Error(response.message);
         }
     } catch (error) {
         UIManager.showError(error.message);
@@ -122,10 +130,51 @@ async function handleDatabaseSubmit() {
     }
 }
 
+function handleCalculateClick(e) {
+    e.preventDefault();
+    try {
+        const formData = getFormData();
+        validateFormData(formData);
+
+        const clusters = ClusterCalculator.calculate(formData);
+        addProjectToTable(formData, clusters);
+
+        document.getElementById('combinedForm').reset();
+        document.getElementById("project").focus();
+    } catch (error) {
+        UIManager.showError(error.message);
+    }
+}
+
+function handleFlowcellCalculation() {
+    try {
+        const selectedProjects = getSelectedProjects();
+        if (selectedProjects.length === 0) {
+            throw new Error("Please select at least one project");
+        }
+
+        let totalClusters = 0;
+        selectedProjects.forEach(project => {
+            totalClusters += parseFloat(project.clusters);
+        });
+
+        UIManager.updateFlowcellOutput(totalClusters);
+    } catch (error) {
+        UIManager.showError(error.message);
+    }
+}
+
+function handleRemoveButtonClick(e) {
+    if (e.target.classList.contains('removeButton')) {
+        const row = e.target.closest('tr');
+        row.remove();
+    }
+}
+
 // Helper Functions
 function getFormData() {
     const getValue = id => document.getElementById(id).value.trim();
-    
+
     return {
         project: getValue('project'),
         application: getValue('application'),
@@ -139,24 +188,65 @@ function getFormData() {
 }
 
 function validateFormData(data) {
-    if (Object.values(data).some(v => v === '' || isNaN(v))) {
+    if (!data.project || !data.application || isNaN(data.genomeSize) || isNaN(data.coverage) || isNaN(data.sampleCount) || isNaN(data.avgLibSize) || isNaN(data.concentration) || isNaN(data.cycli)) {
         throw new Error("Please fill all fields correctly");
     }
 }
 
-async function submitToDatabase(projects) {
+function addProjectToTable(formData, clusters) {
+    const tableBody = document.querySelector("#projectTable tbody");
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td><input type="checkbox" name="selectProject"></td>
+        <td>${formData.project}</td>
+        <td>${formData.application}</td>
+        <td>${clusters.toExponential(2)}</td>
+        <td><button type="button" class="removeButton">Remove</button></td>
+    `;
+    tableBody.appendChild(row);
+}
+
+function getSelectedProjects() {
+    const selectedProjects = [];
+    const rows = document.querySelectorAll("#projectTable tbody tr");
+    rows.forEach(row => {
+        const checkbox = row.querySelector('input[name="selectProject"]');
+        if (checkbox && checkbox.checked) {
+            const project = {
+                project: row.cells[1].textContent,
+                application: row.cells[2].textContent,
+                clusters: row.cells[3].textContent
+            };
+            selectedProjects.push(project);
+        }
+    });
+    return selectedProjects;
+}
+
+async function submitToDatabase(projects, csrfToken) {
     const formData = new FormData();
     formData.append('projects', JSON.stringify(projects));
-    formData.append('csrf_token', document.getElementById('csrf_token').value);
+    formData.append('csrf_token', csrfToken);
 
-    const response = await fetch('submit.php', {
-        method: 'POST',
-        body: formData
-    });
+    try {
+        const response = await fetch('Submit.php', {
+            method: 'POST',
+            body: formData
+        });
 
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+        if (!response.ok) {
+            throw new Error('Network response was not OK');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Error submitting data:', error);
+        UIManager.showError(error.message);
+        throw error;
     }
-
-    return response.json();
 }

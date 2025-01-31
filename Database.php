@@ -11,11 +11,11 @@ class Database {
                 $config['pass'],
                 $config['name']
             );
-            
+
             if ($this->conn->connect_error) {
                 throw new Exception("Connection failed");
             }
-            
+
             $this->conn->set_charset("utf8mb4");
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -36,15 +36,12 @@ class Database {
             if (!$stmt) {
                 throw new Exception("Query preparation failed");
             }
-
             if (!empty($params)) {
                 $stmt->bind_param($types, ...$params);
             }
-
             if (!$stmt->execute()) {
                 throw new Exception("Query execution failed");
             }
-
             $result = $stmt->get_result();
             $stmt->close();
             return $result;

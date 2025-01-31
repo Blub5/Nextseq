@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             const tableBody = document.querySelector("#projectTable tbody");
             tableBody.innerHTML = "";
-
             data.forEach(project => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
@@ -18,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
                 tableBody.appendChild(row);
             });
-
             document.getElementById("loadingMessage").style.display = "none";
         })
         .catch(error => {
