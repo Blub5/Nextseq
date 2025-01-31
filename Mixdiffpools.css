@@ -1,4 +1,4 @@
-/* Algemene instellingen */
+/* General settings */
 * {
     margin: 0;
     padding: 0;
@@ -53,7 +53,7 @@ body {
     transform: scale(1.1);
 }
 
-/* Formulier Wrapper */
+/* Form Wrapper */
 .form-wrapper {
     display: flex;
     justify-content: space-between;
@@ -70,6 +70,8 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 48%;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    min-height: 600px;
 }
 
 .form-container:hover {
@@ -77,48 +79,83 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Invoervelden en selecties */
+/* Loading Spinner */
+.loader {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.loader::after {
+    content: '';
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #283ba7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Input fields and selects */
 input[type="text"], select {
     width: 100%;
     padding: 10px;
-    margin: 10px 0 20px;
+    margin: 5px 0 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
-/* Knoppen */
-button {
+/* Buttons */
+.button-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.small-button {
     background-color: #283ba7;
     color: white;
     border: none;
-    padding: 10px 15px;
-    margin: 10px 0;
+    padding: 8px 12px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
+    cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-button:hover {
+.small-button:hover {
     background-color: #1f2d7a;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
-/* Resultaten Container */
-#resultsContainer p {
-    margin: 10px 0;
-    font-size: 16px;
+/* Remove Button */
+.removeButton {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-#resultsContainer strong {
-    color: #283ba7;
+.removeButton:hover {
+    background-color: #cc0000;
 }
 
-/* Tabel en rechter formulier */
-#rightForm {
-    position: relative;
-    padding-bottom: 60px; /* Ruimte voor de knop */
-}
-
+/* Table styles */
 .table-wrapper {
     overflow-x: auto;
     max-height: 400px;
@@ -146,23 +183,24 @@ tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/* Knop onderaan rechts in het formulier */
-#calculateFlowcellButton {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background-color: #283ba7;
+/* Error message */
+.error-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    background: #ff4444;
     color: white;
-    border: none;
-    padding: 10px 15px;
     border-radius: 5px;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease-out;
+    z-index: 1000;
 }
 
-#calculateFlowcellButton:hover {
-    background-color: #1f2d7a;
-    transform: translateY(-3px);
+@keyframes slideDown {
+    from { top: -50px; }
+    to { top: 20px; }
 }
 
 #flowcellOutput {
@@ -171,9 +209,4 @@ tbody tr:nth-child(even) {
     left: 10px;
     font-size: 14px;
     color: #333;
-}
-
-#selectedProjectsForm {
-    width: 48%;
-    margin-top: 20px; /* Space below the left form */
 }

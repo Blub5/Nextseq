@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="Mixdiffpools.css">
+  <title>NextSeq2000 Calculation Results</title>
+</head>
+<body>
+<header class="header">
+  <a href="Mixdiffpools.html" class="logo">
+    <img src="Pictures/Wur.png" alt="WUR Logo">
+  </a>
+  <nav id="navbar" class="navbar">
+    <a href="Mixdiffpools.html">Mix diff pools</a>
+    <a href="NLP.html">NLP</a>
+    <a href="Database.html">Database</a>
+    <a href="#">Calculation</a>
+  </nav>
+</header>
+
+<main class="content">
+  <div class="form-wrapper">
+    <!-- Left Table Section -->
+    <div class="form-container">
+      <h2>Project Details</h2>
+      <p id="loadingMessage">Loading data...</p>
+      <div class="table-wrapper">
+        <table id="projectTable">
+          <thead>
+            <tr>
+              <th>ProjectPool</th>
+              <th>Application</th>
+              <th>Clusters</th>
+              <th>Current Flowcell</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+      <p id="errorMessage" style="color: red; display: none;">Failed to load data. Please try again.</p>
+    </div>
+
+    <!-- Right Calculation Section -->
+    <div class="form-container">
+      <h2>Calculation Results</h2>
+      <div id="calculationResults">
+        <!-- Calculation results will be displayed here -->
+      </div>
+    </div>
+  </div>
+  <script src="script2.js"></script>
+</main>
+</body>
+</html>

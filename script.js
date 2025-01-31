@@ -1,130 +1,162 @@
-// Bereken clusters en voeg project toe aan tabel
-document.getElementById("calculateButton").addEventListener("click", function () {
-    const project = document.getElementById("project").value.trim();
-    const application = document.getElementById("application").value;
-    const genomeSize = parseFloat(document.getElementById("size").value.trim());
-    const coverage = parseFloat(document.getElementById("coverage").value.trim());
-    const sampleCount = parseInt(document.getElementById("sampleCount").value.trim());
-    const avgLibSize = parseFloat(document.getElementById("avgLibSize").value.trim());
-    const concentration = parseFloat(document.getElementById("conc").value.trim());
-    const cycli = parseInt(document.getElementById("cycli").value.trim());
+// Constants and configurations
+const CONFIG = {
+    flowcells: [
+        { type: "P1", capacity: 100e6 },
+        { type: "P2", capacity: 400e6 },
+        { type: "P3", capacity: 1200e6 },
+        { type: "P4", capacity: 1800e6 }
+    ],
+    cycleFactors: {
+        300: 270,
+        600: 450
+    }
+};
 
-    if (!project || isNaN(genomeSize) || isNaN(coverage) || isNaN(sampleCount) || isNaN(avgLibSize) || isNaN(concentration) || isNaN(cycli)) {
-        alert("Make sure all fields are filled in correctly!");
-        return;
+class ClusterCalculator {
+    static calculate(params) {
+        const { application, genomeSize, coverage, sampleCount, cycli } = params;
+        
+        if (!CONFIG.cycleFactors[cycli]) {
+            throw new Error("Invalid number of cycles");
+        }
+
+        switch (application) {
+            case "WGS":
+                return (genomeSize * coverage * sampleCount) / CONFIG.cycleFactors[cycli];
+            case "RNAseq":
+            case "Amplicon":
+            case "MGX":
+                return coverage * sampleCount;
+            default:
+                throw new Error("Unknown application");
+        }
+    }
+}
+
+class UIManager {
+    static showError(message, duration = 3000) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        document.body.prepend(errorDiv);
+        setTimeout(() => errorDiv.remove(), duration);
     }
 
-    let factor1;
-    if (cycli === 300) {
-        factor1 = 270;
-    } else if (cycli === 600) {
-        factor1 = 450;
-    } else {
-        alert("Unknown number of cycles selected! Please select 300 or 600.");
-        return;
+    static showLoading(show = true) {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = show ? 'block' : 'none';
+        }
     }
 
-    let clusters;
-    switch (application) {
-        case "WGS":
-            clusters = (genomeSize * coverage * sampleCount) / factor1;
-            break;
-        case "RNAseq":
-        case "Amplicon":
-        case "MGX":
-            clusters = coverage * sampleCount;
-            break;
-        default:
-            alert("Unknown application selected.");
-            return;
+    static updateFlowcellOutput(clusters) {
+        const recommendedFlowcell = CONFIG.flowcells.find(fc => fc.capacity >= clusters);
+        const message = recommendedFlowcell 
+            ? `Recommended Flowcell: ${recommendedFlowcell.type}` 
+            : "Clusters exceed maximum flowcell capacity";
+        
+        document.getElementById("flowcellOutput").textContent = message;
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('combinedForm');
+    const calculateButton = document.getElementById('calculateButton');
+    const calculateFlowcellButton = document.getElementById('calculateFlowcellButton');
+    const submitButton = document.getElementById('submitToDatabase');
+
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
     }
 
-    // Debugging: Log the clusters value
-    console.log("Calculated Clusters:", clusters);
-
-    if (clusters <= 0) {
-        alert("Something went wrong with the calculation of clusters. Please check the data entered.");
-        return;
+    if (calculateButton) {
+        calculateButton.addEventListener('click', handleCalculateClick);
     }
 
-    clusters = clusters.toExponential(2);
+    if (calculateFlowcellButton) {
+        calculateFlowcellButton.addEventListener('click', handleFlowcellCalculation);
+    }
 
-    const tableBody = document.querySelector("#projectTable tbody");
-    // Log the values being inserted into the table
-    console.log({
-        project,
-        application,
-        clusters,
-        concentration
-    });
-
-    const newRow = `
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>${project}</td>
-            <td>${application}</td>
-            <td>${clusters}</td>
-            <td>${concentration}</td>
-        </tr>
-    `;
-    tableBody.insertAdjacentHTML("beforeend", newRow);
-
-    // Reset the form after adding the row
-    document.getElementById("combinedForm").reset();
+    if (submitButton) {
+        submitButton.addEventListener('click', handleDatabaseSubmit);
+    }
 });
 
-// Bereken Flowcell
-document.getElementById("calculateFlowcellButton").addEventListener("click", function () {
-    const rows = Array.from(document.querySelectorAll("#projectTable tbody tr"));
-
-    if (rows.length === 0) {
-        alert("There are no projects in the table to calculate!");
-        return;
+// Event Handlers
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    try {
+        const formData = getFormData();
+        validateFormData(formData);
+        
+        const clusters = ClusterCalculator.calculate(formData);
+        addProjectToTable(formData, clusters);
+        
+        form.reset();
+        document.getElementById("project").focus();
+    } catch (error) {
+        UIManager.showError(error.message);
     }
+}
 
-    const selectedRows = rows.filter(row => row.querySelector("td:first-child input").checked);
+async function handleDatabaseSubmit() {
+    try {
+        UIManager.showLoading(true);
+        
+        const selectedProjects = getSelectedProjects();
+        if (selectedProjects.length === 0) {
+            throw new Error("Please select at least one project");
+        }
 
-    if (selectedRows.length === 0) {
-        alert("Select at least one project!");
-        return;
+        const response = await submitToDatabase(selectedProjects);
+        if (response.success) {
+            window.location.href = 'mixdiffpools2.html';
+        } else {
+            throw new Error(response.message || 'Submission failed');
+        }
+    } catch (error) {
+        UIManager.showError(error.message);
+    } finally {
+        UIManager.showLoading(false);
     }
+}
 
-    let totalClusters = 0;
-    selectedRows.forEach(row => {
-        const clusters = parseFloat(row.querySelector("td:nth-child(4)").textContent);
-        totalClusters += clusters;
+// Helper Functions
+function getFormData() {
+    const getValue = id => document.getElementById(id).value.trim();
+    
+    return {
+        project: getValue('project'),
+        application: getValue('application'),
+        genomeSize: parseFloat(getValue('size')),
+        coverage: parseFloat(getValue('coverage')),
+        sampleCount: parseInt(getValue('sampleCount')),
+        avgLibSize: parseFloat(getValue('avgLibSize')),
+        concentration: parseFloat(getValue('conc')),
+        cycli: parseInt(getValue('cycli'))
+    };
+}
+
+function validateFormData(data) {
+    if (Object.values(data).some(v => v === '' || isNaN(v))) {
+        throw new Error("Please fill all fields correctly");
+    }
+}
+
+async function submitToDatabase(projects) {
+    const formData = new FormData();
+    formData.append('projects', JSON.stringify(projects));
+    formData.append('csrf_token', document.getElementById('csrf_token').value);
+
+    const response = await fetch('submit.php', {
+        method: 'POST',
+        body: formData
     });
 
-    let flowcellCapacity, flowcellType;
-    if (totalClusters <= 100e6) {
-        flowcellCapacity = 100e6;
-        flowcellType = "P1";
-    } else if (totalClusters <= 400e6) {
-        flowcellCapacity = 400e6;
-        flowcellType = "P2";
-    } else if (totalClusters <= 1200e6) {
-        flowcellCapacity = 1200e6;
-        flowcellType = "P3";
-    } else if (totalClusters <= 1800e6) {
-        flowcellCapacity = 1800e6;
-        flowcellType = "P4";
-    } else {
-        alert("The total clusters exceed the maximum capacity of P4 (1.8B clusters).");
-        return;
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
     }
 
-    const percentageFilled = (totalClusters / flowcellCapacity) * 100;
-
-    // Controleer of de flowcell boven 90% gevuld is
-    let warningMessage = "";
-    if (percentageFilled > 90) {
-        warningMessage = `<p style="color: red;">Warning: The ${flowcellType} flowcell is filled above 90%x(${percentageFilled.toFixed(2)}%).</p>`;
-    }
-
-    // Update de totale clusters en het percentage
-    document.getElementById("flowcellOutput").innerHTML = `
-        <p>Total clusters (Selected projectpools): ${totalClusters.toExponential(2)}</p>
-        <p>${flowcellType} capacity: ${percentageFilled.toFixed(2)}% filled</p>
-        ${warningMessage}
-    `;
-});
+    return response.json();
+}
