@@ -7,7 +7,7 @@ if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
 $projects = json_decode($_POST['projects'], true);
 if (json_last_error() !== JSON_ERROR_NONE) {
   http_response_code(400);
-  die("Invalid JSON");
+  die("Invalid JSON");  
 }
 error_log('Session CSRF Token: ' . $_SESSION['csrf_token']);
 error_log('Form CSRF Token: ' . $_POST['csrf_token']);
