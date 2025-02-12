@@ -3,82 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixDiffPools Spreadsheet</title>
     <link rel="stylesheet" href="mixdiffpools.css">
-    <title>NextSeq2000 Loading Scheme</title>
 </head>
 <body>
-<header class="header">
-    <a href="Mixdiffpools.html" class="logo">
-        <img src="Pictures/Wur.png" alt="WUR Logo">
-    </a>
-    <nav id="navbar" class="navbar">
-        <a href="Mixdiffpools.html">Mix diff pools</a>
-        <a href="NLP.html">NLP</a>
-        <a href="Database.html">Database</a>
-        <a href="#">Calculation</a>
-    </nav>
-</header>
-<main class="content">
-    <form id="combinedForm" method="POST" action="Submit.php">
-        <input type="hidden" id="csrf_token" name="csrf_token" value="?php echo $_SESSION['csrf_token']; ?>">
-        <div class="form-wrapper">
-            <!-- Left Form Section -->
-            <div class="form-container">
-                <h2>Enter Data</h2>
-                <label for="project">ProjectPool</label>
-                <input type="text" id="project" name="project" placeholder="Enter the ProjectPool number here" required>
-                <label for="application">Choose an option:</label>
-                <select id="application" name="application" required>
-                    <option value="WGS">WGS</option>
-                    <option value="RNAseq">RNAseq</option>
-                    <option value="MGX">MGX</option>
-                    <option value="Amplicon">Amplicon</option>
-                </select>
-                <label for="size">GenomeSize</label>
-                <input type="text" id="size" name="size" placeholder="Enter the genomeSize here" required>
-                <label for="coverage">Coverage/Depth</label>
-                <input type="text" id="coverage" name="coverage" placeholder="Enter the coverage/depth here" required>
-                <label for="sampleCount">SampleCount</label>
-                <input type="text" id="sampleCount" name="sampleCount" placeholder="Enter the sampleCount here" required>
-                <label for="conc">Concentration</label>
-                <input type="text" id="conc" name="conc" placeholder="Enter the Conc here" required>
-                <label for="avgLibSize">Average Library Size</label>
-                <input type="text" id="avgLibSize" name="avgLibSize" placeholder="Enter the avgLibSize here" required>
-                <label for="cycli">Cycli</label>
-                <select id="cycli" name="cycli" required>
-                    <option value="300" selected>300</option>
-                    <option value="600">600</option>
-                </select>
-                <button type="submit" id="calculateButton">Calculate & Push</button>
-            </div>
-            <!-- Right Table Section -->
-            <div class="form-container" id="rightForm">
-                <h2>Flowcell Calculation</h2>
-                <div class="table-wrapper">
-                    <table id="projectTable">
-                        <thead>
+    <!-- Header with navigation -->
+    <header class="header">
+        <div class="logo">
+            <img src="wur.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <nav class="navbar">
+            <a href="mixdiffpools.html">Mixdiffpools</a>
+            <a href="NLP.html">NLP</a>
+            <a href="Database.html">Database</a>
+            <a href="Admin.html">Admin</a>
+        </nav>
+    </header>
+
+    <!-- Main content area -->
+    <main class="main-content">
+        <!-- Spreadsheet container -->
+        <div class="spreadsheet-container">
+            <div class="table-wrapper">
+                <table id="spreadsheetTable">
+                    <thead>
                         <tr>
-                            <th>Select</th>
                             <th>ProjectPool</th>
                             <th>Application</th>
+                            <th>GenomeSize</th>
+                            <th>Coverage</th>
+                            <th>SampleCount</th>
+                            <th>Conc</th>
+                            <th>AvgLibSize</th>
                             <th>Clusters</th>
-                            <th>Action</th>
+                            <th data-field="%(Flowcell)">%P1</th>
+                            <th>nM</th>
+                            <th>%Sample per (Flowcell)</th>
+                            <th>UI NGS Pool</th>
+                            <th>Acties</th>
                         </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Dynamically generated rows will appear here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="button-container">
-                    <button type="button" id="calculateFlowcellButton" class="small-button">Calculate Flowcell</button>
-                    <button type="button" id="submitToDatabase" class="small-button">Submit to Database</button>
-                </div>
-                <p id="flowcellOutput"></p>
+                    </thead>
+                    <tbody>
+                        <!-- Table rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add row button -->
+            <div class="controls">
+                <button id="addRowButton">Voeg rij toe</button>
             </div>
         </div>
-    </form>
+
+        <!-- Loading and error states -->
+        <div class="loader" style="display: none;"></div>
+        <div class="error-message" style="display: none;">Error Message</div>
+        
+        <!-- Flowcell information and progress bar -->
+        <div class="flowcell-info">
+            <!-- Flowcell details -->
+            <div class="flowcell-details">
+                <span id="flowcellOutput">Current Flowcell: P1</span>
+                <span id="trisOutput">ul Tris aan pool toevoegen: 0.00</span>
+            </div>
+            
+            <!-- Progress bar container -->
+            <div class="progress-container">
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar" id="flowcellProgress">
+                        <!-- Progress segments will be dynamically added here -->
+                    </div>
+                    <span id="progressPercentage">0%</span>
+                </div>
+                <!-- Legend for progress bar -->
+                <div id="progressLegend" class="progress-legend">
+                    <!-- Legend items will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
     <script src="script.js"></script>
-</main>
 </body>
 </html>

@@ -1,260 +1,377 @@
-// Constants and configurations
-const CONFIG = {
-    flowcells: [
-        { type: "P1", capacity: 100e6 },
-        { type: "P2", capacity: 400e6 },
-        { type: "P3", capacity: 1200e6 },
-        { type: "P4", capacity: 1800e6 }
-    ],
-    cycleFactors: {
-        300: 270,
-        600: 450
-    }
+// Define which fields are user-editable and required for calculation
+const userEditableFields = [
+    'ProjectPool',
+    'Application',
+    'GenomeSize',
+    'Coverage',
+    'SampleCount',
+    'Conc',
+    'AvgLibSize'
+];
+
+// Required fields for calculation
+const requiredFields = [
+    'Application',
+    'GenomeSize',
+    'Coverage',
+    'SampleCount'
+];
+
+// Flowcell definitions with corrected P4 value
+const flowcells = {
+    'P1': 100000000,   
+    'P2': 400000000,   
+    'P3': 1200000000,  
+    'P4': 1800000000   
 };
 
-class ClusterCalculator {
-    static calculate(params) {
-        const { application, genomeSize, coverage, sampleCount, cycli } = params;
+// Array of colors for different project pools
+const poolColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+    '#FFEEAD', '#D4A5A5', '#9EC1CF', '#CC99C9'
+];
 
-        if (!CONFIG.cycleFactors[cycli]) {
-            throw new Error("Invalid number of cycles");
+// Helper function to generate consistent colors based on ProjectPool name
+function getColorForProjectPool(projectPool) {
+    let hash = 0;
+    for (let i = 0; i < projectPool.length; i++) {
+        hash = projectPool.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return poolColors[Math.abs(hash) % poolColors.length];
+}
+
+// Helper function to parse exponential notation safely
+function parseNumber(value) {
+    if (typeof value === 'string' && value.includes('e')) {
+        return parseFloat(value);
+    }
+    return Number(value);
+}
+
+// Function to check and calculate row values
+function checkAndCalculate(row) {
+    if (!row) return;
+    
+    // Get concentration and average library size values
+    const conc = getInputValue(row, 'Conc');
+    const avgLibSize = getInputValue(row, 'AvgLibSize');
+    
+    // Calculate nM if both concentration and average library size are provided
+    if (conc > 0 && avgLibSize > 0) {
+        const nM = calculateNM(avgLibSize, conc);
+        const nMInput = row.querySelector('[data-field="nM"]');
+        if (nMInput) {
+            nMInput.value = nM.toFixed(2);
         }
-        switch (application) {
-            case "WGS":
-                return (genomeSize * coverage * sampleCount) / CONFIG.cycleFactors[cycli];
-            case "RNAseq":
-            case "Amplicon":
-            case "MGX":
-                return coverage * sampleCount;
-            default:
-                throw new Error("Unknown application");
+    }
+    
+    // Continue with clusters calculation if required fields are filled
+    if (areRequiredFieldsFilled(row)) {
+        const application = getInputValue(row, 'Application');
+        const genomeSize = getInputValue(row, 'GenomeSize');
+        const coverage = getInputValue(row, 'Coverage');
+        const sampleCount = getInputValue(row, 'SampleCount');
+        
+        const clusters = calculateClusters(application, genomeSize, coverage, sampleCount);
+        const clustersInput = row.querySelector('[data-field="Clusters"]');
+        if (clustersInput) {
+            clustersInput.value = clusters.toExponential(2);
         }
+    }
+
+    // Recalculate total clusters and update Flowcell and %Flowcell for all rows
+    updateFlowcellAndPercentage();
+}
+
+// Helper function to calculate nM with corrected formula
+function calculateNM(avgLibSize, conc) {
+    // Multiply conc by 100 to get the correct scale
+    return (conc * 1000000) / (649 * avgLibSize);
+}
+
+// Function to determine the appropriate Flowcell based on total clusters
+function determineFlowcell(totalClusters) {
+    if (totalClusters <= flowcells.P1) {
+        return 'P1';
+    } else if (totalClusters <= flowcells.P2) {
+        return 'P2';
+    } else if (totalClusters <= flowcells.P3) {
+        return 'P3';
+    } else {
+        return 'P4';
     }
 }
 
-class UIManager {
-    static showError(message, duration = 3000) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        document.body.prepend(errorDiv);
-        setTimeout(() => errorDiv.remove(), duration);
-    }
+// Updated updateFlowcellAndPercentage function
+function updateFlowcellAndPercentage() {
+    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+    
+    // Calculate total clusters across all rows
+    const totalClusters = Array.from(rows).reduce((sum, row) => sum + getInputValue(row, 'Clusters'), 0);
+    
+    // Determine the overall flowcell based on total clusters
+    const overallFlowcell = determineFlowcell(totalClusters);
+    const flowcellMax = flowcells[overallFlowcell];
 
-    static showLoading(show = true) {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.display = show ? 'block' : 'none';
-        }
-    }
+    // Update flowcell output display
+    const flowcellOutput = document.getElementById('flowcellOutput');
+    flowcellOutput.textContent = `Current Flowcell: ${overallFlowcell}`;
 
-    static updateFlowcellOutput(clusters) {
-        const recommendedFlowcell = CONFIG.flowcells.find(fc => fc.capacity >= clusters);
-        let message;
-        if (recommendedFlowcell) {
-            const fillPercentage = (clusters / recommendedFlowcell.capacity) * 100;
-            message = `Recommended Flowcell: ${recommendedFlowcell.type} (${fillPercentage.toFixed(2)}% full)`;
-            if (fillPercentage >= 90) {
-                message += " - Warning: Flowcell is over 90% full!";
+    // Get progress bar and legend elements
+    const progressBar = document.querySelector('.progress-bar');
+    const legendContainer = document.getElementById('progressLegend');
+    
+    // Clear existing content
+    progressBar.innerHTML = '';
+    legendContainer.innerHTML = '';
+
+    // Group clusters by project pool
+    const projectPools = new Map();
+    rows.forEach((row) => {
+        const projectPool = row.querySelector('[data-field="ProjectPool"]').value;
+        const clusters = getInputValue(row, 'Clusters');
+        
+        if (projectPool && clusters > 0) {
+            if (projectPools.has(projectPool)) {
+                projectPools.get(projectPool).clusters += clusters;
+            } else {
+                projectPools.set(projectPool, {
+                    clusters,
+                    color: getColorForProjectPool(projectPool)
+                });
             }
-        } else {
-            message = "Clusters exceed maximum flowcell capacity";
         }
+    });
 
-        document.getElementById("flowcellOutput").textContent = message;
-    }
-}
+    // Sort project pools by size (descending)
+    const sortedPools = Array.from(projectPools.entries())
+        .sort((a, b) => b[1].clusters - a[1].clusters);
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('combinedForm');
-    const calculateButton = document.getElementById('calculateButton');
-    const calculateFlowcellButton = document.getElementById('calculateFlowcellButton');
-    const submitButton = document.getElementById('submitToDatabase');
-    if (form) {
-        form.addEventListener('submit', handleFormSubmit);
-    }
-    if (calculateButton) {
-        calculateButton.addEventListener('click', handleCalculateClick);
-    }
-    if (calculateFlowcellButton) {
-        calculateFlowcellButton.addEventListener('click', handleFlowcellCalculation);
-    }
-    if (submitButton) {
-        submitButton.addEventListener('click', handleDatabaseSubmit);
-    }
-    document.querySelector("#projectTable").addEventListener('click', handleRemoveButtonClick);
-});
+    // Create and append segments and legend items
+    let accumulatedPercentage = 0;
+    sortedPools.forEach(([projectPool, data]) => {
+        const percentage = (data.clusters / flowcellMax) * 100;
+        
+        if (percentage > 0) {
+            // Create progress segment
+            const segment = document.createElement('div');
+            segment.className = 'progress-segment';
+            segment.style.width = `${percentage}%`;
+            segment.style.backgroundColor = data.color;
+            segment.title = `${projectPool}: ${percentage.toFixed(1)}%`;
+            progressBar.appendChild(segment);
 
-// Event Handlers
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    try {
-        const formData = getFormData();
-        validateFormData(formData);
-
-        const clusters = ClusterCalculator.calculate(formData);
-        addProjectToTable(formData, clusters);
-
-        document.getElementById('combinedForm').reset();
-        document.getElementById("project").focus();
-    } catch (error) {
-        UIManager.showError(error.message);
-    }
-}
-
-async function handleDatabaseSubmit() {
-    try {
-        UIManager.showLoading(true);
-
-        const selectedProjects = getSelectedProjects();
-        if (selectedProjects.length === 0) {
-            throw new Error("Please select at least one project");
+            // Create legend item
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background-color: ${data.color}"></div>
+                <span>${projectPool} (${percentage.toFixed(1)}%)</span>
+            `;
+            legendContainer.appendChild(legendItem);
         }
+        
+        accumulatedPercentage += percentage;
+    });
 
-        const csrfTokenElement = document.getElementById('csrf_token');
-        if (!csrfTokenElement) {
-            throw new Error("CSRF token not found");
-        }
+    // Update total percentage display with warning colors
+    const percentageFull = (totalClusters / flowcellMax) * 100;
+    const progressPercentage = document.getElementById('progressPercentage');
+    progressPercentage.textContent = `${percentageFull.toFixed(1)}%`;
+    progressPercentage.style.color = percentageFull > 90 ? '#FF4444' : 
+                                   percentageFull > 70 ? '#FFA500' : '#FFFFFF';
 
-        const response = await submitToDatabase(selectedProjects, csrfTokenElement.value);
-        if (response.success) {
-            window.location.href = 'mixdiffpools2.html';
-        } else {
-            throw new Error(response.message);
-        }
-    } catch (error) {
-        UIManager.showError(error.message);
-    } finally {
-        UIManager.showLoading(false);
+    // Update column header
+    const percentageHeader = document.querySelector('#spreadsheetTable th[data-field="%(Flowcell)"]');
+    if (percentageHeader) {
+        percentageHeader.textContent = `%${overallFlowcell}`;
     }
-}
 
-function handleCalculateClick(e) {
-    e.preventDefault();
-    try {
-        const formData = getFormData();
-        validateFormData(formData);
-
-        const clusters = ClusterCalculator.calculate(formData);
-        addProjectToTable(formData, clusters);
-
-        document.getElementById('combinedForm').reset();
-        document.getElementById("project").focus();
-    } catch (error) {
-        UIManager.showError(error.message);
-    }
-}
-
-function handleFlowcellCalculation() {
-    try {
-        const selectedProjects = getSelectedProjects();
-        if (selectedProjects.length === 0) {
-            throw new Error("Please select at least one project");
-        }
-
-        let totalClusters = 0;
-        selectedProjects.forEach(project => {
-            totalClusters += parseFloat(project.clusters);
-        });
-
-        UIManager.updateFlowcellOutput(totalClusters);
-    } catch (error) {
-        UIManager.showError(error.message);
-    }
-}
-
-function handleRemoveButtonClick(e) {
-    if (e.target.classList.contains('removeButton')) {
-        const row = e.target.closest('tr');
-        row.remove();
-    }
-}
-
-// Helper Functions
-function getFormData() {
-    const getValue = id => document.getElementById(id).value.trim();
-
-    return {
-        project: getValue('project'),
-        application: getValue('application'),
-        genomeSize: parseFloat(getValue('size')),
-        coverage: parseFloat(getValue('coverage')),
-        sampleCount: parseInt(getValue('sampleCount')),
-        avgLibSize: parseFloat(getValue('avgLibSize')),
-        concentration: parseFloat(getValue('conc')),
-        cycli: parseInt(getValue('cycli'))
-    };
-}
-
-function validateFormData(data) {
-    if (!data.project || !data.application || isNaN(data.genomeSize) || isNaN(data.coverage) || isNaN(data.sampleCount) || isNaN(data.avgLibSize) || isNaN(data.concentration) || isNaN(data.cycli)) {
-        throw new Error("Please fill all fields correctly");
-    }
-}
-
-function addProjectToTable(formData, clusters) {
-    const tableBody = document.querySelector("#projectTable tbody");
-    const row = document.createElement("tr");
-    row.innerHTML = `
-        <td><input type="checkbox" name="selectProject"></td>
-        <td>${formData.project}</td>
-        <td>${formData.application}</td>
-        <td>${clusters.toExponential(2)}</td>
-        <td><button type="button" class="removeButton">Remove</button></td>
-    `;
-    tableBody.appendChild(row);
-}
-
-function getSelectedProjects() {
-    const selectedProjects = [];
-    const rows = document.querySelectorAll("#projectTable tbody tr");
+    // First pass: calculate %Flowcell and %Sample per Flowcell for each row
     rows.forEach(row => {
-        const checkbox = row.querySelector('input[name="selectProject"]');
-        if (checkbox && checkbox.checked) {
-            const project = {
-                project: row.cells[1].textContent,
-                application: row.cells[2].textContent,
-                clusters: row.cells[3].textContent
-            };
-            selectedProjects.push(project);
+        const clusters = getInputValue(row, 'Clusters');
+        const sampleCount = getInputValue(row, 'SampleCount');
+        
+        // Update %Flowcell
+        const percentFlowcellInput = row.querySelector('[data-field="%(Flowcell)"]');
+        if (percentFlowcellInput && flowcellMax > 0) {
+            const percentageOfFlowcellMax = (clusters * 100) / flowcellMax;
+            percentFlowcellInput.value = percentageOfFlowcellMax.toFixed(2) + '%';
+        }
+        
+        // Update %Sample per Flowcell
+        const percentSampleInput = row.querySelector('[data-field="%Sample per (Flowcell)"]');
+        if (percentSampleInput && flowcellMax > 0 && sampleCount > 0) {
+            const percentagePerSample = (clusters * 100) / (sampleCount * flowcellMax);
+            percentSampleInput.value = percentagePerSample.toFixed(2) + '%';
+        } else if (percentSampleInput) {
+            percentSampleInput.value = '0.00%';
         }
     });
-    return selectedProjects;
+
+    // Calculate sum of (berekening4 * berekening3) across all rows
+    const totalProduct = Array.from(rows).reduce((sum, row) => {
+        const percentSample = parseFloat(row.querySelector('[data-field="%Sample per (Flowcell)"]').value) || 0;
+        const nM = parseFloat(row.querySelector('[data-field="nM"]').value) || 0;
+        return sum + (percentSample * nM);
+    }, 0);
+
+    // Second pass: calculate UI NGS Pool for each row and sum them
+    let totalUlNgsPool = 0;
+    rows.forEach(row => {
+        const percentSample = parseFloat(row.querySelector('[data-field="%Sample per (Flowcell)"]').value) || 0;
+        const nM = parseFloat(row.querySelector('[data-field="nM"]').value) || 0;
+        const uiNgsPoolInput = row.querySelector('[data-field="UI NGS Pool"]');
+
+        if (uiNgsPoolInput && totalProduct > 0) {
+            // Formula: (percentSample * 50 * 3) / (sum of all (percentSample * nM))
+            const uiNgsPool = (percentSample * 50 * 3) / totalProduct;
+            uiNgsPoolInput.value = uiNgsPool.toFixed(2);
+            totalUlNgsPool += uiNgsPool;
+        } else if (uiNgsPoolInput) {
+            uiNgsPoolInput.value = '0.00';
+        }
+    });
+
+    // Calculate and update ul Tris aan pool toevoegen
+    const trisToAdd = 50 - totalUlNgsPool;
+    const trisOutput = document.getElementById('trisOutput');
+    trisOutput.textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(2)}`;
 }
 
-async function submitToDatabase(projects, csrfToken) {
-    const response = await fetch('Submit.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded', // Match server expectations
-      },
-      body: new URLSearchParams({
-        projects: JSON.stringify(projects),
-        csrf_token: csrfToken
-      })
-    });
-    // ... rest of the code
-  }
+// Function to create a cell with appropriate input type
+function createCell(fieldName, isEditable) {
+    const td = document.createElement('td');
+    
+    if (fieldName === 'Application') { 
+        const select = document.createElement('select');
+        select.dataset.field = fieldName;
+        const options = ['WGS', 'RNAseq', 'Amplicon', 'MGX'];
 
-    try {
-        const response = await fetch('Submit.php', {
-            method: 'POST',
-            body: formData
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Selecteer...';
+        select.appendChild(emptyOption);
+
+        options.forEach(option => {
+            const optElement = document.createElement('option');
+            optElement.value = option;
+            optElement.textContent = option;
+            select.appendChild(optElement);
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not OK');
-        }
+        select.addEventListener('change', function() {
+            checkAndCalculate(this.closest('tr'));
+        });
+        td.appendChild(select);
+    } else if (isEditable) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.field = fieldName;
+        input.placeholder = 'Vul in...';
 
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message);
-        }
+        input.addEventListener('input', function() {
+            checkAndCalculate(this.closest('tr'));
+        });
 
-        return result;
-    } catch (error) {
-        console.error('Error submitting data:', error);
-        UIManager.showError(error.message);
-        throw error;
+        td.appendChild(input);
+    } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.field = fieldName;
+        input.placeholder = 'Automatisch...';
+        input.readOnly = true;
+        input.style.backgroundColor = '#f0f0f0';
+        input.style.color = '#666';
+        td.appendChild(input);
     }
+    
+    return td;
+}
+
+// Function to check if all required fields are filled
+function areRequiredFieldsFilled(row) {
+    return requiredFields.every(field => {
+        const input = row.querySelector(`[data-field="${field}"]`);
+        return input && input.value && input.value.trim() !== '';
+    });
+}
+
+// Function to calculate clusters based on application type
+function calculateClusters(application, genomeSize, coverage, sampleCount) {
+    switch(application) {
+        case 'WGS':
+            return (genomeSize * coverage * sampleCount) / 270;
+        case 'RNAseq':
+        case 'Amplicon':
+        case 'MGX':
+            return coverage * sampleCount;
+        default:
+            return 0;
+    }
+}
+
+// Function to get input value and convert to number
+function getInputValue(row, fieldName) {
+    const input = row.querySelector(`[data-field="${fieldName}"]`);
+    if (!input) return 0;
+    
+    const value = input.value.trim();
+    if (input.type === 'select-one') {
+        return value;
+    }
+    
+    // Remove percentage sign if present and convert to number
+    if (value.endsWith('%')) {
+        return parseNumber(value.slice(0, -1));
+    }
+    
+    return value === '' ? 0 : parseNumber(value);
+}
+
+// Function to add a new row to the table
+function addRow() {
+    const tbody = document.querySelector('#spreadsheetTable tbody');
+    const newRow = document.createElement('tr');
+
+    const headers = [
+        'ProjectPool',
+        'Application',
+        'GenomeSize',
+        'Coverage',
+        'SampleCount',
+        'Conc',
+        'AvgLibSize',
+        'Clusters',
+        '%(Flowcell)',
+        'nM',
+        '%Sample per (Flowcell)',
+        'UI NGS Pool'
+    ];
+
+    headers.forEach((header) => {
+        const isEditable = userEditableFields.includes(header);
+        const cell = createCell(header, isEditable);
+        newRow.appendChild(cell);
+    });
+
+    const tdAction = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.textContent = 'Verwijder';
+    delBtn.className = 'removeButton';
+    delBtn.addEventListener('click', function() {
+        tbody.removeChild(newRow);
+        updateFlowcellAndPercentage();
+    });
+    tdAction.appendChild(delBtn);
+    newRow.appendChild(tdAction);
+
+    tbody.appendChild(newRow);
+    updateFlowcellAndPercentage();
+}
+
+// Initialize the table
+document.addEventListener('DOMContentLoaded', function() {
+    addRow();
+    document.getElementById('addRowButton').addEventListener('click', addRow);
+});
