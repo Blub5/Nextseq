@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixDiffPools Settings</title>
+    <link rel="stylesheet" href="mixdiffpools.css">
+</head>
+<body>
+    <!-- Header with navigation -->
+    <header class="header">
+        <div class="logo">
+            <img src="wur.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <nav class="navbar">
+            <a href="mixdiffpools.html">Mixdiffpools</a>
+            <a href="NLP.html">NLP</a>
+            <a href="Database.html">Database</a>
+            <a href="Admin.html">Admin</a>
+        </nav>
+    </header>
+
+    <div class="settings-container">
+        <h2>MixDiffPools Settings</h2>
+        
+        <!-- ProjectPool Settings -->
+        <div class="settings-section">
+            <h3>ProjectPool Settings</h3>
+            <div class="setting-item">
+                <label for="projectpool-prefix">ProjectPool Prefix:</label>
+                <input type="text" id="projectpool-prefix" name="projectpool-prefix" placeholder="e.g. NGS-">
+            </div>
+        </div>
+
+        <!-- Flowcell Settings -->
+        <div class="settings-section">
+            <h3>Flowcell Capacities</h3>
+            <div class="setting-item">
+                <label for="p1-capacity">P1 Capacity:</label>
+                <input type="number" id="p1-capacity" name="p1-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p2-capacity">P2 Capacity:</label>
+                <input type="number" id="p2-capacity" name="p2-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p3-capacity">P3 Capacity:</label>
+                <input type="number" id="p3-capacity" name="p3-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p4-capacity">P4 Capacity:</label>
+                <input type="number" id="p4-capacity" name="p4-capacity">
+            </div>
+        </div>
+
+        <!-- Pool Settings -->
+        <div class="settings-section">
+            <h3>Pool Settings</h3>
+            <div class="setting-item">
+                <label for="base-pool-volume">Base Pool Volume:</label>
+                <input type="number" id="base-pool-volume" name="base-pool-volume">
+            </div>
+            <div class="setting-item">
+                <label for="expected-nm">Expected nM:</label>
+                <input type="number" id="expected-nm" name="expected-nm" step="0.1">
+            </div>
+        </div>
+
+        <!-- Application Settings -->
+        <div class="settings-section">
+            <h3>Application Settings</h3>
+            <div class="setting-item">
+                <label for="cycli">Cycli:</label>
+                <input type="number" id="cycli" name="cycli">
+            </div>
+        </div>
+
+        <button id="saveSettings" class="save-button">Save Settings</button>
+        <div id="saveMessage" class="save-message"></div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

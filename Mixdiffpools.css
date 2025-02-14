@@ -14,6 +14,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 60px; /* Reduced from 80px */
+    gap: 15px; /* Add gap between elements */
 }
 
 /* Header */
@@ -22,7 +24,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 15px 100px;
+    padding: 10px 100px; /* Reduced from 15px */
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
@@ -32,7 +34,7 @@ body {
 }
 
 .logo img {
-    height: 50px;
+    height: 40px; /* Reduced from 50px */
 }
 
 .navbar {
@@ -60,16 +62,15 @@ body {
 .spreadsheet-container {
     width: 100%;
     max-width: 1300px;
-    height: 650px;
+    height: calc(100vh - 280px); /* Adjusted to leave space for header and flowcell info */
     background: #fff;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    margin-top: 80px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 10px; /* Add gap between elements */
 }
 
 /* Table wrapper */
@@ -80,7 +81,7 @@ body {
     overflow-x: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
-    height: 500px;
+    height: 100%; /* Take up remaining space */
 }
 
 /* Table styles */
@@ -110,11 +111,11 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
-    height: 30px;
+    height: 25px; /* Reduced from 30px */
 }
 
 #spreadsheetTable tbody tr {
-    height: 30px;
+    height: 25px; /* Reduced from 30px */
 }
 
 #spreadsheetTable tbody tr:nth-child(even) {
@@ -155,7 +156,7 @@ input {
 .controls {
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 5px; /* Reduced from 10px */
 }
 
 #addRowButton {
@@ -197,9 +198,9 @@ input {
 .flowcell-info {
     background-color: #088c04;
     color: white;
-    padding: 20px;
+    padding: 15px; /* Reduced from 20px */
     border-radius: 8px;
-    margin-top: 20px;
+    margin-top: 0; /* Remove margin since we're using gap */
     font-weight: bold;
     width: 100%;
     max-width: 1300px;
@@ -208,7 +209,7 @@ input {
 .flowcell-details {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Reduced from 15px */
 }
 
 .flowcell-details span {
@@ -219,9 +220,9 @@ input {
 .progress-container {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px; /* Reduced from 15px */
     width: 100%;
-    margin-top: 10px;
+    margin-top: 5px; /* Reduced from 10px */
 }
 
 .progress-bar-wrapper {
