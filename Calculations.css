@@ -1,0 +1,93 @@
+/* Calculator Container */
+.calculator-container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    margin: 20px auto;
+}
+
+/* Calculator Sections */
+.calculator-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.calculator-section h3 {
+    color: #088c04;
+    margin-bottom: 15px;
+}
+
+/* Input Groups */
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.input-group label {
+    min-width: 200px;
+    font-weight: bold;
+}
+
+.input-group input {
+    width: 200px;
+    height: 35px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Input with unit styling */
+.input-with-unit {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.input-with-unit input {
+    width: 150px;
+}
+
+.input-with-unit select {
+    width: 70px;
+    height: 35px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+/* Results */
+.result {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f9ff;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Buttons */
+.calculate-button {
+    background-color: #088c04;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.calculate-button:hover {
+    background-color: #045202;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Required Mass Calculator</title>
+    <link rel="stylesheet" href="calculations.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-section">
+            <h3>Required Mass Calculator</h3>
+            <p class="formula">required mass (g) = desired molarity (mol/L) × total solution volume (L) × molecular weight (g/mol)</p>
+            
+            <div class="input-group">
+                <label>Molecular Weight (g/mol):</label>
+                <input type="number" id="molecularWeight" step="0.000001" placeholder="Enter molecular weight...">
+            </div>
+
+            <div class="input-group">
+                <label>Desired Molarity:</label>
+                <div class="input-with-unit">
+                    <input type="number" id="desiredMolarity" step="0.000001" placeholder="Enter molarity...">
+                    <select id="molarityUnit">
+                        <option value="M">M</option>
+                        <option value="mM">mM</option>
+                        <option value="μM">μM</option>
+                        <option value="nM">nM</option>
+                        <option value="pM">pM</option>
+                        <option value="fM">fM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Total Solution Volume:</label>
+                <div class="input-with-unit">
+                    <input type="number" id="volume" step="0.000001" placeholder="Enter volume...">
+                    <select id="volumeUnit">
+                        <option value="L">L</option>
+                        <option value="ml">ml</option>
+                        <option value="μl">μl</option>
+                        <option value="nl">nl</option>
+                        <option value="pl">pl</option>
+                        <option value="fl">fl</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="calculate-button" onclick="calculateRequiredMass()">Calculate Required Mass</button>
+            <div class="result" id="massResult">Result will appear here</div>
+        </div>
+    </div>
+    <script src="Calculations.js"></script>
+</body>
+</html>
