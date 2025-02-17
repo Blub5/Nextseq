@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nM Berekenen</title>
+    <link rel="stylesheet" href="NLP.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="wur.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <nav class="navbar">
+            <a href="mixdiffpools.html">Mixdiffpools</a>
+            <a href="NLP.html">NLP</a>
+            <a href="Database.html">Database</a>
+            <a href="Admin.html">Admin</a>
+            <a href="Calculations.html">Calculations</a>
+        </nav>
+    </header>
+    <div class="calculator-container">
+        <h2>nM Berekenen</h2>
+        <div class="formula-container">
+            <div class="formula-title">Formule:</div>
+            <div class="formula">
+                nM = (conc × 1.000.000) / (649 × avgLibSize)
+            </div>
+        </div>
+        <div class="calculator">
+            <label for="conc">Concentratie (ng/μL):</label>
+            <input type="number" id="conc" step="0.01" placeholder="Vul concentratie in">
+
+            <label for="avgLib">Gemiddelde librarysize (bp):</label>
+            <input type="number" id="avgLib" step="1" placeholder="Vul gemiddelde in">
+
+            <button id="calculateBtn">Bereken</button>
+            <p id="result"></p>
+        </div>
+    </div>
+    <script src="NLP.js"></script>
+</body>
+</html>

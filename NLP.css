@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: url('koeien.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px;
+    gap: 15px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 100px;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.logo img {
+    height: 40px;
+}
+
+.navbar {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar a {
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar a:hover {
+    background-color: #fff;
+    color: #088c04;
+    transform: scale(1.1);
+}
+
+.calculator-container {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    margin: 20px auto;
+    text-align: center;
+}
+
+.calculator-container h2 {
+    color: #088c04;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.formula-container {
+    background-color: #f0f8f0;
+    border-left: 4px solid #088c04;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.formula-title {
+    color: #088c04;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.formula {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.calculator {
+    margin-top: 20px;
+}
+
+.calculator label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.calculator input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.calculator button {
+    padding: 10px 20px;
+    background-color: #088c04;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.calculator button:hover {
+    background-color: #066a03;
+}
+
+#result {
+    margin-top: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #088c04;
+}
