@@ -11,10 +11,9 @@ body {
     background-size: cover;
     color: #333;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
     padding-top: 60px;
-    gap: 15px;
 }
 
 .header {
@@ -58,43 +57,12 @@ body {
 
 .calculator-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 400px;
     background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    margin: 20px auto;
-    text-align: center;
-}
-
-.calculator-container h2 {
-    color: #088c04;
-    margin-bottom: 25px;
-    font-size: 24px;
-}
-
-.formula-container {
-    background-color: #f0f8f0;
-    border-left: 4px solid #088c04;
     padding: 20px;
-    margin: 20px 0;
-    border-radius: 0 8px 8px 0;
-}
-
-.formula-title {
-    color: #088c04;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.formula {
-    font-family: 'Courier New', monospace;
-    font-size: 1.1em;
-    color: #333;
-}
-
-.calculator {
-    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .calculator label {
@@ -104,16 +72,18 @@ body {
     text-align: left;
 }
 
-.calculator input {
+.calculator input, 
+.calculator select {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
+    padding: 6px;
+    margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 16px;
 }
 
 .calculator button {
-    padding: 10px 20px;
+    padding: 8px 15px;
     background-color: #088c04;
     color: white;
     border: none;
@@ -126,9 +96,47 @@ body {
     background-color: #066a03;
 }
 
-#result {
+.results {
     margin-top: 15px;
-    font-size: 1.2em;
+    font-size: 1em;
     font-weight: bold;
     color: #088c04;
+}
+
+.results-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.results-table table {
+    width: 100%;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.results-table th,
+.results-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.results-table th {
+    background-color: #088c04;
+    color: white;
+    font-weight: bold;
+}
+
+.results-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#flowcell {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
