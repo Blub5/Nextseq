@@ -4,6 +4,16 @@
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
 }
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 
 body {
     min-height: 100vh;
@@ -11,7 +21,7 @@ body {
     background-size: cover;
     color: #333;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     padding-top: 60px;
 }
@@ -55,14 +65,38 @@ body {
     transform: scale(1.1);
 }
 
-.calculator-container {
+.content-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
     width: 100%;
-    max-width: 400px;
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.procedure-section {
+    flex: 0 0 350px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    height: fit-content;
+}
+
+.calculator-container {
+    flex: 0 0 400px;
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     z-index: 10;
+}
+
+.calculator-container h2 {
+    text-align: center;
+    color: #088c04;
+    margin-bottom: 20px;
 }
 
 .calculator label {
@@ -75,38 +109,48 @@ body {
 .calculator input, 
 .calculator select {
     width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
+    padding: 8px;
+    margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
 }
 
 .calculator button {
-    padding: 8px 15px;
+    padding: 10px 15px;
     background-color: #088c04;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 .calculator button:hover {
     background-color: #066a03;
 }
 
-.results {
-    margin-top: 15px;
-    font-size: 1em;
-    font-weight: bold;
+.guidelines-section {
+    flex: 0 0 350px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    height: fit-content;
+}
+
+.guidelines-section h3,
+.procedure-section h3 {
     color: #088c04;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .results-table {
     margin-top: 20px;
     width: 100%;
-    border-collapse: collapse;
 }
 
 .results-table table {
@@ -114,11 +158,12 @@ body {
     background: white;
     border-radius: 4px;
     overflow: hidden;
+    border-collapse: collapse;
 }
 
 .results-table th,
 .results-table td {
-    padding: 10px;
+    padding: 12px;
     text-align: left;
     border: 1px solid #ddd;
 }
@@ -129,14 +174,65 @@ body {
     font-weight: bold;
 }
 
-.results-table tr:nth-child(even) {
-    background-color: #f8f9fa;
+.guidelines-table,
+.procedure-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-#flowcell {
-    width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
+.guidelines-table th,
+.guidelines-table td,
+.procedure-table th,
+.procedure-table td {
+    padding: 12px;
+    text-align: left;
     border: 1px solid #ddd;
-    border-radius: 4px;
 }
+
+.guidelines-table th,
+.procedure-table th {
+    background-color: #088c04;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.procedure-table a {
+    color: #088c04;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.procedure-table a:hover {
+    color: #066a03;
+    text-decoration: underline;
+}
+
+@media (max-width: 1200px) {
+    .content-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .procedure-section,
+    .calculator-container,
+    .guidelines-section {
+        flex: none;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .header {
+        padding: 10px 20px;
+    }
+
+    .navbar {
+        gap: 10px;
+    }
+
+    .navbar a {
+        padding: 6px 12px;
+        font-size: 16px;
+    }
+}   

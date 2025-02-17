@@ -3,52 +3,54 @@ document.addEventListener('DOMContentLoaded', function () {
     const resultsTable = document.getElementById('resultsTable');
 
     calculateBtn.addEventListener('click', function () {
-        // Verkrijg invoerwaarden
+        // Get input values
         const conc = parseFloat(document.getElementById('conc').value) || 0;
         const avgLib = parseFloat(document.getElementById('avgLib').value) || 0;
         const totalVolume = parseFloat(document.getElementById('totalVolume').value) || 0;
         const flowcell = document.getElementById('flowcell').value;
 
-        // Validatie van invoer
+        // Validation
         if (!conc || !avgLib || !totalVolume) {
             alert('Vul alle vereiste velden in');
             return;
         }
 
-        // Berekening van nM
-        const nM = (conc * 1000000) / (649 * avgLib);
+        // Calculate nM (Nanomolarity)
+        // Formula: nM = (Conc × 10^3) / (649 × Avg Lib Size) × 1000
+        const nM = (conc * 1000) / (649 * avgLib) * 1000;
 
-        // Stel pMol in op basis van flowcell
-        const pMol = (flowcell === 'P1' || flowcell === 'P2') ? 700 : 525;
-
-        // Berekening van library volume (μL)
-        const libUl = (totalVolume * pMol) / (nM * 1000);
-
-        // Berekening van RSB volume (μL)
-        const rsbUl = totalVolume - libUl;
-
-        // Berekening van Conc calc
-        let concCalc = (libUl * nM) / totalVolume * 1000;
-
-        // Controle of concCalc binnen een acceptabele marge ligt
-        if (Math.abs(concCalc - pMol) < 1) {  
-            concCalc = pMol.toFixed(1); // Gebruik de verwachte waarde als output
-        } else {
-            concCalc = "error"; // Als het te ver afwijkt, toon een foutmelding
+        // Calculate pMol based on flowcell
+        // For P3/P4: 700 × 0.75 = 525
+        // For P1/P2: 700
+        let pMol;
+        if (flowcell === 'P1' || flowcell === 'P2') {
+            pMol = 700;
+        } else if (flowcell === 'P3' || flowcell === 'P4') {
+            pMol = 525; // 700 × 0.75
         }
 
-        // Resultaten weergeven in de tabel
-        document.getElementById('nMResult').textContent = nM.toFixed(1);
+        // Calculate library volume (μL)
+        const libUl = (totalVolume * pMol) / (nM * 1000);
+
+        // Calculate RSB volume (μL)
+        const rsbUl = totalVolume - libUl;
+
+        // Calculate Conc calc
+        // Formula: Conc calc = pMol / 1000
+        const concCalc = pMol / 1000;
+
+        // Display results in table
+        document.getElementById('nMResult').textContent = nM.toFixed(3);
         document.getElementById('pMolResult').textContent = pMol;
         document.getElementById('libUlResult').textContent = libUl.toFixed(1);
         document.getElementById('rsbUlResult').textContent = rsbUl.toFixed(1);
-        document.getElementById('concCalcResult').textContent = concCalc;
+        document.getElementById('concCalcResult').textContent = concCalc.toFixed(3);
 
-        // Toon resultaten in de tabel
+        // Show results table
         resultsTable.style.display = 'block';
     });
 
-    // Input validatie voor getallen
+    // Input validation for numbers
     const inputs = document.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
         input.addEventListener('input', function () {
