@@ -37,7 +37,10 @@ body {
     height: 40px; /* Reduced from 50px */
 }
 
-
+.navbar {
+    display: flex;
+    gap: 20px;
+}
 
 .navbar a {
     font-size: 18px;

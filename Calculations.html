@@ -19,7 +19,9 @@
             <a href="Calculations.html">Calculations</a>
         </nav>
     </header>
+
     <div class="calculator-container">
+        <!-- Existing Mass Calculator -->
         <div class="calculator-section">
             <h3>Required Mass Calculator</h3>
             <p class="formula">required mass (g) = desired molarity (mol/L) × total solution volume (L) × molecular weight (g/mol)</p>
@@ -61,6 +63,50 @@
 
             <button class="calculate-button" onclick="calculateRequiredMass()">Calculate Required Mass</button>
             <div class="result" id="massResult">Result will appear here</div>
+        </div>
+
+        <!-- New Molarity Calculator -->
+        <div class="calculator-section">
+            <h3>Molarity Calculator</h3>
+            <p class="formula">molarity (mol/L) = mass (g) / (total solution volume (L) × molecular weight (g/mol))</p>
+            
+            <div class="input-group">
+                <label>Molecular Weight (g/mol):</label>
+                <input type="number" id="molarityMW" step="0.000001" placeholder="Enter molecular weight...">
+            </div>
+
+            <div class="input-group">
+                <label>Mass:</label>
+                <div class="input-with-unit">
+                    <input type="number" id="mass" step="0.000001" placeholder="Enter mass...">
+                    <select id="massUnit">
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="mg">mg</option>
+                        <option value="μg">μg</option>
+                        <option value="ng">ng</option>
+                        <option value="pg">pg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Total Solution Volume:</label>
+                <div class="input-with-unit">
+                    <input type="number" id="molarityVolume" step="0.000001" placeholder="Enter volume...">
+                    <select id="molarityVolumeUnit">
+                        <option value="L">L</option>
+                        <option value="ml">ml</option>
+                        <option value="μl">μl</option>
+                        <option value="nl">nl</option>
+                        <option value="pl">pl</option>
+                        <option value="fl">fl</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="calculate-button" onclick="calculateMolarity()">Calculate Molarity</button>
+            <div class="result" id="molarityResult">Result will appear here</div>
         </div>
     </div>
     <script src="Calculations.js"></script>

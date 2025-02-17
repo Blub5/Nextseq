@@ -277,9 +277,12 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
 // Function to calculate clusters based on application type
 function calculateClusters(application, genomeSize, coverage, sampleCount) {
     const settings = getSettings();
+    const adjustedCycli = settings.applicationSettings.cycli * 0.9; // Reduce cycli by 10%
+    console.log("Adjusted cycli used for calculations:", adjustedCycli);
+    
     switch(application) {
         case 'WGS':
-            return (genomeSize * coverage * sampleCount) / settings.applicationSettings.cycli;
+            return (genomeSize * coverage * sampleCount) / adjustedCycli;
         case 'RNAseq':
         case 'Amplicon':
         case 'MGX':
