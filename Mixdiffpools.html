@@ -1,90 +1,75 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MixDiffPools Spreadsheet</title>
-    <link rel="stylesheet" href="mixdiffpools.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MixDiffPools Spreadsheet</title>
+  <link rel="stylesheet" href="mixdiffpools.css">
 </head>
 <body>
-    <!-- Header with navigation -->
-    <header class="header">
-        <div class="logo">
-            <img src="wur.png" alt="Logo" onerror="this.style.display='none'">
+  <header class="header">
+    <div class="logo">
+      <img src="wur.png" alt="Logo" onerror="this.style.display='none'">
+    </div>
+    <nav class="navbar">
+      <a href="mixdiffpools.html">Mixdiffpools</a>
+      <a href="NLP.html">NLP</a>
+      <a href="Database.html">Database</a>
+      <a href="Admin.html">Admin</a>
+      <a href="Calculations.html">Calculations</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="spreadsheet-container">
+      <div class="table-wrapper">
+        <table id="spreadsheetTable">
+          <thead>
+            <tr>
+              <th>ProjectPool</th>
+              <th>Application</th>
+              <th>GenomeSize</th>
+              <th>Coverage</th>
+              <th>SampleCount</th>
+              <th>Conc</th>
+              <th>AvgLibSize</th>
+              <th>Clusters</th>
+              <th data-field="%(Flowcell)">%P1</th>
+              <th>nM</th>
+              <th>%Sample per (Flowcell)</th>
+              <th>UI NGS Pool</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be added dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="controls">
+        <button id="addRowButton">Voeg rij toe</button>
+        <!-- The final "Bevestig gegevens" button is added by JavaScript -->
+      </div>
+    </div>
+
+    <div class="loader" style="display: none;"></div>
+    <div class="error-message" style="display: none;">Error Message</div>
+
+    <div class="flowcell-info">
+      <div class="flowcell-details">
+        <span id="flowcellOutput">Current Flowcell: P1</span>
+        <span id="trisOutput">ul Tris aan pool toevoegen: 0.00</span>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar" id="flowcellProgress"></div>
+          <span id="progressPercentage">0%</span>
         </div>
-        <nav class="navbar">
-            <a href="mixdiffpools.html">Mixdiffpools</a>
-            <a href="NLP.html">NLP</a>
-            <a href="Database.html">Database</a>
-            <a href="Admin.html">Admin</a>
-            <a href="Calculations.html">Calculations</a>
-        </nav>
-    </header>
-
-    <!-- Main content area -->
-    <main class="main-content">
-        <!-- Spreadsheet container -->
-        <div class="spreadsheet-container">
-            <div class="table-wrapper">
-                <table id="spreadsheetTable">
-                    <thead>
-                        <tr>
-                            <th>ProjectPool</th>
-                            <th>Application</th>
-                            <th>GenomeSize</th>
-                            <th>Coverage</th>
-                            <th>SampleCount</th>
-                            <th>Conc</th>
-                            <th>AvgLibSize</th>
-                            <th>Clusters</th>
-                            <th data-field="%(Flowcell)">%P1</th>
-                            <th>nM</th>
-                            <th>%Sample per (Flowcell)</th>
-                            <th>UI NGS Pool</th>
-                            <th>Acties</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Table rows will be dynamically added here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Add row button -->
-            <div class="controls">
-                <button id="addRowButton">Voeg rij toe</button>
-            </div>
-        </div>
-
-        <!-- Loading and error states -->
-        <div class="loader" style="display: none;"></div>
-        <div class="error-message" style="display: none;">Error Message</div>
-        
-        <!-- Flowcell information and progress bar -->
-        <div class="flowcell-info">
-            <!-- Flowcell details -->
-            <div class="flowcell-details">
-                <span id="flowcellOutput">Current Flowcell: P1</span>
-                <span id="trisOutput">ul Tris aan pool toevoegen: 0.00</span>
-            </div>
-            
-            <!-- Progress bar container -->
-            <div class="progress-container">
-                <div class="progress-bar-wrapper">
-                    <div class="progress-bar" id="flowcellProgress">
-                        <!-- Progress segments will be dynamically added here -->
-                    </div>
-                    <span id="progressPercentage">0%</span>
-                </div>
-                <!-- Legend for progress bar -->
-                <div id="progressLegend" class="progress-legend">
-                    <!-- Legend items will be dynamically added here -->
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Scripts -->
-    <script src="script.js"></script>
+        <div id="progressLegend" class="progress-legend"></div>
+      </div>
+    </div>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>

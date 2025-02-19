@@ -8,7 +8,7 @@ const defaultSettings = {
     },
     poolSettings: {
         basePoolVolume: 50,
-        expectedNM: 4
+        expectedNM: 3
     },
     applicationSettings: {
         cycli: 270
