@@ -30,37 +30,40 @@ document.addEventListener('DOMContentLoaded', function () {
         return { nM, pMol, libUl, rsbUl, concCalc };
     }
 
-    // Function to update results table
-    function updateResultsTable(results) {
+    // Function to update results table and save to database
+    async function updateResultsTableAndSave(results, inputValues) {
+        // Update the table
         document.getElementById('nMResult').textContent = results.nM.toFixed(3);
         document.getElementById('pMolResult').textContent = results.pMol;
         document.getElementById('libUlResult').textContent = results.libUl.toFixed(1);
         document.getElementById('rsbUlResult').textContent = results.rsbUl.toFixed(1);
         document.getElementById('concCalcResult').textContent = results.concCalc.toFixed(3);
         resultsTable.style.display = 'block';
-    }
 
-    // Function to save results to database
-    function saveResults(resultsData) {
-        return fetch('save_nlp_data.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(resultsData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // Prepare data for saving
+        const dataToSave = {
+            ...inputValues,
+            ...results
+        };
+
+        try {
+            const response = await fetch('save_nlp_data.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSave)
+            });
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to save data');
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'error') {
-                throw new Error(data.message);
-            }
-            return data;
-        });
+            console.log('Data saved successfully');
+        } catch (error) {
+            console.error('Error saving data:', error);
+            alert('Error saving data: ' + error.message);
+        }
     }
 
     // Add input validation to all number inputs
@@ -74,11 +77,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const lastFlowcell = localStorage.getItem('lastFlowcell');
     if (lastFlowcell) {
         flowcellSelect.value = lastFlowcell;
-        console.log('Last selected flowcell:', lastFlowcell);
     }
 
     // Handle calculate button click
-    calculateBtn.addEventListener('click', function() {
+    calculateBtn.addEventListener('click', async function() {
         try {
             const conc = parseFloat(document.getElementById('conc').value);
             const avgLib = parseFloat(document.getElementById('avgLib').value);
@@ -94,10 +96,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Store the selected flowcell in localStorage
             localStorage.setItem('lastFlowcell', flowcell);
-            console.log('lastflowcell');
 
             const results = calculateValues(conc, avgLib, totalVolume, flowcell);
-            updateResultsTable(results);
+            
+            // Include input values in the save operation
+            const inputValues = {
+                conc,
+                avgLib,
+                totalVolume,
+                flowcell
+            };
+
+            await updateResultsTableAndSave(results, inputValues);
         } catch (error) {
             console.error('Calculation error:', error);
             alert(error.message);

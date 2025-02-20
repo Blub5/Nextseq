@@ -1,5 +1,4 @@
 // Global variables and settings
-let projectPoolCounter = 1;
 let finalCalculationConfirmed = false;
 
 function getSettings() {
@@ -63,76 +62,150 @@ function getPreciseValue(input) {
   return input.dataset.preciseValue ? parseFloat(input.dataset.preciseValue) : parseFloat(input.value);
 }
 
-// Database Functions
-async function savePreliminaryData() {
-    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-    
-    for (const row of rows) {
-        const data = {
-            ProjectPool: getInputValue(row, 'ProjectPool'),
-            Application: getInputValue(row, 'Application'),
-            GenomeSize: getInputValue(row, 'GenomeSize'),
-            Coverage: getInputValue(row, 'Coverage'),
-            SampleCount: getInputValue(row, 'SampleCount'),
-            Conc: getInputValue(row, 'Conc'),
-            AvgLibSize: getInputValue(row, 'AvgLibSize')
-        };
+// Fetch the latest ProjectPool number from the database
+async function getLatestProjectPoolNumber() {
+  try {
+    const response = await fetch('get_latest_projectpool.php', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
 
-        try {
-            const response = await fetch('save_preliminary_data.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to save data');
-            }
-        } catch (error) {
-            console.error('Error saving preliminary data:', error);
-            alert('Error saving data: ' + error.message);
-            return false;
-        }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch latest ProjectPool: ${response.status}`);
     }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const errorText = await response.text();
+      throw new Error(`Non-JSON response: ${errorText}`);
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.message || 'Unknown error fetching ProjectPool');
+    }
+
+    const latestProjectPool = result.latestProjectPool || 'NGS-0';
+    const number = parseInt(latestProjectPool.replace('NGS-', '')) || 0;
+    return number;
+  } catch (error) {
+    console.error('Error fetching latest ProjectPool:', error);
+    return 0; // Default to 0 if fetch fails, starting at NGS-1
+  }
+}
+
+async function savePreliminaryData() {
+  const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+  const allData = [];
+  const settings = getSettings();
+  const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
+
+  // Fetch the latest ProjectPool number once
+  let latestNumber = await getLatestProjectPoolNumber();
+
+  // Collect data from the table
+  for (const row of rows) {
+    const projectPoolValue = getInputValue(row, 'ProjectPool');
+    let ProjectPool = projectPoolValue;
+    if (!projectPoolValue) {
+      latestNumber++;
+      ProjectPool = `${prefix}${latestNumber}`;
+      const projectPoolInput = row.querySelector('[data-field="ProjectPool"]');
+      if (projectPoolInput) projectPoolInput.value = ProjectPool;
+    }
+
+    const data = {
+      ProjectPool: ProjectPool,
+      Application: getInputValue(row, 'Application'),
+      GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
+      Coverage: parseInt(getInputValue(row, 'Coverage')) || 0,
+      SampleCount: parseInt(getInputValue(row, 'SampleCount')) || 0,
+      Conc: parseFloat(getInputValue(row, 'Conc')) || 0.0,
+      AvgLibSize: parseFloat(getInputValue(row, 'AvgLibSize')) || 0.0
+    };
+    allData.push(data);
+  }
+
+  try {
+    for (const data of allData) {
+      const response = await fetch('save_preliminary_data.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!response.ok || !contentType || !contentType.includes('application/json')) {
+        const errorText = await response.text();
+        console.error('Non-JSON response:', errorText);
+        throw new Error(`Server returned status ${response.status} with type ${contentType || 'unknown'}`);
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || 'Unknown error from server');
+      }
+      console.log(`Data saved successfully for ${data.ProjectPool}`);
+    }
+
+    await finalCalculateAll();
     return true;
+  } catch (error) {
+    console.error('Error saving preliminary data:', error);
+    showErrorToUser(`Failed to save data: ${error.message}`);
+    return false;
+  }
+}
+
+// Helper function to show errors to user
+function showErrorToUser(message) {
+  const errorDiv = document.getElementById('error-messages');
+  if (errorDiv) {
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  } else {
+    alert(message); // Fallback to alert if no error div exists
+  }
 }
 
 async function saveCalculations() {
-    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-    
-    for (const row of rows) {
-        const data = {
-            ProjectPool: getInputValue(row, 'ProjectPool'),
-            Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-            '%Flowcell': parseFloat(row.querySelector('[data-field="%(Flowcell)"]').dataset.preciseValue),
-            nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
-            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%Sample per (Flowcell)"]').dataset.preciseValue),
-            'UI_NGS_Pool': getInputValue(row, 'UI NGS Pool')
-        };
+  const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+  
+  for (const row of rows) {
+    const data = {
+      ProjectPool: getInputValue(row, 'ProjectPool'),
+      Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
+      '%Flowcell': parseFloat(row.querySelector('[data-field="%(Flowcell)"]').dataset.preciseValue),
+      nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
+      '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%Sample per (Flowcell)"]').dataset.preciseValue),
+      'UI_NGS_Pool': getInputValue(row, 'UI NGS Pool')
+    };
 
-        try {
-            const response = await fetch('update_calculations.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
+    try {
+      const response = await fetch('update_calculations.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
 
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to save calculations');
-            }
-        } catch (error) {
-            console.error('Error saving calculations:', error);
-            alert('Error saving calculations: ' + error.message);
-            return false;
-        }
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to save calculations');
+      }
+    } catch (error) {
+      console.error('Error saving calculations:', error);
+      showErrorToUser('Error saving calculations: ' + error.message);
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 // Calculate clusters for a row using the preliminary fields
@@ -189,22 +262,21 @@ function updatePreliminaryFlowcell() {
 }
 
 function getInputValue(row, fieldName) {
-    const input = row.querySelector(`[data-field="${fieldName}"]`);
-    if (!input) return '';
-    
-    // For select inputs, return the value directly.
-    if (input.type === 'select-one') {
-      return input.value;
-    }
-    
-    // For read-only inputs (like ProjectPool), return the raw string.
-    if (input.readOnly) {
-      return input.value;
-    }
-    
-    const value = input.value.trim();
-    return value.endsWith('%') ? parsePercentage(value) : (value === '' ? 0 : parseNumber(value));
+  const input = row.querySelector(`[data-field="${fieldName}"]`);
+  if (!input) return '';
+  
+  if (input.type === 'select-one') {
+    return input.value;
   }
+  
+  if (input.readOnly) {
+    return input.value;
+  }
+  
+  const value = input.value.trim();
+  return value.endsWith('%') ? parsePercentage(value) : (value === '' ? 0 : parseNumber(value));
+}
+
 function arePreliminaryFieldsFilled(row) {
   return preliminaryRequiredFields.every(field => {
     const input = row.querySelector(`[data-field="${field}"]`);
@@ -217,68 +289,67 @@ function preliminaryCalculate(row) {
   updatePreliminaryFlowcell();
 }
 
-// Updated finalCalculateAll with database integration
 async function finalCalculateAll() {
-    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-    let allFilled = true;
-    
-    rows.forEach(row => {
-      const filled = fullRequiredFields.every(field => {
-        const input = row.querySelector(`[data-field="${field}"]`);
-        return input && input.value && input.value.trim() !== '';
-      });
-      if (!filled) {
-        allFilled = false;
-      }
+  console.log('Running final calculations...');
+  const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+  let allFilled = true;
+  
+  rows.forEach(row => {
+    const filled = fullRequiredFields.every(field => {
+      const input = row.querySelector(`[data-field="${field}"]`);
+      return input && input.value && input.value.trim() !== '';
     });
-    
-    if (!allFilled) {
-      alert("Niet alle velden zijn ingevuld in alle rijen.");
-      return;
+    if (!filled) {
+      allFilled = false;
     }
-    
-    if (!confirm("Is alle informatie correct ingevuld? Klik op OK om definitief te berekenen.")) {
-      return;
-    }
+  });
+  
+  if (!allFilled) {
+    showErrorToUser("Niet alle velden zijn ingevuld in alle rijen.");
+    return;
+  }
+  
+  if (!confirm("Is alle informatie correct ingevuld? Klik op OK om definitief te berekenen.")) {
+    return;
+  }
 
-    // Save preliminary data first
-    const preliminarySaved = await savePreliminaryData();
-    if (!preliminarySaved) {
-        return;
-    }
+  const preliminarySaved = await savePreliminaryData();
+  if (!preliminarySaved) {
+    return;
+  }
+  
+  finalCalculationConfirmed = true;
+  
+  rows.forEach(row => {
+    const conc = getInputValue(row, 'Conc');
+    const avgLibSize = getInputValue(row, 'AvgLibSize');
     
-    finalCalculationConfirmed = true;
-    
-    rows.forEach(row => {
-      const conc = getInputValue(row, 'Conc');
-      const avgLibSize = getInputValue(row, 'AvgLibSize');
-      
-      if (conc > 0 && avgLibSize > 0) {
-        const nM = calculateNM(avgLibSize, conc);
-        const nMInput = row.querySelector('[data-field="nM"]');
-        if (nMInput && nM > 0) {
-          nMInput.dataset.preciseValue = nM.toString();
-          nMInput.value = nM.toFixed(1);
-        }
+    if (conc > 0 && avgLibSize > 0) {
+      const nM = calculateNM(avgLibSize, conc);
+      const nMInput = row.querySelector('[data-field="nM"]');
+      if (nMInput && nM > 0) {
+        nMInput.dataset.preciseValue = nM.toString();
+        nMInput.value = nM.toFixed(1);
       }
-    });
-    
-    updateFinalPercentagesAndFlowcell();
+    }
+  });
+  
+  updateFinalPercentagesAndFlowcell();
 }
 
 function calculateNM(avgLibSize, conc) {
-    console.log('Calculating nM with:', { avgLibSize, conc });
-    const numericAvgLibSize = parseFloat(avgLibSize);
-    const numericConc = parseFloat(conc);
-    
-    if (isNaN(numericAvgLibSize) || isNaN(numericConc) || numericAvgLibSize === 0) {
-      console.log('Invalid values for nM calculation');
-      return 0;
-    }
-    
-    const nM = (numericConc * 1000000) / (649 * numericAvgLibSize);
-    console.log('Calculated nM:', nM);
-    return nM;
+  console.log('Calculating nM with:', { avgLibSize, conc });
+  const numericAvgLibSize = parseFloat(avgLibSize);
+  const numericConc = parseFloat(conc);
+  
+  if (isNaN(numericAvgLibSize) || isNaN(numericConc) || numericAvgLibSize === 0) {
+    console.log('Invalid values for nM calculation');
+    return 0;
+  }
+  
+  const nM = (numericConc * 1000000) / (649 * numericAvgLibSize);
+  console.log('Calculated nM:', nM);
+  return nM;
 }
 
 function updateFinalPercentagesAndFlowcell() {
@@ -320,7 +391,6 @@ function updateFinalPercentagesAndFlowcell() {
   trisOutput.textContent = `ul Tris aan pool toevoegen: ${getSettings().poolSettings.basePoolVolume.toFixed(1)}`;
 }
 
-// Updated calculateUINGSPool with corrected calculation
 async function calculateUINGSPool() {
   const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
   const totalClusters = Array.from(rows).reduce((sum, row) => {
@@ -335,7 +405,7 @@ async function calculateUINGSPool() {
     const clusters = clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0;
     const sampleCount = getInputValue(row, 'SampleCount');
     const percentagePerSample = sampleCount > 0 ? (clusters * 100) / (sampleCount * flowcellMax) : 0;
-    const nM = getPreciseValue(row.querySelector('[data-field="nM"]')); // Get row-specific nM
+    const nM = getPreciseValue(row.querySelector('[data-field="nM"]'));
     return { row, clusters, percentagePerSample, nM };
   });
   
@@ -361,7 +431,6 @@ async function calculateUINGSPool() {
   const trisOutput = document.getElementById('trisOutput');
   trisOutput.textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
-  // Save calculations to database
   const calculationsSaved = await saveCalculations();
   if (!calculationsSaved) {
     return;
@@ -429,7 +498,7 @@ const userEditableFields = [
   'AvgLibSize'
 ];
 
-function createCell(fieldName, isEditable) {
+async function createCell(fieldName, isEditable) {
   const td = document.createElement('td');
 
   if (fieldName === 'ProjectPool') {
@@ -441,7 +510,8 @@ function createCell(fieldName, isEditable) {
     input.style.color = '#666';
     const settings = getSettings();
     const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
-    input.value = `${prefix}${projectPoolCounter++}`;
+    const latestNumber = await getLatestProjectPoolNumber();
+    input.value = `${prefix}${latestNumber + 1}`; // Set initial value for new row
     td.appendChild(input);
   } else if (fieldName === 'Application') {
     const select = document.createElement('select');
@@ -490,22 +560,7 @@ function createCell(fieldName, isEditable) {
   return td;
 }
 
-function reorderProjectPools() {
-  const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-  const settings = getSettings();
-  const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
-
-  rows.forEach((row, index) => {
-    const projectPoolInput = row.querySelector('[data-field="ProjectPool"]');
-    if (projectPoolInput) {
-      projectPoolInput.value = `${prefix}${index + 1}`;
-    }
-  });
-
-  projectPoolCounter = rows.length + 1;
-}
-
-function addRow() {
+async function addRow() {
   const tbody = document.querySelector('#spreadsheetTable tbody');
   const newRow = document.createElement('tr');
   const headers = [
@@ -523,11 +578,11 @@ function addRow() {
     'UI NGS Pool'
   ];
 
-  headers.forEach(header => {
+  for (const header of headers) {
     const isEditable = userEditableFields.includes(header);
-    const cell = createCell(header, isEditable);
+    const cell = await createCell(header, isEditable); // Await since createCell is async
     newRow.appendChild(cell);
-  });
+  }
 
   const tdAction = document.createElement('td');
   const delBtn = document.createElement('button');
@@ -536,7 +591,6 @@ function addRow() {
   delBtn.addEventListener('click', function() {
     tbody.removeChild(newRow);
     updatePreliminaryFlowcell();
-    reorderProjectPools();
   });
   tdAction.appendChild(delBtn);
   newRow.appendChild(tdAction);
@@ -546,8 +600,8 @@ function addRow() {
 }
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-  addRow();
+document.addEventListener('DOMContentLoaded', async function() {
+  await addRow(); // Initial row with dynamic ProjectPool
   document.getElementById('addRowButton').addEventListener('click', addRow);
 
   const controls = document.querySelector('.controls');
