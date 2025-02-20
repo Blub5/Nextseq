@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const table = document.createElement('table');
         table.id = "dataTable";
         table.style.width = "100%";  
-        table.style.tableLayout = "fixed";  // Prevents table from expanding too much
+        table.style.tableLayout = "fixed";  
     
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const th = document.createElement('th');
             th.textContent = column;
             th.className = 'sort-icon';
-            th.style.fontSize = "13px"; // Smaller header text
+            th.style.fontSize = "13px"; 
             if (column === currentSort.column) {
                 th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
             }
@@ -88,9 +88,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
     
                 td.textContent = value ?? '';
-                td.style.fontSize = "13px"; // Smaller text for better fit
+                td.style.fontSize = "13px"; 
                 td.style.wordWrap = "break-word"; 
-                td.style.whiteSpace = "normal"; // Allows text to wrap
+                td.style.whiteSpace = "normal"; 
     
                 tr.appendChild(td);
             });
@@ -123,14 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const columns = Object.keys(tableData[0]);
     
-        // Convert data to CSV format with semicolon (;) delimiter
+    
         const csvContent = [
-            columns.join(';'), // Headers
+            columns.join(';'), 
             ...tableData.map(row =>
                 columns.map(column => {
                     let value = row[column];
     
-                    // Format timestamp
+                    
                     if (column === 'timestamp') {
                         const dateObj = new Date(value);
                         value = dateObj.toLocaleString('nl-NL', {
@@ -139,33 +139,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         value = value.padEnd(25);
                     }
-                    // Format Clusters in scientific notation
+                  
                     else if (column === 'Clusters') {
                         value = parseFloat(value).toExponential(2);
                     }
-                    // Round %(Flowcell) to integer
+                   
                     else if (column === '%(Flowcell)') {
                         value = Math.round(parseFloat(value));
                     }
-                    // Format nM to 1 decimal
+                
                     else if (column === 'nM') {
                         value = parseFloat(value).toFixed(1);
                     }
-                    // Handle strings and other numbers
+
                     else {
                         if (typeof value === 'string') {
-                            value = `"${value.replace(/"/g, '""')}"`; // Escape quotes
+                            value = `"${value.replace(/"/g, '""')}"`; 
                         } else if (typeof value === 'number') {
                             value = value.toLocaleString('en-US', { minimumFractionDigits: 2 });
                         }
                     }
     
                     return value;
-                }).join(';') // Use semicolon as delimiter
+                }).join(';') 
             )
         ].join('\n');
     
-        // Create and download the CSV file with UTF-8 BOM (for Excel support)
         const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);

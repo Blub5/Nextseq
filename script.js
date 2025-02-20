@@ -1,5 +1,5 @@
-// Global variables and settings
 let finalCalculationConfirmed = false;
+let lastUsedProjectPoolNumber = 0; // Added global tracker
 
 function getSettings() {
   const savedSettings = JSON.parse(localStorage.getItem('mixdiffpoolsSettings'));
@@ -23,7 +23,6 @@ function getSettings() {
   };
 }
 
-// Fields for each phase
 const preliminaryRequiredFields = ['Application', 'GenomeSize', 'Coverage', 'SampleCount'];
 const fullRequiredFields = ['Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
 
@@ -62,7 +61,6 @@ function getPreciseValue(input) {
   return input.dataset.preciseValue ? parseFloat(input.dataset.preciseValue) : parseFloat(input.value);
 }
 
-// Fetch the latest ProjectPool number from the database
 async function getLatestProjectPoolNumber() {
   try {
     const response = await fetch('get_latest_projectpool.php', {
@@ -89,10 +87,11 @@ async function getLatestProjectPoolNumber() {
 
     const latestProjectPool = result.latestProjectPool || 'NGS-0';
     const number = parseInt(latestProjectPool.replace('NGS-', '')) || 0;
+    lastUsedProjectPoolNumber = number; // Update the global tracker
     return number;
   } catch (error) {
     console.error('Error fetching latest ProjectPool:', error);
-    return 0; // Default to 0 if fetch fails, starting at NGS-1
+    return 0;
   }
 }
 
@@ -102,10 +101,8 @@ async function savePreliminaryData() {
   const settings = getSettings();
   const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
 
-  // Fetch the latest ProjectPool number once
   let latestNumber = await getLatestProjectPoolNumber();
 
-  // Collect data from the table
   for (const row of rows) {
     const projectPoolValue = getInputValue(row, 'ProjectPool');
     let ProjectPool = projectPoolValue;
@@ -162,14 +159,13 @@ async function savePreliminaryData() {
   }
 }
 
-// Helper function to show errors to user
 function showErrorToUser(message) {
   const errorDiv = document.getElementById('error-messages');
   if (errorDiv) {
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
   } else {
-    alert(message); // Fallback to alert if no error div exists
+    alert(message);
   }
 }
 
@@ -208,7 +204,6 @@ async function saveCalculations() {
   return true;
 }
 
-// Calculate clusters for a row using the preliminary fields
 function calculateClusters(application, genomeSize, coverage, sampleCount) {
   const settings = getSettings();
   switch (application) {
@@ -510,8 +505,15 @@ async function createCell(fieldName, isEditable) {
     input.style.color = '#666';
     const settings = getSettings();
     const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
-    const latestNumber = await getLatestProjectPoolNumber();
-    input.value = `${prefix}${latestNumber + 1}`; // Set initial value for new row
+    
+    // Only fetch from database if we haven't initialized the counter yet
+    if (lastUsedProjectPoolNumber === 0) {
+      await getLatestProjectPoolNumber();
+    }
+    
+    // Increment the counter for each new row
+    lastUsedProjectPoolNumber++;
+    input.value = `${prefix}${lastUsedProjectPoolNumber}`;
     td.appendChild(input);
   } else if (fieldName === 'Application') {
     const select = document.createElement('select');
@@ -580,7 +582,7 @@ async function addRow() {
 
   for (const header of headers) {
     const isEditable = userEditableFields.includes(header);
-    const cell = await createCell(header, isEditable); // Await since createCell is async
+    const cell = await createCell(header, isEditable);
     newRow.appendChild(cell);
   }
 
@@ -599,9 +601,8 @@ async function addRow() {
   updatePreliminaryFlowcell();
 }
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
-  await addRow(); // Initial row with dynamic ProjectPool
+  await addRow();
   document.getElementById('addRowButton').addEventListener('click', addRow);
 
   const controls = document.querySelector('.controls');

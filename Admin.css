@@ -1,19 +1,16 @@
-/* General settings */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
 }
-/* Hide scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
     display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
 }
 
 body {
@@ -28,7 +25,6 @@ body {
     gap: 15px;
 }
 
-/* Header styles - matching other pages */
 .header {
     position: fixed;
     top: 0;
@@ -68,7 +64,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Settings container */
 .settings-container {
     width: 100%;
     max-width: 800px;
@@ -86,7 +81,6 @@ body {
     text-align: center;
 }
 
-/* Settings sections */
 .settings-section {
     background-color: #f8f9ff;
     border-radius: 8px;
@@ -102,7 +96,6 @@ body {
     padding-bottom: 8px;
 }
 
-/* Setting items */
 .setting-item {
     display: flex;
     align-items: center;
@@ -132,7 +125,6 @@ body {
     box-shadow: 0 0 5px rgba(8, 140, 4, 0.2);
 }
 
-/* Save button */
 .save-button {
     background-color: #088c04;
     color: white;
@@ -153,7 +145,6 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Save message */
 .save-message {
     text-align: center;
     margin-top: 15px;

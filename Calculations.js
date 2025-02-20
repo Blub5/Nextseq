@@ -25,7 +25,6 @@ const MASS_CONVERSIONS = {
     'pg': 1e-12
 };
 
-// Function to format mass with appropriate unit
 function formatMass(massInGrams) {
     if (massInGrams >= 1) return `${massInGrams.toFixed(3)} g`;
     if (massInGrams >= 1e-3) return `${(massInGrams * 1e3).toFixed(3)} mg`;
@@ -35,7 +34,7 @@ function formatMass(massInGrams) {
     return `${(massInGrams * 1e15).toFixed(3)} fg`;
 }
 
-// Function to format molarity with appropriate unit
+
 function formatMolarity(molarityInM) {
     if (molarityInM >= 1) return `${molarityInM.toFixed(3)} M`;
     if (molarityInM >= 1e-3) return `${(molarityInM * 1e3).toFixed(3)} mM`;
@@ -57,14 +56,14 @@ function calculateRequiredMass() {
         return;
     }
 
-    // Convert to base units (mol/L and L)
+  
     const molarityInM = desiredMolarity * MOLARITY_CONVERSIONS[molarityUnit];
     const volumeInL = volume * VOLUME_CONVERSIONS[volumeUnit];
 
-    // Calculate mass in grams
+
     const requiredMassGrams = molarityInM * volumeInL * molecularWeight;
 
-    // Format the result with appropriate unit
+
     document.getElementById('massResult').textContent = 
         `Required Mass: ${formatMass(requiredMassGrams)}`;
 }
@@ -81,13 +80,11 @@ function calculateMolarity() {
         return;
     }
 
-    // Convert mass to grams
+
     const massInGrams = mass * MASS_CONVERSIONS[massUnit];
-    
-    // Convert volume to liters
+ 
     const volumeInL = volume * VOLUME_CONVERSIONS[volumeUnit];
-    
-    // Calculate molarity in M
+
     const molarityInM = massInGrams / (volumeInL * molecularWeight);
     
     document.getElementById('molarityResult').textContent = 

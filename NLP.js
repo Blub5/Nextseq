@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputs = document.querySelectorAll('input[type="number"]');
     const flowcellSelect = document.getElementById('flowcell');
     
-    // Function to validate numeric input with optional decimal point
     function validateNumericInput(input) {
         let value = input.value.replace(/[^\d.-]/g, '');
         const decimalCount = (value.match(/\./g) || []).length;
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return value;
     }
 
-    // Function to calculate nM and related values
     function calculateValues(conc, avgLib, totalVolume, flowcell) {
         const nM = (conc * 1000) / (649 * avgLib) * 1000;
         const pMol = (flowcell === 'P1' || flowcell === 'P2') ? 700 : 525;
@@ -30,9 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return { nM, pMol, libUl, rsbUl, concCalc };
     }
 
-    // Function to update results table and save to database
     async function updateResultsTableAndSave(results, inputValues) {
-        // Update the table
         document.getElementById('nMResult').textContent = results.nM.toFixed(3);
         document.getElementById('pMolResult').textContent = results.pMol;
         document.getElementById('libUlResult').textContent = results.libUl.toFixed(1);
@@ -40,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('concCalcResult').textContent = results.concCalc.toFixed(3);
         resultsTable.style.display = 'block';
 
-        // Prepare data for saving
         const dataToSave = {
             ...inputValues,
             ...results
@@ -66,20 +61,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Add input validation to all number inputs
+
     inputs.forEach(input => {
         input.addEventListener('input', function() {
             this.value = validateNumericInput(this);
         });
     });
 
-    // Retrieve the last selected flowcell from localStorage
+
     const lastFlowcell = localStorage.getItem('lastFlowcell');
     if (lastFlowcell) {
         flowcellSelect.value = lastFlowcell;
     }
 
-    // Handle calculate button click
+
     calculateBtn.addEventListener('click', async function() {
         try {
             const conc = parseFloat(document.getElementById('conc').value);
@@ -94,12 +89,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error('Alle waarden moeten groter zijn dan 0');
             }
 
-            // Store the selected flowcell in localStorage
+
             localStorage.setItem('lastFlowcell', flowcell);
 
             const results = calculateValues(conc, avgLib, totalVolume, flowcell);
             
-            // Include input values in the save operation
+
             const inputValues = {
                 conc,
                 avgLib,

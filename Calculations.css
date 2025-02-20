@@ -1,19 +1,17 @@
-/* General settings */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
 }
-/* Hide scrollbar for Chrome, Safari and Opera */
+
 ::-webkit-scrollbar {
     display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
 }
 
 body {
@@ -24,12 +22,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 60px; /* Reduced from 80px */
-    gap: 15px; /* Add gap between elements */
+    padding-top: 60px;
+    gap: 15px;
 }
 
-
-/* Calculator Container */
 .calculator-container {
     width: 100%;
     max-width: 800px;
@@ -40,7 +36,6 @@ body {
     margin: 20px auto;
 }
 
-/* Calculator Sections */
 .calculator-section {
     margin-bottom: 30px;
     padding: 20px;
@@ -53,7 +48,7 @@ body {
     margin-bottom: 15px;
 }
 
-/* Input Groups */
+
 .input-group {
     display: flex;
     align-items: center;
@@ -74,7 +69,7 @@ body {
     border-radius: 4px;
 }
 
-/* Input with unit styling */
+
 .input-with-unit {
     display: flex;
     gap: 5px;
@@ -94,7 +89,6 @@ body {
     background-color: #fff;
 }
 
-/* Results */
 .result {
     margin-top: 15px;
     padding: 10px;
@@ -103,7 +97,7 @@ body {
     font-weight: bold;
 }
 
-/* Buttons */
+
 .calculate-button {
     background-color: #088c04;
     color: white;
@@ -128,7 +122,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10px 100px; /* Reduced from 15px */
+    padding: 10px 100px; 
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
@@ -138,7 +132,7 @@ body {
 }
 
 .logo img {
-    height: 40px; /* Reduced from 50px */
+    height: 40px; 
 }
 
 .navbar {

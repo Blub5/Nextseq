@@ -1,7 +1,6 @@
 <?php
 
 header('Content-Type: application/json');
-// Database connection
 $conn = new mysqli("localhost", "root", "", "nextseq");
 
 if ($conn->connect_error) {
@@ -9,11 +8,9 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Get POST data
 $data = json_decode(file_get_contents('php://input'), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate required fields
     $required_fields = ['conc', 'avgLib', 'totalVolume', 'flowcell', 'nM', 'pMol', 'libUl', 'rsbUl', 'concCalc'];
     foreach ($required_fields as $field) {
         if (!isset($data[$field])) {
@@ -22,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Prepare statement for insertion
+  
     $stmt = $conn->prepare("INSERT INTO nlp_data 
                             (conc, avgLib, totalVolume, flowcell, nM, pMol, libUl, rsbUl, concCalc) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -32,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Convert data types
+
     $conc = (float) $data['conc'];
     $avgLib = (float) $data['avgLib'];
     $totalVolume = (float) $data['totalVolume'];
@@ -43,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rsbUl = (float) $data['rsbUl'];
     $concCalc = (float) $data['concCalc'];
 
-    // Bind parameters
+
     $stmt->bind_param("dddsdiddd", 
         $conc, 
         $avgLib, 
@@ -56,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $concCalc
     );
 
-    // Execute the statement
+
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
