@@ -26,14 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $Clusters = (int)$data['Clusters'];
+    $Clusters = (float)$data['Clusters'];
     $FlowcellPercentage = (float)$data['%Flowcell'];
     $nM = (float)$data['nM'];
     $SamplePerFlowcell = (float)$data['%SamplePerFlowcell'];
-    $UINGS_Pool = $data['UI_NGS_Pool'];
+    $UINGS_Pool = (float)$data['UI_NGS_Pool'];
     $ProjectPool = $data['ProjectPool'];
 
-    $stmt->bind_param("idddss", $Clusters, $FlowcellPercentage, $nM, $SamplePerFlowcell, $UINGS_Pool, $ProjectPool);
+    $stmt->bind_param("ddddds", $Clusters, $FlowcellPercentage, $nM, $SamplePerFlowcell, $UINGS_Pool, $ProjectPool);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);

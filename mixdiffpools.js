@@ -1,5 +1,6 @@
 let finalCalculationConfirmed = false;
-let lastUsedProjectPoolNumber = 0; // Added global tracker
+let lastUsedProjectPoolNumber = 0; // Global tracker, only for reference after saves
+let existingProjectPools = new Set(); // Store existing and tentatively assigned ProjectPool values
 
 function getSettings() {
   const savedSettings = JSON.parse(localStorage.getItem('mixdiffpoolsSettings'));
@@ -95,26 +96,54 @@ async function getLatestProjectPoolNumber() {
   }
 }
 
+async function fetchExistingProjectPools() {
+  try {
+    const response = await fetch('get_table_data.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ table: 'mixdiffpools' })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch project pools: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.message || 'Unknown error fetching project pools');
+    }
+
+    existingProjectPools = new Set(result.data.map(row => row.ProjectPool));
+    // Update lastUsedProjectPoolNumber as a reference
+    lastUsedProjectPoolNumber = Math.max(0, ...Array.from(existingProjectPools)
+      .filter(pp => pp.match(/^NGS-\d+$/))
+      .map(pp => parseInt(pp.replace('NGS-', ''))));
+    console.log('Initialized existingProjectPools:', Array.from(existingProjectPools), 'lastUsedProjectPoolNumber:', lastUsedProjectPoolNumber);
+    return lastUsedProjectPoolNumber;
+  } catch (error) {
+    console.error('Error fetching existing ProjectPools:', error);
+    return 0;
+  }
+}
+
 async function savePreliminaryData() {
   const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
   const allData = [];
   const settings = getSettings();
   const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
 
-  let latestNumber = await getLatestProjectPoolNumber();
-
   for (const row of rows) {
     const projectPoolValue = getInputValue(row, 'ProjectPool');
-    let ProjectPool = projectPoolValue;
     if (!projectPoolValue) {
-      latestNumber++;
-      ProjectPool = `${prefix}${latestNumber}`;
-      const projectPoolInput = row.querySelector('[data-field="ProjectPool"]');
-      if (projectPoolInput) projectPoolInput.value = ProjectPool;
+      console.error('ProjectPool is empty for a row, which should not happen');
+      continue;
     }
 
     const data = {
-      ProjectPool: ProjectPool,
+      ProjectPool: projectPoolValue,
       Application: getInputValue(row, 'Application'),
       GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
       Coverage: parseInt(getInputValue(row, 'Coverage')) || 0,
@@ -145,9 +174,11 @@ async function savePreliminaryData() {
 
       const result = await response.json();
       if (!result.success) {
+        existingProjectPools.delete(data.ProjectPool);
         throw new Error(result.message || 'Unknown error from server');
       }
       console.log(`Data saved successfully for ${data.ProjectPool}`);
+      lastUsedProjectPoolNumber = Math.max(lastUsedProjectPoolNumber, parseInt(data.ProjectPool.replace('NGS-', '')));
     }
 
     await finalCalculateAll();
@@ -399,17 +430,16 @@ async function calculateUINGSPool() {
     const clustersInput = row.querySelector('[data-field="Clusters"]');
     const clusters = clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0;
     const sampleCount = getInputValue(row, 'SampleCount');
-    const percentagePerSample = sampleCount > 0 ? (clusters * 100) / (sampleCount * flowcellMax) : 0;
     const nM = getPreciseValue(row.querySelector('[data-field="nM"]'));
-    return { row, clusters, percentagePerSample, nM };
+    return { row, clusters, sampleCount, nM };
   });
   
-  const totalPercentagePerSample = rowCalculations.reduce((sum, { percentagePerSample }) => sum + percentagePerSample, 0);
+  const totalSampleCount = rowCalculations.reduce((sum, { sampleCount }) => sum + sampleCount, 0);
   const settings = getSettings();
   
-  rowCalculations.forEach(({ row, percentagePerSample, nM }) => {
-    if (totalPercentagePerSample > 0 && nM > 0) {
-      const uiNgsPool = (percentagePerSample * settings.poolSettings.basePoolVolume * settings.poolSettings.expectedNM) / (totalPercentagePerSample * nM);
+  rowCalculations.forEach(({ row, sampleCount, nM }) => {
+    if (totalSampleCount > 0 && nM > 0) {
+      const uiNgsPool = (sampleCount * settings.poolSettings.basePoolVolume * settings.poolSettings.expectedNM) / (totalSampleCount * nM);
       const uiNgsPoolInput = row.querySelector('[data-field="UI NGS Pool"]');
       if (uiNgsPoolInput) {
         uiNgsPoolInput.dataset.preciseValue = uiNgsPool.toString();
@@ -506,14 +536,16 @@ async function createCell(fieldName, isEditable) {
     const settings = getSettings();
     const prefix = settings.projectPoolSettings?.prefix || 'NGS-';
     
-    // Only fetch from database if we haven't initialized the counter yet
-    if (lastUsedProjectPoolNumber === 0) {
-      await getLatestProjectPoolNumber();
+    // Find the next available number starting from 1
+    let nextNumber = 1;
+    while (existingProjectPools.has(`${prefix}${nextNumber}`)) {
+      nextNumber++;
     }
-    
-    // Increment the counter for each new row
-    lastUsedProjectPoolNumber++;
-    input.value = `${prefix}${lastUsedProjectPoolNumber}`;
+    const newProjectPool = `${prefix}${nextNumber}`;
+    input.value = newProjectPool;
+    existingProjectPools.add(newProjectPool); // Reserve this ProjectPool
+    lastUsedProjectPoolNumber = Math.max(lastUsedProjectPoolNumber, nextNumber); // Update reference
+    console.log(`Assigned ProjectPool: ${newProjectPool}, existingProjectPools:`, Array.from(existingProjectPools));
     td.appendChild(input);
   } else if (fieldName === 'Application') {
     const select = document.createElement('select');
@@ -591,6 +623,8 @@ async function addRow() {
   delBtn.textContent = 'Verwijder';
   delBtn.className = 'removeButton';
   delBtn.addEventListener('click', function() {
+    const projectPool = newRow.querySelector('[data-field="ProjectPool"]').value;
+    existingProjectPools.delete(projectPool); // Free up the ProjectPool number
     tbody.removeChild(newRow);
     updatePreliminaryFlowcell();
   });
@@ -602,6 +636,8 @@ async function addRow() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+  // Fetch existing ProjectPools on page load
+  await fetchExistingProjectPools();
   await addRow();
   document.getElementById('addRowButton').addEventListener('click', addRow);
 
