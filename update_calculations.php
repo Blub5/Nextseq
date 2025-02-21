@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$conn = new mysqli("localhost", "root", "", "NGSweb");
+$conn = new mysqli("wbvr-bioinfo.wurnet.nl", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
 
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]);

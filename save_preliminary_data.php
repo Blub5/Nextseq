@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
-$conn = new mysqli("localhost", "root", "", "NGSweb");
+$conn = new mysqli("wbvr-bioinfo.wurnet.nl", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
 
 if ($conn->connect_error) {
     http_response_code(500);
