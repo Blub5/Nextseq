@@ -1,5 +1,7 @@
 <?php
-// delete_projectpool.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header('Content-Type: application/json');
 
 $conn = new mysqli("localhost", "root", "", "NGSweb");
