@@ -37,13 +37,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data.success) throw new Error(data.message);
 
             tableData = data.data;
-            displayTable(tableData, data.columns);
+            displayTable(tableData, data.columns, tableName);
         } catch (error) {
             tableContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
         }
     }
 
-    function displayTable(data, columns) {
+    function displayTable(data, columns, tableName) {
         if (!data.length) {
             tableContainer.innerHTML = '<div>No data available</div>';
             return;
@@ -68,6 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
             th.addEventListener('click', () => handleSort(column));
             headerRow.appendChild(th);
         });
+
+        // Add "Actions" column header
+        const actionTh = document.createElement('th');
+        actionTh.textContent = 'Actions';
+        actionTh.style.fontSize = "13px";
+        headerRow.appendChild(actionTh);
     
         thead.appendChild(headerRow);
         table.appendChild(thead);
@@ -91,9 +97,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 td.style.fontSize = "13px"; 
                 td.style.wordWrap = "break-word"; 
                 td.style.whiteSpace = "normal"; 
-    
                 tr.appendChild(td);
             });
+
+            // Add Delete button for mixdiffpools table only
+            const actionTd = document.createElement('td');
+            if (tableName === 'mixdiffpools') {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.className = 'delete-button';
+                deleteBtn.style.backgroundColor = '#ff4444';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.padding = '4px 8px';
+                deleteBtn.style.borderRadius = '4px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.addEventListener('click', () => deleteRow(row.ProjectPool));
+                actionTd.appendChild(deleteBtn);
+            }
+            tr.appendChild(actionTd);
+
             tbody.appendChild(tr);
         });
     
@@ -101,7 +124,30 @@ document.addEventListener('DOMContentLoaded', function() {
         tableContainer.innerHTML = '';
         tableContainer.appendChild(table);
     }
-    
+
+    async function deleteRow(projectPool) {
+        if (!confirm(`Are you sure you want to delete ProjectPool ${projectPool}?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('delete_projectpool.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ProjectPool: projectPool })
+            });
+
+            if (!response.ok) throw new Error('Failed to delete row.');
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            alert(`Row with ProjectPool ${projectPool} deleted successfully.`);
+            loadTableData(tableSelect.value); // Refresh table
+        } catch (error) {
+            alert(`Error deleting row: ${error.message}`);
+        }
+    }
 
     function filterTable() {
         const query = searchInput.value.toLowerCase();
@@ -122,15 +168,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tableData.length) return alert('No data to export.');
         
         const columns = Object.keys(tableData[0]);
-    
-    
         const csvContent = [
             columns.join(';'), 
             ...tableData.map(row =>
                 columns.map(column => {
                     let value = row[column];
-    
-                    
                     if (column === 'timestamp') {
                         const dateObj = new Date(value);
                         value = dateObj.toLocaleString('nl-NL', {
@@ -138,28 +180,19 @@ document.addEventListener('DOMContentLoaded', function() {
                             hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
                         value = value.padEnd(25);
-                    }
-                  
-                    else if (column === 'Clusters') {
+                    } else if (column === 'Clusters') {
                         value = parseFloat(value).toExponential(2);
-                    }
-                   
-                    else if (column === '%(Flowcell)') {
+                    } else if (column === '%(Flowcell)') {
                         value = Math.round(parseFloat(value));
-                    }
-                
-                    else if (column === 'nM') {
+                    } else if (column === 'nM') {
                         value = parseFloat(value).toFixed(1);
-                    }
-
-                    else {
+                    } else {
                         if (typeof value === 'string') {
                             value = `"${value.replace(/"/g, '""')}"`; 
                         } else if (typeof value === 'number') {
                             value = value.toLocaleString('en-US', { minimumFractionDigits: 2 });
                         }
                     }
-    
                     return value;
                 }).join(';') 
             )

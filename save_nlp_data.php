@@ -1,7 +1,7 @@
 <?php
 
 header('Content-Type: application/json');
-$conn = new mysqli("localhost", "root", "", "nextseq");
+$conn = new mysqli("localhost", "root", "", "NGSweb");
 
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]);
@@ -18,8 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
     }
-
-  
+    
     $stmt = $conn->prepare("INSERT INTO nlp_data 
                             (conc, avgLib, totalVolume, flowcell, nM, pMol, libUl, rsbUl, concCalc) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
