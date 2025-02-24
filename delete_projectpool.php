@@ -4,8 +4,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 header('Content-Type: application/json');
 
-require_once 'config.php';
-
 function handleError($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
     echo json_encode([

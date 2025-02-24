@@ -4,8 +4,6 @@ ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
 
-require_once 'config.php';
-
 $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
 
 if ($conn->connect_error) {
