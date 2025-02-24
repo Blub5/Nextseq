@@ -77,10 +77,16 @@ try {
         $query = "SELECT * FROM `$table` ORDER BY `$sortColumn` $sortDirection";
     }
 
+    // Debug: Log the query
+    error_log("Query: $query");
+
     $result = $conn->query($query);
     if (!$result) {
         throw new Exception('Query failed: ' . $conn->error);
     }
+
+    // Debug: Log the number of rows returned
+    error_log("Rows returned: " . $result->num_rows);
 
     $data = [];
     while ($row = $result->fetch_assoc()) {

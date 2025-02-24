@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error('Failed to fetch data.');
 
             const data = await response.json();
+            // Debug: Log the full response
+            console.log('Response:', data);
             if (!data.success) throw new Error(data.message);
 
             tableData = data.data;
