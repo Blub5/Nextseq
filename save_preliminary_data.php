@@ -1,11 +1,11 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+ob_start();
 header('Content-Type: application/json');
 
-$conn = new mysqli("localhost", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+$conn = new mysqli("localhost", "root", "", "ngsweb");
 
 if ($conn->connect_error) {
     http_response_code(500);
@@ -36,36 +36,54 @@ foreach ($required_fields as $field) {
 }
 
 try {
+    // Check if ProjectPool already exists
+    $checkStmt = $conn->prepare("SELECT ProjectPool FROM mixdiffpools WHERE ProjectPool = ?");
+    if (!$checkStmt) {
+        throw new Exception('Prepare check failed: ' . $conn->error);
+    }
+    
+    $projectPool = $data['ProjectPool'];
+    $checkStmt->bind_param("s", $projectPool);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    if ($checkResult->num_rows > 0) {
+        http_response_code(409); // Conflict status code
+        echo json_encode(['success' => false, 'message' => "ProjectPool '$projectPool' already exists"]);
+        $checkStmt->close();
+        $conn->close();
+        ob_end_flush();
+        exit;
+    }
+    $checkStmt->close();
+
+    // Insert new ProjectPool
     $stmt = $conn->prepare("INSERT INTO mixdiffpools (ProjectPool, Application, GenomeSize, Coverage, SampleCount, Conc, AvgLibSize) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?)");
+                           VALUES (?, ?, ?, ?, ?, ?, ?)");
+    
     if (!$stmt) {
         throw new Exception('Prepare failed: ' . $conn->error);
     }
 
-    $ProjectPool = (string) $data['ProjectPool'];
-    $Application = (string) $data['Application'];
-    $GenomeSize = (int) $data['GenomeSize'];
-    $Coverage = (int) $data['Coverage'];
-    $SampleCount = (int) $data['SampleCount'];
-    $Conc = (float) $data['Conc'];
-    $AvgLibSize = (float) $data['AvgLibSize'];
+    $application = $data['Application'];
+    $genomeSize = (int)$data['GenomeSize'];
+    $coverage = (float)$data['Coverage'];
+    $sampleCount = (int)$data['SampleCount'];
+    $conc = (float)$data['Conc'];
+    $avgLibSize = (int)$data['AvgLibSize'];
 
-    $stmt->bind_param("ssiiidd", $ProjectPool, $Application, $GenomeSize, $Coverage, $SampleCount, $Conc, $AvgLibSize);
+    $stmt->bind_param("ssididd", $projectPool, $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize);
 
     if (!$stmt->execute()) {
         throw new Exception('Execute failed: ' . $stmt->error);
     }
 
-    http_response_code(200);
-    echo json_encode(['success' => true, 'message' => 'Data saved successfully']);
+    echo json_encode(['success' => true, 'message' => "New ProjectPool '$projectPool' saved successfully"]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-} finally {
-    
-    if (isset($stmt)) {
-        $stmt->close();
-    }
-    $conn->close();
 }
+
+$stmt->close();
+$conn->close();
+ob_end_flush();
 ?>

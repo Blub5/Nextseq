@@ -1,26 +1,32 @@
 <?php
-// File: get_table_data.php
-error_reporting(0);
-ini_set('display_errors', 0);
+ob_start();
 header('Content-Type: application/json');
+
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 
 function handleError($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Internal server error',
-        'debug' => ['error' => $errstr]
+        'debug' => ['error' => $errstr, 'file' => $errfile, 'line' => $errline]
     ]);
+    ob_end_flush();
     exit;
 }
 
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli("localhost", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
+    $conn = new mysqli("localhost", "root", "", "ngsweb");
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Method not allowed, use POST');
     }
 
     $data = json_decode(file_get_contents('php://input'), true);
@@ -52,7 +58,7 @@ try {
 
     $columnsResult = $conn->query("SHOW COLUMNS FROM `$table`");
     if (!$columnsResult) {
-        throw new Exception('Failed to get table columns');
+        throw new Exception('Failed to get table columns: ' . $conn->error);
     }
 
     $columns = [];
@@ -96,4 +102,6 @@ try {
         'message' => $e->getMessage()
     ]);
 }
+
+ob_end_flush();
 ?>

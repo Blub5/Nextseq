@@ -3,7 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 header('Content-Type: application/json');
-$conn = new mysqli("localhost", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
+
+$conn = new mysqli("localhost", "root", "", "NGSweb");
 
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]);

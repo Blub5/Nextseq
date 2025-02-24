@@ -17,7 +17,7 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli("localhost", "NGSweb", "BioinformaticxUser2025!", "NGSweb");
+    $conn = new mysqli("localhost", "root", "", "NGSweb");
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
