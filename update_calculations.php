@@ -1,12 +1,13 @@
 <?php
+// Start output buffering to ensure headers are sent correctly
 ob_start();
 header('Content-Type: application/json');
 
+// Enable error reporting for debugging (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-require_once 'config.php';
-
+// Database connection (adjust credentials as needed)
 $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
 
 if ($conn->connect_error) {
@@ -16,8 +17,13 @@ if ($conn->connect_error) {
     exit;
 }
 
+// Get incoming data
 $data = json_decode(file_get_contents('php://input'), true);
 
+// Log incoming data for debugging
+file_put_contents('/tmp/update_calculations.log', "Received data: " . print_r($data, true) . "\n", FILE_APPEND);
+
+// Ensure the request method is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed, use POST']);
@@ -25,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Define required fields
 $required_fields = ['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI_NGS_Pool', 'ProjectPool'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field])) {
@@ -35,31 +42,42 @@ foreach ($required_fields as $field) {
     }
 }
 
+// Prepare the UPDATE query
 $stmt = $conn->prepare("UPDATE mixdiffpools SET 
     Clusters = ?, `%Flowcell` = ?, nM = ?, `%SamplePerFlowcell` = ?, `UI NGS Pool` = ?
     WHERE ProjectPool = ?");
 
 if (!$stmt) {
+    $error = $conn->error;
+    file_put_contents('/tmp/update_calculations.log', "Prepare failed: $error\n", FILE_APPEND);
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
+    echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $error]);
     ob_end_flush();
     exit;
 }
 
+// Bind parameters with correct types
 $clusters = (int)$data['Clusters'];
 $flowcellPercentage = (float)$data['%Flowcell'];
 $nM = (float)$data['nM'];
 $samplePerFlowcell = (float)$data['%SamplePerFlowcell'];
-$uiNgsPool = (float)$data['UI_NGS_Pool']; // Bound as float for DECIMAL(10,2)
+$uiNgsPool = (float)$data['UI_NGS_Pool'];
 $projectPool = $data['ProjectPool'];
+
+// Log bound parameters
+file_put_contents('/tmp/update_calculations.log', "Binding params: $clusters, $flowcellPercentage, $nM, $samplePerFlowcell, $uiNgsPool, $projectPool\n", FILE_APPEND);
 
 $stmt->bind_param("idddds", $clusters, $flowcellPercentage, $nM, $samplePerFlowcell, $uiNgsPool, $projectPool);
 
+// Execute the query
 if ($stmt->execute()) {
+    file_put_contents('/tmp/update_calculations.log', "Executed successfully, affected rows: " . $stmt->affected_rows . "\n", FILE_APPEND);
     echo json_encode(['success' => true]);
 } else {
+    $error = $stmt->error;
+    file_put_contents('/tmp/update_calculations.log', "Execute failed: $error\n", FILE_APPEND);
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Execute failed: ' . $stmt->error]);
+    echo json_encode(['success' => false, 'message' => 'Execute failed: ' . $error]);
 }
 
 $stmt->close();
