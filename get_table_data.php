@@ -5,6 +5,8 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+require_once 'config.php';
+
 function handleError($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
     echo json_encode([
@@ -19,7 +21,7 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli("localhost", "root", "", "ngsweb");
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);

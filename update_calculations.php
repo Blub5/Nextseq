@@ -5,9 +5,12 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-$conn = new mysqli("localhost", "root", "", "ngsweb");
+require_once 'config.php';
+
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]);
     exit;
 }
@@ -23,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $required_fields = ['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI_NGS_Pool', 'ProjectPool'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field])) {
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => "Missing required field: $field"]);
         exit;
     }
@@ -33,22 +37,24 @@ $stmt = $conn->prepare("UPDATE mixdiffpools SET
     WHERE ProjectPool = ?");
 
 if (!$stmt) {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
     exit;
 }
 
-$clusters = (int)$data['Clusters']; // BIGINT
-$flowcellPercentage = (float)$data['%Flowcell']; // DECIMAL(5,2)
-$nM = (float)$data['nM']; // DECIMAL(10,4)
-$samplePerFlowcell = (float)$data['%SamplePerFlowcell']; // DECIMAL(5,2)
-$uiNgsPool = (float)$data['UI_NGS_Pool']; // DECIMAL(10,2)
-$projectPool = $data['ProjectPool']; // VARCHAR(255)
+$clusters = (int)$data['Clusters'];
+$flowcellPercentage = (float)$data['%Flowcell'];
+$nM = (float)$data['nM'];
+$samplePerFlowcell = (float)$data['%SamplePerFlowcell'];
+$uiNgsPool = (float)$data['UI_NGS_Pool'];
+$projectPool = $data['ProjectPool'];
 
 $stmt->bind_param("idddds", $clusters, $flowcellPercentage, $nM, $samplePerFlowcell, $uiNgsPool, $projectPool);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);
 } else {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Execute failed: ' . $stmt->error]);
 }
 

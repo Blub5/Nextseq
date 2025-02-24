@@ -5,7 +5,9 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-$conn = new mysqli("localhost", "root", "", "ngsweb");
+require_once 'config.php';
+
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
     http_response_code(500);
@@ -36,7 +38,7 @@ foreach ($required_fields as $field) {
 }
 
 try {
-    // Check if ProjectPool already exists
+    // Check existing ProjectPool
     $checkStmt = $conn->prepare("SELECT ProjectPool FROM mixdiffpools WHERE ProjectPool = ?");
     if (!$checkStmt) {
         throw new Exception('Prepare check failed: ' . $conn->error);
@@ -47,7 +49,7 @@ try {
     $checkStmt->execute();
     $checkResult = $checkStmt->get_result();
     if ($checkResult->num_rows > 0) {
-        http_response_code(409); // Conflict status code
+        http_response_code(409);
         echo json_encode(['success' => false, 'message' => "ProjectPool '$projectPool' already exists"]);
         $checkStmt->close();
         $conn->close();

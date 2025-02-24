@@ -5,9 +5,12 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-$conn = new mysqli("localhost", "root", "", "ngsweb");
+require_once 'config.php';
+
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Connection failed: ' . $conn->connect_error]);
     exit;
 }
@@ -28,6 +31,7 @@ try {
         echo json_encode(['success' => true, 'latestProjectPool' => null]);
     }
 } catch (Exception $e) {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 

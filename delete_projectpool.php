@@ -1,8 +1,10 @@
 <?php
 // File: delete_projectpool.php
-error_reporting(0);
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
 header('Content-Type: application/json');
+
+require_once 'config.php';
 
 function handleError($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
@@ -17,7 +19,7 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli("localhost", "root", "", "NGSweb");
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
