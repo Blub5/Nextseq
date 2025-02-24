@@ -207,7 +207,7 @@ async function saveCalculations() {
             'UI_NGS_Pool': getInputValue(row, 'UI NGS Pool')
         };
 
-        console.log('Sending data to update_calculations.php:', data);
+        console.log('Sending data to update_calculations.php:', JSON.stringify(data));
 
         try {
             const response = await fetch('update_calculations.php', {
@@ -219,13 +219,14 @@ async function saveCalculations() {
                 body: JSON.stringify(data)
             });
 
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
+
             if (!response.ok) {
-                const text = await response.text();
-                console.error('Server response:', text);
-                throw new Error(`Server returned status ${response.status}`);
+                throw new Error(`Server returned status ${response.status}: ${responseText}`);
             }
 
-            const result = await response.json();
+            const result = JSON.parse(responseText); // Attempt to parse JSON
             if (!result.success) {
                 throw new Error(result.message || 'Failed to save calculations');
             }
