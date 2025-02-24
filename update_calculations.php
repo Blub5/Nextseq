@@ -50,10 +50,10 @@ $clusters = (int)$data['Clusters'];
 $flowcellPercentage = (float)$data['%Flowcell'];
 $nM = (float)$data['nM'];
 $samplePerFlowcell = (float)$data['%SamplePerFlowcell'];
-$uiNgsPool = $data['UI_NGS_Pool']; // Treated as string, no cast to float
+$uiNgsPool = (float)$data['UI_NGS_Pool']; // Bound as float for DECIMAL(10,2)
 $projectPool = $data['ProjectPool'];
 
-$stmt->bind_param("idddss", $clusters, $flowcellPercentage, $nM, $samplePerFlowcell, $uiNgsPool, $projectPool);
+$stmt->bind_param("idddds", $clusters, $flowcellPercentage, $nM, $samplePerFlowcell, $uiNgsPool, $projectPool);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);
