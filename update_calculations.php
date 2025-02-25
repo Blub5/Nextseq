@@ -7,6 +7,7 @@ header('Content-Type: application/json');
 // Enable error reporting for debugging (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
+
 // Log function for debugging
 function logDebug($message) {
     file_put_contents('/tmp/update_calculations.log', date('[Y-m-d H:i:s] ') . $message . "\n", FILE_APPEND);
@@ -85,7 +86,7 @@ $stmt->bind_param("idddds", $clusters, $flowcellPercentage, $nM, $samplePerFlowc
 // Execute the query
 if ($stmt->execute()) {
     logDebug("Executed successfully, affected rows: " . $stmt->affected_rows);
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'message' => "Calculations updated for ProjectPool '$projectPool'"]);
 } else {
     $error = $stmt->error;
     logDebug("Execute failed: $error");

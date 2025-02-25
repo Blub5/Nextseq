@@ -22,6 +22,12 @@
 
   <main class="main-content">
     <div class="spreadsheet-container">
+      <!-- Add Run Name Input -->
+      <div class="run-name-container" style="margin-bottom: 10px;">
+        <label for="runNameInput" style="font-weight: bold; margin-right: 10px;">Run Name:</label>
+        <input type="text" id="runNameInput" placeholder="Enter a unique run name" style="padding: 5px; font-size: 14px; width: 200px;">
+      </div>
+
       <div class="table-wrapper">
         <table id="spreadsheetTable">
           <thead>
@@ -49,7 +55,6 @@
 
       <div class="controls">
         <button id="addRowButton">Voeg rij toe</button>
-        <!-- The final "Bevestig gegevens" button is added by JavaScript -->
       </div>
     </div>
 

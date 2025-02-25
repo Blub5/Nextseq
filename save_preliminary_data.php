@@ -5,7 +5,6 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-
 $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
 
 if ($conn->connect_error) {
@@ -27,7 +26,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     exit;
 }
 
-$required_fields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
+$required_fields = ['RunName', 'ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field]) || $data[$field] === '') {
         http_response_code(400);
@@ -57,14 +56,15 @@ try {
     }
     $checkStmt->close();
 
-    // Insert new ProjectPool
-    $stmt = $conn->prepare("INSERT INTO mixdiffpools (ProjectPool, Application, GenomeSize, Coverage, SampleCount, Conc, AvgLibSize) 
-                           VALUES (?, ?, ?, ?, ?, ?, ?)");
+    // Insert new ProjectPool with RunName
+    $stmt = $conn->prepare("INSERT INTO mixdiffpools (RunName, ProjectPool, Application, GenomeSize, Coverage, SampleCount, Conc, AvgLibSize) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     
     if (!$stmt) {
         throw new Exception('Prepare failed: ' . $conn->error);
     }
 
+    $runName = $data['RunName'];
     $application = $data['Application'];
     $genomeSize = (int)$data['GenomeSize'];
     $coverage = (float)$data['Coverage'];
@@ -72,13 +72,13 @@ try {
     $conc = (float)$data['Conc'];
     $avgLibSize = (int)$data['AvgLibSize'];
 
-    $stmt->bind_param("ssididd", $projectPool, $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize);
+    $stmt->bind_param("sssiddi", $runName, $projectPool, $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize);
 
     if (!$stmt->execute()) {
         throw new Exception('Execute failed: ' . $stmt->error);
     }
 
-    echo json_encode(['success' => true, 'message' => "New ProjectPool '$projectPool' saved successfully"]);
+    echo json_encode(['success' => true, 'message' => "New ProjectPool '$projectPool' saved successfully under run '$runName'"]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);

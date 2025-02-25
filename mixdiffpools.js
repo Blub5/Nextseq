@@ -123,6 +123,13 @@ async function fetchExistingProjectPools() {
 }
 
 async function savePreliminaryData() {
+    const runNameInput = document.getElementById('runNameInput');
+    const runName = runNameInput.value.trim();
+    if (!runName) {
+        showErrorToUser('Please enter a run name before saving.');
+        return false;
+    }
+
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
     const allData = [];
     const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
@@ -130,6 +137,7 @@ async function savePreliminaryData() {
 
     for (const row of rows) {
         const data = {
+            RunName: runName, // Add run name to the data
             ProjectPool: getInputValue(row, 'ProjectPool'),
             Application: getInputValue(row, 'Application'),
             GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
@@ -181,7 +189,7 @@ async function savePreliminaryData() {
                 throw new Error(result.message || 'Unknown error from server');
             }
 
-            console.log(`Data saved successfully for ${data.ProjectPool}`);
+            console.log(`Data saved successfully for ${data.ProjectPool} under run ${data.RunName}`);
             existingProjectPools.add(data.ProjectPool);
             lastUsedProjectPoolNumber = Math.max(lastUsedProjectPoolNumber, parseInt(data.ProjectPool.replace('NGS-', '')));
         } catch (error) {
