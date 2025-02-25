@@ -57,7 +57,7 @@ body {
 .spreadsheet-container {
   width: 100%;
   max-width: 1300px;
-  height: calc(100vh - 300px); 
+  height: calc(100vh - 280px); 
   padding: 15px;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
