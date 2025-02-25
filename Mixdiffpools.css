@@ -67,6 +67,10 @@ body {
   flex-direction: column;
   gap: 10px; 
 }
+.run-selection-container {
+  display: flex;
+  align-items: center;
+}
 .table-wrapper {
   flex-grow: 1;
   width: 100%;
@@ -133,10 +137,17 @@ input {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
 .controls {
   display: flex;
   justify-content: center;
   margin-top: 5px; 
+}
+#runSelect, #newRunNameInput {
+  width: 200px;
 }
 #addRowButton {
   background-color: #088c04;

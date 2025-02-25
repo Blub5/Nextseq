@@ -22,14 +22,14 @@
 
   <main class="main-content">
     <div class="spreadsheet-container">
-      <div class="run-selection-container" style="margin-bottom: 10px;">
+      <div class="run-selection-container" style="margin-bottom: 10px; display: flex; align-items: center;">
         <label for="runSelect" style="font-weight: bold; margin-right: 10px;">Select Run:</label>
-        <select id="runSelect" style="padding: 5px; font-size: 14px;">
-          <option value="">Select Existing Run</option>
+        <select id="runSelect" style="padding: 5px; font-size: 14px; width: 200px;">
           <option value="new">New Run</option>
+          <option value="">Select Existing Run</option>
           <!-- Existing runs will be populated dynamically -->
         </select>
-        <input type="text" id="newRunNameInput" placeholder="Enter new run name" style="display: none; padding: 5px; font-size: 14px; margin-left: 10px;">
+        <input type="text" id="newRunNameInput" placeholder="Enter new run name" style="padding: 5px; font-size: 14px; margin-left: 10px; width: 200px;">
       </div>
 
       <div class="table-wrapper">

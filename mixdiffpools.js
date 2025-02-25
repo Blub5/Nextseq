@@ -114,6 +114,13 @@ async function loadRunData(runName) {
                     if (header === 'ProjectPool') {
                         input.readOnly = true;
                         input.style.backgroundColor = '#f0f0f0';
+                    } else if (['Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'].includes(header)) {
+                        input.readOnly = true;
+                        input.placeholder = 'Output';
+                        input.style.backgroundColor = '#f0f0f0';
+                    } else {
+                        input.placeholder = 'Insert';
+                        input.style.color = '#333';
                     }
                 }
                 td.appendChild(input);
@@ -174,7 +181,10 @@ async function addRow() {
                 input.style.backgroundColor = '#f0f0f0';
             } else if (['Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'].includes(header)) {
                 input.readOnly = true;
+                input.placeholder = 'Output';
                 input.style.backgroundColor = '#f0f0f0';
+            } else {
+                input.placeholder = 'Insert';
             }
             td.appendChild(input);
         }
@@ -525,6 +535,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchExistingProjectPools();
     const runNames = await fetchRunNames();
     const runSelect = document.getElementById('runSelect');
+    // Set default to 'new'
+    runSelect.value = 'new';
+    document.getElementById('newRunNameInput').style.display = 'block';
+    
     runNames.forEach(runName => {
         const option = document.createElement('option');
         option.value = runName;
@@ -568,4 +582,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             realTimeCalculate(row);
         }
     });
+    
+    // Add a row automatically when page loads
+    await addRow();
 });
