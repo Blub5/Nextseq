@@ -488,11 +488,64 @@ function updateFinalPercentagesAndFlowcell() {
     trisOutput.textContent = `ul Tris aan pool toevoegen: ${getSettings().poolSettings.basePoolVolume.toFixed(1)}`;
 }
 
+function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
+    const progressBar = document.getElementById('flowcellProgress');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const legendContainer = document.getElementById('progressLegend');
+
+    if (!progressBar || !progressPercentage || !legendContainer) {
+        console.warn('Progress bar, percentage, or legend elements not found in the DOM');
+        return;
+    }
+
+    // Clear existing content
+    progressBar.innerHTML = '';
+    legendContainer.innerHTML = '';
+
+    // Calculate total percentage
+    const totalPercentage = rowCalculations.reduce((sum, { percentageOfFlowcell }) => sum + percentageOfFlowcell, 0);
+
+    // Update progress bar segments
+    let cumulativeWidth = 0;
+    rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
+        const projectPool = getInputValue(row, 'ProjectPool');
+        const color = getColorForProjectPool(projectPool);
+        const width = percentageOfFlowcell;
+
+        // Create progress segment
+        const segment = document.createElement('div');
+        segment.className = 'progress-segment';
+        segment.style.width = `${width}%`;
+        segment.style.backgroundColor = color;
+        segment.title = `${projectPool}: ${percentageOfFlowcell.toFixed(1)}%`;
+        progressBar.appendChild(segment);
+
+        cumulativeWidth += width;
+
+        // Create legend item
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        legendItem.innerHTML = `
+            <span class="legend-color" style="background-color: ${color};"></span>
+            ${projectPool}: ${percentageOfFlowcell.toFixed(1)}%
+        `;
+        legendContainer.appendChild(legendItem);
+    });
+
+    // Cap the progress bar width at 100% visually
+    progressBar.style.width = `${Math.min(totalPercentage, 100)}%`;
+    progressPercentage.textContent = `${totalPercentage.toFixed(1)}%`;
+
+    // Warn if total exceeds 100%
+    if (totalPercentage > 100) {
+        showErrorToUser(`Warning: Total flowcell usage exceeds 100% (${totalPercentage.toFixed(1)}%)`);
+    }
+}
+
 async function calculateUINGSPool() {
     console.log('Starting calculateUINGSPool');
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
 
-    // Perform calculations
     const totalClusters = Array.from(rows).reduce((sum, row) => {
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         return sum + (clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0);
@@ -526,7 +579,6 @@ async function calculateUINGSPool() {
 
     document.getElementById('trisOutput').textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
-    // Collect all data
     const runSelect = document.getElementById('runSelect');
     const newRunNameInput = document.getElementById('newRunNameInput');
     const runName = runSelect.value === 'new' ? newRunNameInput.value.trim() : runSelect.value;
@@ -556,7 +608,6 @@ async function calculateUINGSPool() {
         allData.push(data);
     });
 
-    // Validate required fields
     let allValid = true;
     allData.forEach(data => {
         const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
@@ -573,7 +624,6 @@ async function calculateUINGSPool() {
         return;
     }
 
-    // Prompt user for confirmation
     if (confirm(`Are you sure you want to save all data for run "${runName}"?`)) {
         try {
             const response = await fetch('save_all_data.php', {
@@ -609,9 +659,7 @@ async function saveCalculations() {
             'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]')) || 0
         };
 
-        // Ensure Clusters is an integer
         data.Clusters = parseInt(data.Clusters);
-        // Ensure decimals have correct precision
         data['%Flowcell'] = parseFloat(data['%Flowcell']).toFixed(2);
         data.nM = parseFloat(data.nM).toFixed(4);
         data['%SamplePerFlowcell'] = parseFloat(data['%SamplePerFlowcell']).toFixed(2);
