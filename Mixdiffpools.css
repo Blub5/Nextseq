@@ -65,6 +65,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px; 
+  margin-top: 10px; 
 }
 .run-selection-container {
   display: flex;
