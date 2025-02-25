@@ -7,9 +7,9 @@ header('Content-Type: application/json');
 
 // Enable error reporting and logging
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // Set to 1 temporarily for direct output
+ini_set('display_errors', 1); // Temporarily enabled for debugging; set to 0 in production
 ini_set('log_errors', 1);
-ini_set('error_log', dirname(__FILE__) . '/php_errors.log'); // Log to script directory
+ini_set('error_log', dirname(__FILE__) . '/php_errors.log');
 
 // Log to a file in the same directory as the script
 $logFile = dirname(__FILE__) . '/save_preliminary.log';

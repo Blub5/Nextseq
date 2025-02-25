@@ -56,9 +56,11 @@ async function fetchExistingProjectPools() {
         lastUsedProjectPoolNumber = Math.max(0, ...Array.from(existingProjectPools)
             .filter(pp => pp.match(/^NGS-\d+$/))
             .map(pp => parseInt(pp.replace('NGS-', ''))));
+        console.log('Fetched existing ProjectPools:', Array.from(existingProjectPools), 'Last number:', lastUsedProjectPoolNumber);
         return lastUsedProjectPoolNumber;
     } catch (error) {
         console.error('Error fetching existing ProjectPools:', error);
+        showErrorToUser('Failed to fetch existing project pools: ' + error.message);
         return 0;
     }
 }
@@ -87,14 +89,13 @@ async function loadRunData(runName) {
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Unknown error');
 
-        console.log('Fetched data for run:', runName, result.data); // Debug: Check raw data
+        console.log('Fetched data for run:', runName, result.data);
 
         const tbody = document.querySelector('#spreadsheetTable tbody');
         tbody.innerHTML = '';
 
         result.data.forEach(rowData => {
             const newRow = document.createElement('tr');
-            // Adjust field names to match database exactly (as per get_table_data.php)
             const headers = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize', 'Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'];
 
             headers.forEach(header => {
@@ -113,7 +114,7 @@ async function loadRunData(runName) {
                     input.value = rowData[header] || '';
                 } else {
                     input.type = 'text';
-                    const rawValue = rowData[header] ?? ''; // Use ?? to handle null/undefined
+                    const rawValue = rowData[header] ?? '';
                     const numericValue = parseFloat(rawValue) || 0;
 
                     if (header === 'ProjectPool') {
@@ -124,7 +125,7 @@ async function loadRunData(runName) {
                         input.readOnly = true;
                         input.placeholder = 'Output';
                         input.style.backgroundColor = '#f0f0f0';
-                        input.dataset.preciseValue = numericValue.toString(); // Store precise numeric value
+                        input.dataset.preciseValue = numericValue.toString();
 
                         if (header === '%Flowcell' || header === '%SamplePerFlowcell') {
                             input.value = numericValue ? `${numericValue.toFixed(1)}%` : '';
@@ -173,10 +174,9 @@ async function loadRunData(runName) {
             newRow.appendChild(tdAction);
 
             tbody.appendChild(newRow);
-            console.log('Row data loaded:', rowData); // Debug: Verify each row's data
+            console.log('Row data loaded:', rowData);
         });
 
-        // Recalculate everything after loading
         Array.from(tbody.querySelectorAll('tr')).forEach(row => {
             realTimeCalculate(row);
             console.log('Post-calc row:', {
@@ -185,7 +185,7 @@ async function loadRunData(runName) {
                 '%Flowcell': getPreciseValue(row.querySelector('[data-field="%Flowcell"]')),
                 '%SamplePerFlowcell': getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]')),
                 nM: getPreciseValue(row.querySelector('[data-field="nM"]'))
-            }); // Debug: Check calculated values
+            });
         });
         updateFinalPercentagesAndFlowcell();
         updatePreliminaryFlowcell();
@@ -261,6 +261,7 @@ async function savePreliminaryData() {
 
     if (!runName) {
         showErrorToUser('Please select an existing run or enter a new run name.');
+        console.error('Run name missing:', { runSelect: runSelect.value, newRunName: newRunNameInput.value });
         return false;
     }
 
@@ -268,6 +269,8 @@ async function savePreliminaryData() {
     const allData = [];
     const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
     let allValid = true;
+
+    console.log('Starting save process for run:', runName, 'Row count:', rows.length);
 
     for (const row of rows) {
         const data = {
@@ -281,11 +284,13 @@ async function savePreliminaryData() {
             AvgLibSize: parseInt(getInputValue(row, 'AvgLibSize')) || 0
         };
 
+        console.log('Row data before validation:', data);
+
         for (const field of requiredFields) {
             if (!data[field] || data[field] === '') {
-                console.warn(`Missing required field: ${field} for ProjectPool: ${data.ProjectPool}`);
-                allValid = false;
+                console.warn(`Missing or empty required field: ${field} for ProjectPool: ${data.ProjectPool}`);
                 showErrorToUser(`Missing required field: ${field} in row ${data.ProjectPool}`);
+                allValid = false;
                 break;
             }
         }
@@ -294,6 +299,7 @@ async function savePreliminaryData() {
 
     if (!allValid || allData.length === 0) {
         showErrorToUser('Please fill all required fields in all rows.');
+        console.error('Validation failed:', { allValid, rowCount: allData.length });
         return false;
     }
 
@@ -328,13 +334,17 @@ async function savePreliminaryData() {
             if (!isExisting) existingProjectPools.add(data.ProjectPool);
             console.log(`Saved ${data.ProjectPool} successfully`);
         } catch (error) {
-            console.error('Error saving data:', error);
+            console.error(`Error saving ${data.ProjectPool}:`, error);
             showErrorToUser(`Failed to save ${data.ProjectPool}: ${error.message}`);
             allSaved = false;
         }
     }
+
     if (allSaved) {
+        console.log('All data saved successfully for run:', runName);
         showErrorToUser(isNewRun ? `New run "${runName}" created successfully!` : `Run "${runName}" updated successfully!`, 'success');
+    } else {
+        console.error('Some data failed to save for run:', runName);
     }
     return allSaved;
 }
