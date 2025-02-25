@@ -139,7 +139,6 @@ async function savePreliminaryData() {
             AvgLibSize: parseFloat(getInputValue(row, 'AvgLibSize')) || 0.0
         };
 
-        // Validate required fields
         for (const field of requiredFields) {
             if (!data[field] || data[field] === '' || data[field] === 0) {
                 console.warn(`Missing or empty required field: ${field} for ProjectPool: ${data.ProjectPool}`);
@@ -226,7 +225,7 @@ async function saveCalculations() {
                 throw new Error(`Server returned status ${response.status}: ${responseText}`);
             }
 
-            const result = JSON.parse(responseText); // Attempt to parse JSON
+            const result = JSON.parse(responseText);
             if (!result.success) {
                 throw new Error(result.message || 'Failed to save calculations');
             }
@@ -281,10 +280,14 @@ function calculateClustersForRow(row) {
 function determineFlowcell(totalClusters) {
     const flowcells = getSettings().flowcells;
     console.log('Inside determineFlowcell - Total Clusters:', totalClusters);
-    if (totalClusters <= flowcells.P1) return 'P1';
-    if (totalClusters <= flowcells.P2) return 'P2';
-    if (totalClusters <= flowcells.P3) return 'P3';
-    return 'P4';
+    let result;
+    if (totalClusters <= flowcells.P1) result = 'P1';
+    else if (totalClusters <= flowcells.P2) result = 'P2';
+    else if (totalClusters <= flowcells.P3) result = 'P3';
+    else result = 'P4';
+    console.log('Flowcell Thresholds Checked:', flowcells);
+    console.log('Returning Flowcell:', result);
+    return result;
 }
 
 function updatePreliminaryFlowcell() {
@@ -295,26 +298,29 @@ function updatePreliminaryFlowcell() {
         return sum + val;
     }, 0);
     
-    // Add console logs to debug
-    console.log('Total Clusters Calculated:', totalClusters);
+    console.log('Total Clusters Calculated in updatePreliminaryFlowcell:', totalClusters);
     
     const overallFlowcell = determineFlowcell(totalClusters);
     
-    // Log the determined flowcell
-    console.log('Determined Flowcell:', overallFlowcell);
+    console.log('Updating UI with Flowcell:', overallFlowcell);
     
     const flowcellOutput = document.getElementById('flowcellOutput');
-    flowcellOutput.textContent = `Current Flowcell: ${overallFlowcell}`;
-    
-    // Log the flowcell settings for reference
-    const flowcellSettings = getSettings().flowcells;
-    console.log('Flowcell Thresholds:', flowcellSettings);
+    if (flowcellOutput) {
+        flowcellOutput.textContent = `Current Flowcell: ${overallFlowcell}`;
+        console.log('UI Updated - flowcellOutput.textContent:', flowcellOutput.textContent);
+    } else {
+        console.error('flowcellOutput element not found!');
+    }
     
     const percentageHeader = document.querySelector('#spreadsheetTable th[data-field="%(Flowcell)"]');
     if (percentageHeader) {
         percentageHeader.textContent = `%${overallFlowcell}`;
+        console.log('Percentage Header Updated:', percentageHeader.textContent);
+    } else {
+        console.error('Percentage header not found!');
     }
 }
+
 function getInputValue(row, fieldName) {
     const input = row.querySelector(`[data-field="${fieldName}"]`);
     if (!input) return '';
@@ -343,6 +349,7 @@ function realTimeCalculate(row) {
 
     calculateClustersForRow(row);
     updateFinalPercentagesAndFlowcell();
+    updatePreliminaryFlowcell();
 
     const conc = getInputValue(row, 'Conc');
     const avgLibSize = getInputValue(row, 'AvgLibSize');
@@ -401,6 +408,7 @@ function updateFinalPercentagesAndFlowcell() {
     });
     
     updateProgressBarAndLegend(rowCalculations, flowcellMax);
+    updatePreliminaryFlowcell();
     
     const trisOutput = document.getElementById('trisOutput');
     trisOutput.textContent = `ul Tris aan pool toevoegen: ${getSettings().poolSettings.basePoolVolume.toFixed(1)}`;
@@ -412,7 +420,10 @@ async function calculateUINGSPool() {
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         return sum + (clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0);
     }, 0);
+    console.log('Total Clusters in calculateUINGSPool:', totalClusters);
     const overallFlowcell = determineFlowcell(totalClusters);
+    console.log('Flowcell determined in calculateUINGSPool:', overallFlowcell);
+    
     const flowcellMax = getSettings().flowcells[overallFlowcell];
     
     const rowCalculations = Array.from(rows).map(row => {
@@ -447,6 +458,7 @@ async function calculateUINGSPool() {
     if (!calculationsSaved) {
         showErrorToUser('Failed to save final calculations');
     }
+    updatePreliminaryFlowcell(); // Ensure flowcell updates after UI NGS Pool calculation
 }
 
 function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
@@ -656,6 +668,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (select.tagName === 'SELECT' && select.dataset.field === 'Application') {
             const row = select.closest('tr');
             realTimeCalculate(row);
+        }
+    });
+
+    tbody.addEventListener('click', function(e) {
+        if (e.target.className === 'removeButton') {
+            updatePreliminaryFlowcell();
         }
     });
 });
