@@ -137,7 +137,7 @@ async function savePreliminaryData() {
 
     for (const row of rows) {
         const data = {
-            RunName: runName, // Add run name to the data
+            RunName: runName,
             ProjectPool: getInputValue(row, 'ProjectPool'),
             Application: getInputValue(row, 'Application'),
             GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
@@ -169,6 +169,7 @@ async function savePreliminaryData() {
     let allSaved = true;
     for (const data of allData) {
         try {
+            console.log('Sending data to save_preliminary_data.php:', JSON.stringify(data));
             const response = await fetch('save_preliminary_data.php', {
                 method: 'POST',
                 headers: {
@@ -178,13 +179,21 @@ async function savePreliminaryData() {
                 body: JSON.stringify(data)
             });
 
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
+
             if (!response.ok) {
-                const result = await response.json();
-                console.error('Non-JSON response:', result);
-                throw new Error(`Server returned status ${response.status}: ${result.message || 'Unknown error'}`);
+                let errorMessage = `Server returned status ${response.status}`;
+                try {
+                    const result = JSON.parse(responseText);
+                    errorMessage += `: ${result.message || 'Unknown error'}`;
+                } catch (e) {
+                    errorMessage += `: ${responseText || 'No response body'}`;
+                }
+                throw new Error(errorMessage);
             }
 
-            const result = await response.json();
+            const result = JSON.parse(responseText);
             if (!result.success) {
                 throw new Error(result.message || 'Unknown error from server');
             }
@@ -466,7 +475,7 @@ async function calculateUINGSPool() {
     if (!calculationsSaved) {
         showErrorToUser('Failed to save final calculations');
     }
-    updatePreliminaryFlowcell(); // Ensure flowcell updates after UI NGS Pool calculation
+    updatePreliminaryFlowcell();
 }
 
 function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
