@@ -1,23 +1,39 @@
 <?php
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
-if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'Database connection failed']));
-}
+header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents('php://input'), true);
-if (!$data || !isset($data['rows'])) {
-    die(json_encode(['success' => false, 'message' => 'Invalid data']));
-}
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-$rows = $data['rows'];
-$runName = $data['runName'];
+// Database connection
+$servername = "localhost";
+$username = "your_username";
+$password = "your_password";
+$dbname = "your_database";
 
-$stmt = $conn->prepare("
-    INSERT INTO mixdiffpools (
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Get POST data
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+
+    if (!$data || !isset($data['runName']) || !isset($data['rows'])) {
+        throw new Exception("Invalid input data");
+    }
+
+    $runName = $data['runName'];
+    $rows = $data['rows'];
+
+    // Prepare SQL statement
+    $sql = "INSERT INTO mixdiffpools (
         RunName, ProjectPool, Application, GenomeSize, Coverage, SampleCount, Conc, AvgLibSize,
         Clusters, `%Flowcell`, nM, `%SamplePerFlowcell`, `UI NGS Pool`
     ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        :RunName, :ProjectPool, :Application, :GenomeSize, :Coverage, :SampleCount, :Conc, :AvgLibSize,
+        :Clusters, :PercentFlowcell, :nM, :PercentSamplePerFlowcell, :UINGSPool
     ) ON DUPLICATE KEY UPDATE
         RunName = VALUES(RunName),
         Application = VALUES(Application),
@@ -30,36 +46,33 @@ $stmt = $conn->prepare("
         `%Flowcell` = VALUES(`%Flowcell`),
         nM = VALUES(nM),
         `%SamplePerFlowcell` = VALUES(`%SamplePerFlowcell`),
-        `UI NGS Pool` = VALUES(`UI NGS Pool`)
-");
+        `UI NGS Pool` = VALUES(`UI NGS Pool`)";
 
-if (!$stmt) {
-    die(json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]));
-}
+    $stmt = $conn->prepare($sql);
 
-foreach ($rows as $row) {
-    $stmt->bind_param("sssiiddddidd",
-        $runName,
-        $row['ProjectPool'],
-        $row['Application'],
-        $row['GenomeSize'],
-        $row['Coverage'],
-        $row['SampleCount'],
-        $row['Conc'],
-        $row['AvgLibSize'],
-        $row['Clusters'],
-        $row['%Flowcell'],
-        $row['nM'],
-        $row['%SamplePerFlowcell'],
-        $row['UI NGS Pool']
-    );
-
-    if (!$stmt->execute()) {
-        die(json_encode(['success' => false, 'message' => 'Execute failed: ' . $stmt->error]));
+    foreach ($rows as $row) {
+        $stmt->execute([
+            ':RunName' => $row['RunName'],
+            ':ProjectPool' => $row['ProjectPool'],
+            ':Application' => $row['Application'],
+            ':GenomeSize' => $row['GenomeSize'],
+            ':Coverage' => $row['Coverage'],
+            ':SampleCount' => $row['SampleCount'],
+            ':Conc' => $row['Conc'],
+            ':AvgLibSize' => $row['AvgLibSize'],
+            ':Clusters' => $row['Clusters'],
+            ':PercentFlowcell' => $row['%Flowcell'],
+            ':nM' => $row['nM'],
+            ':PercentSamplePerFlowcell' => $row['%SamplePerFlowcell'],
+            ':UINGSPool' => $row['UI NGS Pool']
+        ]);
     }
+
+    echo json_encode(['success' => true, 'message' => "All data saved successfully for run '$runName'"]);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
-echo json_encode(['success' => true, 'message' => 'All data saved successfully']);
-$stmt->close();
-$conn->close();
+$conn = null;
 ?>

@@ -251,101 +251,6 @@ async function addRow() {
     updatePreliminaryFlowcell();
 }
 
-async function savePreliminaryData() {
-    const runSelect = document.getElementById('runSelect');
-    const newRunNameInput = document.getElementById('newRunNameInput');
-    let runName = runSelect.value === 'new' ? newRunNameInput.value.trim() : runSelect.value;
-
-    if (!runName) {
-        showErrorToUser('Please select an existing run or enter a new run name.');
-        console.error('Run name missing:', { runSelect: runSelect.value, newRunName: newRunNameInput.value });
-        return false;
-    }
-
-    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-    const allData = [];
-    const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
-    let allValid = true;
-
-    console.log('Starting save process for run:', runName, 'Row count:', rows.length);
-
-    for (const row of rows) {
-        const data = {
-            RunName: runName,
-            ProjectPool: getInputValue(row, 'ProjectPool'),
-            Application: getInputValue(row, 'Application'),
-            GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
-            Coverage: parseFloat(getInputValue(row, 'Coverage')) || 0,
-            SampleCount: parseInt(getInputValue(row, 'SampleCount')) || 0,
-            Conc: parseFloat(getInputValue(row, 'Conc')) || 0,
-            AvgLibSize: parseInt(getInputValue(row, 'AvgLibSize')) || 0
-        };
-
-        console.log('Row data before validation:', data);
-
-        for (const field of requiredFields) {
-            if (!data[field] || data[field] === '') {
-                console.warn(`Missing or empty required field: ${field} for ProjectPool: ${data.ProjectPool}`);
-                showErrorToUser(`Missing required field: ${field} in row ${data.ProjectPool}`);
-                allValid = false;
-                break;
-            }
-        }
-        if (allValid) allData.push(data);
-    }
-
-    if (!allValid || allData.length === 0) {
-        showErrorToUser('Please fill all required fields in all rows.');
-        console.error('Validation failed:', { allValid, rowCount: allData.length });
-        return false;
-    }
-
-    const isNewRun = runSelect.value === 'new';
-    const confirmationMessage = isNewRun
-        ? `Are you sure you want to create a new run "${runName}" with ${allData.length} row(s)?`
-        : `Are you sure you want to update the existing run "${runName}" with ${allData.length} row(s)?`;
-    if (!confirm(confirmationMessage)) {
-        console.log('User cancelled the save/update operation');
-        return false;
-    }
-
-    let allSaved = true;
-    for (const data of allData) {
-        const isExisting = existingProjectPools.has(data.ProjectPool);
-        const url = isExisting ? 'update_preliminary_data.php' : 'save_preliminary_data.php';
-
-        try {
-            console.log(`Sending to ${url}:`, JSON.stringify(data));
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const responseText = await response.text();
-            console.log('Raw server response:', responseText);
-
-            if (!response.ok) throw new Error(`Server returned status ${response.status}: ${responseText}`);
-            const result = JSON.parse(responseText);
-            if (!result.success) throw new Error(result.message || 'Unknown error');
-
-            if (!isExisting) existingProjectPools.add(data.ProjectPool);
-            console.log(`Saved ${data.ProjectPool} successfully`);
-        } catch (error) {
-            console.error(`Error saving ${data.ProjectPool}:`, error);
-            showErrorToUser(`Failed to save ${data.ProjectPool}: ${error.message}`);
-            allSaved = false;
-        }
-    }
-
-    if (allSaved) {
-        console.log('All data saved successfully for run:', runName);
-        showErrorToUser(isNewRun ? `New run "${runName}" created successfully!` : `Run "${runName}" updated successfully!`, 'success');
-    } else {
-        console.error('Some data failed to save for run:', runName);
-    }
-    return allSaved;
-}
-
 function showErrorToUser(message, type = 'error') {
     const errorDiv = document.getElementById('error-messages');
     if (errorDiv) {
@@ -498,21 +403,17 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
         return;
     }
 
-    // Clear existing content
     progressBar.innerHTML = '';
     legendContainer.innerHTML = '';
 
-    // Calculate total percentage
     const totalPercentage = rowCalculations.reduce((sum, { percentageOfFlowcell }) => sum + percentageOfFlowcell, 0);
 
-    // Update progress bar segments
     let cumulativeWidth = 0;
     rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
         const projectPool = getInputValue(row, 'ProjectPool');
         const color = getColorForProjectPool(projectPool);
         const width = percentageOfFlowcell;
 
-        // Create progress segment
         const segment = document.createElement('div');
         segment.className = 'progress-segment';
         segment.style.width = `${width}%`;
@@ -522,7 +423,6 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
 
         cumulativeWidth += width;
 
-        // Create legend item
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         legendItem.innerHTML = `
@@ -532,21 +432,21 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
         legendContainer.appendChild(legendItem);
     });
 
-    // Cap the progress bar width at 100% visually
     progressBar.style.width = `${Math.min(totalPercentage, 100)}%`;
     progressPercentage.textContent = `${totalPercentage.toFixed(1)}%`;
 
-    // Warn if total exceeds 100%
     if (totalPercentage > 100) {
         showErrorToUser(`Warning: Total flowcell usage exceeds 100% (${totalPercentage.toFixed(1)}%)`);
     }
 }
 
-async function calculateUINGSPool() {
-    console.log('Starting calculateUINGSPool');
+async function calculateAndSaveAllData() {
+    console.log('Starting calculateAndSaveAllData');
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
 
+    // Step 1: Calculate all fields
     const totalClusters = Array.from(rows).reduce((sum, row) => {
+        realTimeCalculate(row); // Ensure all calculations are up-to-date
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         return sum + (clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0);
     }, 0);
@@ -579,6 +479,7 @@ async function calculateUINGSPool() {
 
     document.getElementById('trisOutput').textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
+    // Step 2: Prepare all data for saving
     const runSelect = document.getElementById('runSelect');
     const newRunNameInput = document.getElementById('newRunNameInput');
     const runName = runSelect.value === 'new' ? newRunNameInput.value.trim() : runSelect.value;
@@ -599,7 +500,7 @@ async function calculateUINGSPool() {
             SampleCount: parseInt(getInputValue(row, 'SampleCount')) || 0,
             Conc: parseFloat(getInputValue(row, 'Conc')) || 0,
             AvgLibSize: parseInt(getInputValue(row, 'AvgLibSize')) || 0,
-            Clusters: parseInt(getPreciseValue(row.querySelector('[data-field="Clusters"]'))) || 0,
+            Clusters: parseFloat(getPreciseValue(row.querySelector('[data-field="Clusters"]'))) || 0,
             '%Flowcell': parseFloat(getPreciseValue(row.querySelector('[data-field="%Flowcell"]'))) || 0,
             nM: parseFloat(getPreciseValue(row.querySelector('[data-field="nM"]'))) || 0,
             '%SamplePerFlowcell': parseFloat(getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]'))) || 0,
@@ -608,6 +509,7 @@ async function calculateUINGSPool() {
         allData.push(data);
     });
 
+    // Step 3: Validate all data
     let allValid = true;
     allData.forEach(data => {
         const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
@@ -624,7 +526,9 @@ async function calculateUINGSPool() {
         return;
     }
 
+    // Step 4: Save all data
     if (confirm(`Are you sure you want to save all data for run "${runName}"?`)) {
+        console.log('Saving all data:', JSON.stringify({ runName: runName, rows: allData }));
         try {
             const response = await fetch('save_all_data.php', {
                 method: 'POST',
@@ -634,6 +538,7 @@ async function calculateUINGSPool() {
             const result = await response.json();
             if (result.success) {
                 showErrorToUser('All data saved successfully!', 'success');
+                existingProjectPools = new Set(allData.map(row => row.ProjectPool)); // Update local cache
             } else {
                 showErrorToUser('Failed to save data: ' + result.message);
             }
@@ -723,13 +628,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('addRowButton').addEventListener('click', addRow);
 
     document.getElementById('calculateUINGSPoolButton').addEventListener('click', async () => {
-        const preliminarySaved = await savePreliminaryData();
-        if (preliminarySaved) {
-            console.log('Preliminary data saved, proceeding to calculateUINGSPool');
-            await calculateUINGSPool();
-        } else {
-            showErrorToUser('Cannot proceed with calculations due to errors in saving preliminary data.');
-        }
+        await calculateAndSaveAllData();
     });
 
     const tbody = document.querySelector('#spreadsheetTable tbody');
