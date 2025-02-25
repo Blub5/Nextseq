@@ -8,9 +8,9 @@ error_reporting(E_ALL);
 
 // Database connection
 $servername = "localhost";
-$username = "your_username";
-$password = "your_password";
-$dbname = "your_database";
+$username = "NGSweb";
+$password = "BioinformatixUser2025!";
+$dbname = "NGSweb";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
