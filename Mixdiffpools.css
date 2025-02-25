@@ -1,208 +1,279 @@
-/* Importing Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
-/* Global Styles */
-body {
-  font-family: 'Poppins', sans-serif;
+* {
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
+  box-sizing: border-box;
+  font-family: 'Poppins', Arial, sans-serif;
 }
-
-/* Header Styles */
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;  
+}
+body {
+  min-height: 100vh;
+  background-size: cover;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px; 
+  gap: 15px; 
+}
 .header {
-  background-color: #333;
-  color: #fff;
-  padding: 1rem 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 100px; 
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
   z-index: 100;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
-
-.header .logo img {
-  height: 50px;
-  object-fit: contain;
+.logo img {
+  height: 40px; 
 }
-
-.header .navbar {
+.navbar {
   display: flex;
+  gap: 20px;
 }
-
-.header .navbar a {
+.navbar a {
+  font-size: 18px;
   color: #fff;
-  padding: 0.5rem 1rem;
   text-decoration: none;
-  margin-left: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.header .navbar a:hover {
-  background-color: #4caf50;
-  border-radius: 6px;
-}
-
-/* Main Content */
-.main-content {
-  padding-top: 6rem;
-  padding-bottom: 2rem;
-}
-
-.spreadsheet-container {
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 1rem;
-  background-color: #fff;
+  padding: 8px 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
-
+.navbar a:hover {
+  background-color: #fff;
+  color: #088c04;
+  transform: scale(1.1);
+}
+.spreadsheet-container {
+  width: 100%;
+  max-width: 1300px;
+  height: calc(100vh - 280px); 
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; 
+}
 .run-selection-container {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
 }
-
-.run-selection-container label {
-  font-weight: bold;
-}
-
-.run-selection-container select,
-.run-selection-container input {
-  padding: 0.5rem;
-  margin-left: 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-}
-
 .table-wrapper {
-  margin-top: 20px;
+  flex-grow: 1;
+  width: 100%;
+  overflow-y: auto;
   overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  height: 100%; 
 }
-
-table {
+#spreadsheetTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  font-size: 12px;
+  table-layout: fixed;
 }
-
-table th, table td {
-  padding: 10px;
-  text-align: left;
+#spreadsheetTable th, 
+#spreadsheetTable td {
   border: 1px solid #ddd;
+  padding: 4px 6px;
+  text-align: left;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 100px;
 }
-
-table th {
-  background-color: #4caf50;
-  color: white;
-  text-transform: uppercase;
-}
-
-table td {
-  background-color: #f9f9f9;
-}
-
-/* Buttons */
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  font-weight: bold;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-#addRowButton {
-  background-color: #f0ad4e;
-  color: white;
-}
-
-#addRowButton:hover {
-  background-color: #ec971f;
-}
-
-#calculateUINGSPoolButton {
+#spreadsheetTable th {
   background-color: #088c04;
   color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 25px; 
 }
-
-#calculateUINGSPoolButton:hover {
-  background-color: #5cb85c;
+#spreadsheetTable tbody tr {
+  height: 25px;
 }
-
-/* Flowcell Info */
-.flowcell-info {
-  padding: 1rem;
-  background-color: #4caf50;
-  color: white;
-  border-radius: 8px;
-  margin-top: 2rem;
+#spreadsheetTable tbody tr:nth-child(even) {
+  background-color: #f8f9ff;
 }
-
-.flowcell-details {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+#spreadsheetTable tbody tr:hover {
+  background-color: #dfe4ff;
 }
-
-.progress-container {
+select {
   width: 100%;
-}
-
-.progress-bar-wrapper {
-  position: relative;
-  background-color: #ddd;
-  border-radius: 25px;
-  height: 10px;
-  margin-bottom: 10px;
-}
-
-.progress-bar {
-  background-color: #5cb85c;
-  height: 100%;
-  border-radius: 25px;
-}
-
-#progressPercentage {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  line-height: 10px;
+  height: 25px;
   font-size: 12px;
-  color: white;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
 }
-
-/* Error Messages */
-.error-message {
-  color: red;
+select:focus {
+  border-color: #088c04;
+  outline: none;
+}
+input {
+  width: 100%;
+  height: 25px;
+  font-size: 12px;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px; 
+}
+#runSelect, #newRunNameInput {
+  width: 200px;
+}
+#addRowButton {
+  background-color: #088c04;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-size: 14px;
-  margin-top: 1rem;
-  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
   font-weight: bold;
 }
-
-/* Loader */
-.loader {
-  width: 40px;
-  height: 40px;
-  border: 5px solid #ddd;
-  border-top: 5px solid #4caf50;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: block;
-  margin: 20px auto;
+#addRowButton:hover {
+  background-color: #045202;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.removeButton {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+.removeButton:hover {
+  background-color: #cc0000;
+  transform: translateY(-2px);
+}
+.flowcell-info {
+  background-color: #088c04;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 0; 
+  font-weight: bold;
+  width: 100%;
+  max-width: 1300px;
+}
+.flowcell-details {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+.flowcell-details span {
+  flex: 1;
+  text-align: center;
+}
+.progress-container {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px; 
+  width: 100%;
+  margin-top: 5px; 
+}
+.progress-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.progress-bar {
+  flex-grow: 1;
+  height: 30px;
+  background-color: white;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+.progress-segment {
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+  position: relative;
+}
+.progress-segment:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+#progressPercentage {
+  min-width: 60px;
+  text-align: right;
+  font-weight: bold;
+}
+.progress-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+  justify-content: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 15px;
+}
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+#error-messages {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  max-width: 400px;
+  word-wrap: break-word;
 }
