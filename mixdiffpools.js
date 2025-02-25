@@ -87,18 +87,21 @@ async function loadRunData(runName) {
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Unknown error');
 
+        console.log('Fetched data for run:', runName, result.data); // Debug: Check raw data
+
         const tbody = document.querySelector('#spreadsheetTable tbody');
         tbody.innerHTML = '';
 
         result.data.forEach(rowData => {
             const newRow = document.createElement('tr');
-            const headers = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize', 'Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'];
+            // Adjust field names to match database exactly (as per get_table_data.php)
+            const headers = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize', 'Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'];
 
             headers.forEach(header => {
                 const td = document.createElement('td');
                 const input = document.createElement(header === 'Application' ? 'select' : 'input');
                 input.dataset.field = header;
-                
+
                 if (header === 'Application') {
                     const options = ['WGS', 'RNAseq', 'Amplicon', 'MGX'];
                     options.forEach(opt => {
@@ -110,15 +113,28 @@ async function loadRunData(runName) {
                     input.value = rowData[header] || '';
                 } else {
                     input.type = 'text';
-                    input.value = rowData[header] || '';
+                    const rawValue = rowData[header] ?? ''; // Use ?? to handle null/undefined
+                    const numericValue = parseFloat(rawValue) || 0;
+
                     if (header === 'ProjectPool') {
+                        input.value = rawValue;
                         input.readOnly = true;
                         input.style.backgroundColor = '#f0f0f0';
-                    } else if (['Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'].includes(header)) {
+                    } else if (['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'].includes(header)) {
                         input.readOnly = true;
                         input.placeholder = 'Output';
                         input.style.backgroundColor = '#f0f0f0';
+                        input.dataset.preciseValue = numericValue.toString(); // Store precise numeric value
+
+                        if (header === '%Flowcell' || header === '%SamplePerFlowcell') {
+                            input.value = numericValue ? `${numericValue.toFixed(1)}%` : '';
+                        } else if (header === 'nM' || header === 'UI NGS Pool') {
+                            input.value = numericValue ? numericValue.toFixed(1) : '';
+                        } else if (header === 'Clusters') {
+                            input.value = numericValue ? numericValue.toExponential(2) : '';
+                        }
                     } else {
+                        input.value = rawValue;
                         input.placeholder = 'Insert';
                         input.style.color = '#333';
                     }
@@ -131,16 +147,47 @@ async function loadRunData(runName) {
             const delBtn = document.createElement('button');
             delBtn.textContent = 'Verwijder';
             delBtn.className = 'removeButton';
-            delBtn.addEventListener('click', () => {
-                existingProjectPools.delete(rowData.ProjectPool);
-                tbody.removeChild(newRow);
-                updatePreliminaryFlowcell();
+            delBtn.addEventListener('click', async () => {
+                const projectPool = rowData.ProjectPool;
+                if (confirm(`Are you sure you want to delete ${projectPool}?`)) {
+                    try {
+                        const response = await fetch('delete_projectpool.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ProjectPool: projectPool })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            existingProjectPools.delete(projectPool);
+                            tbody.removeChild(newRow);
+                            updatePreliminaryFlowcell();
+                        } else {
+                            showErrorToUser(result.message);
+                        }
+                    } catch (error) {
+                        showErrorToUser('Failed to delete row: ' + error.message);
+                    }
+                }
             });
             tdAction.appendChild(delBtn);
             newRow.appendChild(tdAction);
 
             tbody.appendChild(newRow);
+            console.log('Row data loaded:', rowData); // Debug: Verify each row's data
         });
+
+        // Recalculate everything after loading
+        Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+            realTimeCalculate(row);
+            console.log('Post-calc row:', {
+                ProjectPool: getInputValue(row, 'ProjectPool'),
+                Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
+                '%Flowcell': getPreciseValue(row.querySelector('[data-field="%Flowcell"]')),
+                '%SamplePerFlowcell': getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]')),
+                nM: getPreciseValue(row.querySelector('[data-field="nM"]'))
+            }); // Debug: Check calculated values
+        });
+        updateFinalPercentagesAndFlowcell();
         updatePreliminaryFlowcell();
     } catch (error) {
         console.error('Error loading run data:', error);
@@ -157,7 +204,7 @@ async function addRow() {
     while (existingProjectPools.has(`${prefix}${nextNumber}`)) nextNumber++;
     const newProjectPool = `${prefix}${nextNumber}`;
 
-    const headers = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize', 'Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'];
+    const headers = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize', 'Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'];
     headers.forEach(header => {
         const td = document.createElement('td');
         if (header === 'Application') {
@@ -179,7 +226,7 @@ async function addRow() {
                 input.value = newProjectPool;
                 input.readOnly = true;
                 input.style.backgroundColor = '#f0f0f0';
-            } else if (['Clusters', '%(Flowcell)', 'nM', '%Sample per (Flowcell)', 'UI NGS Pool'].includes(header)) {
+            } else if (['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'].includes(header)) {
                 input.readOnly = true;
                 input.placeholder = 'Output';
                 input.style.backgroundColor = '#f0f0f0';
@@ -250,6 +297,15 @@ async function savePreliminaryData() {
         return false;
     }
 
+    const isNewRun = runSelect.value === 'new';
+    const confirmationMessage = isNewRun
+        ? `Are you sure you want to create a new run "${runName}" with ${allData.length} row(s)?`
+        : `Are you sure you want to update the existing run "${runName}" with ${allData.length} row(s)?`;
+    if (!confirm(confirmationMessage)) {
+        console.log('User cancelled the save/update operation');
+        return false;
+    }
+
     let allSaved = true;
     for (const data of allData) {
         const isExisting = existingProjectPools.has(data.ProjectPool);
@@ -277,14 +333,22 @@ async function savePreliminaryData() {
             allSaved = false;
         }
     }
+    if (allSaved) {
+        showErrorToUser(isNewRun ? `New run "${runName}" created successfully!` : `Run "${runName}" updated successfully!`, 'success');
+    }
     return allSaved;
 }
 
-function showErrorToUser(message) {
+function showErrorToUser(message, type = 'error') {
     const errorDiv = document.getElementById('error-messages');
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
+        errorDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+        errorDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+        errorDiv.style.padding = '10px';
+        errorDiv.style.borderRadius = '5px';
+        errorDiv.style.marginTop = '10px';
     } else {
         alert(message);
     }
@@ -304,9 +368,9 @@ function calculateClusters(application, genomeSize, coverage, sampleCount) {
 function calculateClustersForRow(row) {
     if (!arePreliminaryFieldsFilled(row)) return;
     const application = getInputValue(row, 'Application');
-    const genomeSize = getInputValue(row, 'GenomeSize');
-    const coverage = getInputValue(row, 'Coverage');
-    const sampleCount = getInputValue(row, 'SampleCount');
+    const genomeSize = parseFloat(getInputValue(row, 'GenomeSize')) || 0;
+    const coverage = parseFloat(getInputValue(row, 'Coverage')) || 0;
+    const sampleCount = parseInt(getInputValue(row, 'SampleCount')) || 0;
     const clusters = calculateClusters(application, genomeSize, coverage, sampleCount);
     const clustersInput = row.querySelector('[data-field="Clusters"]');
     if (clustersInput) {
@@ -334,7 +398,7 @@ function updatePreliminaryFlowcell() {
     const flowcellOutput = document.getElementById('flowcellOutput');
     if (flowcellOutput) flowcellOutput.textContent = `Current Flowcell: ${overallFlowcell}`;
 
-    const percentageHeader = document.querySelector('#spreadsheetTable th[data-field="%(Flowcell)"]');
+    const percentageHeader = document.querySelector('#spreadsheetTable th[data-field="%Flowcell"]');
     if (percentageHeader) percentageHeader.textContent = `%${overallFlowcell}`;
 }
 
@@ -358,8 +422,8 @@ function realTimeCalculate(row) {
     updateFinalPercentagesAndFlowcell();
     updatePreliminaryFlowcell();
 
-    const conc = getInputValue(row, 'Conc');
-    const avgLibSize = getInputValue(row, 'AvgLibSize');
+    const conc = parseFloat(getInputValue(row, 'Conc')) || 0;
+    const avgLibSize = parseFloat(getInputValue(row, 'AvgLibSize')) || 0;
     if (conc > 0 && avgLibSize > 0) {
         const nM = calculateNM(avgLibSize, conc);
         const nMInput = row.querySelector('[data-field="nM"]');
@@ -389,19 +453,19 @@ function updateFinalPercentagesAndFlowcell() {
     const rowCalculations = Array.from(rows).map(row => {
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         const clusters = clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0;
-        const sampleCount = getInputValue(row, 'SampleCount');
-        const percentageOfFlowcell = (clusters * 100) / flowcellMax;
-        const percentagePerSample = sampleCount > 0 ? (clusters * 100) / (sampleCount * flowcellMax) : 0;
+        const sampleCount = parseInt(getInputValue(row, 'SampleCount')) || 0;
+        const percentageOfFlowcell = totalClusters > 0 ? (clusters * 100) / flowcellMax : 0;
+        const percentagePerSample = sampleCount > 0 && totalClusters > 0 ? (clusters * 100) / (sampleCount * flowcellMax) : 0;
         return { row, clusters, percentageOfFlowcell, percentagePerSample };
     });
 
     rowCalculations.forEach(({ row, percentageOfFlowcell, percentagePerSample }) => {
-        const percentFlowcellInput = row.querySelector('[data-field="%(Flowcell)"]');
+        const percentFlowcellInput = row.querySelector('[data-field="%Flowcell"]');
         if (percentFlowcellInput) {
             percentFlowcellInput.dataset.preciseValue = percentageOfFlowcell.toString();
             percentFlowcellInput.value = percentageOfFlowcell.toFixed(1) + '%';
         }
-        const percentSampleInput = row.querySelector('[data-field="%Sample per (Flowcell)"]');
+        const percentSampleInput = row.querySelector('[data-field="%SamplePerFlowcell"]');
         if (percentSampleInput) {
             percentSampleInput.dataset.preciseValue = percentagePerSample.toString();
             percentSampleInput.value = percentagePerSample.toFixed(1) + '%';
@@ -462,9 +526,9 @@ async function saveCalculations() {
         const data = {
             ProjectPool: getInputValue(row, 'ProjectPool'),
             Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-            '%Flowcell': parseFloat(row.querySelector('[data-field="%(Flowcell)"]').dataset.preciseValue),
+            '%Flowcell': parseFloat(row.querySelector('[data-field="%Flowcell"]').dataset.preciseValue),
             nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
-            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%Sample per (Flowcell)"]').dataset.preciseValue),
+            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%SamplePerFlowcell"]').dataset.preciseValue),
             'UI_NGS_Pool': getInputValue(row, 'UI NGS Pool')
         };
 
@@ -535,7 +599,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchExistingProjectPools();
     const runNames = await fetchRunNames();
     const runSelect = document.getElementById('runSelect');
-    // Set default to 'new'
     runSelect.value = 'new';
     document.getElementById('newRunNameInput').style.display = 'block';
     
@@ -583,6 +646,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // Add a row automatically when page loads
     await addRow();
 });
