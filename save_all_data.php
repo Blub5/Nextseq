@@ -1,12 +1,10 @@
 <?php
 header('Content-Type: application/json');
 
-// Enable error reporting for debugging
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Database connection
 $servername = "localhost";
 $username = "NGSweb";
 $password = "BioinformatixUser2025!";
@@ -16,7 +14,6 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Get POST data
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
 
@@ -27,7 +24,6 @@ try {
     $runName = $data['runName'];
     $rows = $data['rows'];
 
-    // Prepare SQL statement
     $sql = "INSERT INTO mixdiffpools (
         RunName, ProjectPool, Application, GenomeSize, Coverage, SampleCount, Conc, AvgLibSize,
         Clusters, `%Flowcell`, nM, `%SamplePerFlowcell`, `UI NGS Pool`
