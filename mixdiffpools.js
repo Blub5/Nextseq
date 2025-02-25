@@ -491,6 +491,8 @@ function updateFinalPercentagesAndFlowcell() {
 async function calculateUINGSPool() {
     console.log('Starting calculateUINGSPool');
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+
+    // Perform calculations
     const totalClusters = Array.from(rows).reduce((sum, row) => {
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         return sum + (clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0);
@@ -522,26 +524,73 @@ async function calculateUINGSPool() {
         return sum + (uiNgsPoolInput && uiNgsPoolInput.dataset.preciseValue ? parseFloat(uiNgsPoolInput.dataset.preciseValue) : 0);
     }, 0);
 
-    const trisOutput = document.getElementById('trisOutput');
-    trisOutput.textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
+    document.getElementById('trisOutput').textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
-    console.log('Calculated values:', rowCalculations.map(({ row }) => ({
-        ProjectPool: getInputValue(row, 'ProjectPool'),
-        Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-        '%Flowcell': getPreciseValue(row.querySelector('[data-field="%Flowcell"]')),
-        nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
-        '%SamplePerFlowcell': getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]')),
-        'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]'))
-    })));
+    // Collect all data
+    const runSelect = document.getElementById('runSelect');
+    const newRunNameInput = document.getElementById('newRunNameInput');
+    const runName = runSelect.value === 'new' ? newRunNameInput.value.trim() : runSelect.value;
 
-    const calculationsSaved = await saveCalculations();
-    console.log('Calculations saved:', calculationsSaved);
-    if (!calculationsSaved) {
-        showErrorToUser('Failed to save final calculations');
-    } else {
-        showErrorToUser('Calculations saved successfully!', 'success');
+    if (!runName) {
+        showErrorToUser('Please select an existing run or enter a new run name.');
+        return;
     }
-    updatePreliminaryFlowcell();
+
+    const allData = [];
+    rows.forEach(row => {
+        const data = {
+            RunName: runName,
+            ProjectPool: getInputValue(row, 'ProjectPool'),
+            Application: getInputValue(row, 'Application'),
+            GenomeSize: parseInt(getInputValue(row, 'GenomeSize')) || 0,
+            Coverage: parseFloat(getInputValue(row, 'Coverage')) || 0,
+            SampleCount: parseInt(getInputValue(row, 'SampleCount')) || 0,
+            Conc: parseFloat(getInputValue(row, 'Conc')) || 0,
+            AvgLibSize: parseInt(getInputValue(row, 'AvgLibSize')) || 0,
+            Clusters: parseInt(getPreciseValue(row.querySelector('[data-field="Clusters"]'))) || 0,
+            '%Flowcell': parseFloat(getPreciseValue(row.querySelector('[data-field="%Flowcell"]'))) || 0,
+            nM: parseFloat(getPreciseValue(row.querySelector('[data-field="nM"]'))) || 0,
+            '%SamplePerFlowcell': parseFloat(getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]'))) || 0,
+            'UI NGS Pool': parseFloat(getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]'))) || 0
+        };
+        allData.push(data);
+    });
+
+    // Validate required fields
+    let allValid = true;
+    allData.forEach(data => {
+        const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
+        requiredFields.forEach(field => {
+            if (!data[field] || data[field] === 0) {
+                showErrorToUser(`Missing or invalid value for ${field} in row ${data.ProjectPool}`);
+                allValid = false;
+            }
+        });
+    });
+
+    if (!allValid) {
+        showErrorToUser('Please fill all required fields in all rows.');
+        return;
+    }
+
+    // Prompt user for confirmation
+    if (confirm(`Are you sure you want to save all data for run "${runName}"?`)) {
+        try {
+            const response = await fetch('save_all_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ runName: runName, rows: allData })
+            });
+            const result = await response.json();
+            if (result.success) {
+                showErrorToUser('All data saved successfully!', 'success');
+            } else {
+                showErrorToUser('Failed to save data: ' + result.message);
+            }
+        } catch (error) {
+            showErrorToUser('Error saving data: ' + error.message);
+        }
+    }
 }
 
 async function saveCalculations() {
