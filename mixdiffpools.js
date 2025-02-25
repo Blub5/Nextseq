@@ -490,6 +490,7 @@ function updateFinalPercentagesAndFlowcell() {
 }
 
 async function calculateUINGSPool() {
+    console.log('Starting calculateUINGSPool');
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
     const totalClusters = Array.from(rows).reduce((sum, row) => {
         const clustersInput = row.querySelector('[data-field="Clusters"]');
@@ -525,22 +526,42 @@ async function calculateUINGSPool() {
     const trisOutput = document.getElementById('trisOutput');
     trisOutput.textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
+    console.log('Calculated values:', rowCalculations.map(({ row }) => ({
+        ProjectPool: getInputValue(row, 'ProjectPool'),
+        Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
+        '%Flowcell': getPreciseValue(row.querySelector('[data-field="%Flowcell"]')),
+        nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
+        '%SamplePerFlowcell': getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]')),
+        'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]'))
+    })));
+
     const calculationsSaved = await saveCalculations();
-    if (!calculationsSaved) showErrorToUser('Failed to save final calculations');
+    console.log('Calculations saved:', calculationsSaved);
+    if (!calculationsSaved) {
+        showErrorToUser('Failed to save final calculations');
+    } else {
+        showErrorToUser('Calculations saved successfully!', 'success');
+    }
     updatePreliminaryFlowcell();
 }
 
 async function saveCalculations() {
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
+    let allSaved = true;
+
+    console.log('Starting saveCalculations for', rows.length, 'rows');
+
     for (const row of rows) {
         const data = {
             ProjectPool: getInputValue(row, 'ProjectPool'),
             Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-            '%Flowcell': parseFloat(row.querySelector('[data-field="%Flowcell"]').dataset.preciseValue),
+            '%Flowcell': parseFloat(row.querySelector('[data-field="%Flowcell"]').dataset.preciseValue) || 0,
             nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
-            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%SamplePerFlowcell"]').dataset.preciseValue),
-            'UI_NGS_Pool': getInputValue(row, 'UI NGS Pool')
+            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%SamplePerFlowcell"]').dataset.preciseValue) || 0,
+            'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]')) || 0
         };
+
+        console.log('Sending to update_calculations.php:', JSON.stringify(data));
 
         try {
             const response = await fetch('update_calculations.php', {
@@ -548,16 +569,22 @@ async function saveCalculations() {
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify(data)
             });
-            if (!response.ok) throw new Error(`Server error: ${response.status}`);
-            const result = await response.json();
+            const responseText = await response.text();
+            console.log('Raw server response from update_calculations.php:', responseText);
+
+            if (!response.ok) throw new Error(`Server error: ${response.status} - ${responseText}`);
+            const result = JSON.parse(responseText);
             if (!result.success) throw new Error(result.message || 'Unknown error');
+
+            console.log(`Successfully updated calculations for ${data.ProjectPool}`);
         } catch (error) {
-            console.error('Error saving calculations:', error);
-            showErrorToUser('Error saving calculations: ' + error.message);
-            return false;
+            console.error(`Error saving calculations for ${data.ProjectPool}:`, error);
+            showErrorToUser(`Error saving calculations for ${data.ProjectPool}: ${error.message}`);
+            allSaved = false;
         }
     }
-    return true;
+
+    return allSaved;
 }
 
 function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
@@ -635,8 +662,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('calculateUINGSPoolButton').addEventListener('click', async () => {
         const preliminarySaved = await savePreliminaryData();
-        if (preliminarySaved) await calculateUINGSPool();
-        else showErrorToUser('Cannot proceed with calculations due to errors in saving preliminary data.');
+        if (preliminarySaved) {
+            console.log('Preliminary data saved, proceeding to calculateUINGSPool');
+            await calculateUINGSPool();
+        } else {
+            showErrorToUser('Cannot proceed with calculations due to errors in saving preliminary data.');
+        }
     });
 
     const tbody = document.querySelector('#spreadsheetTable tbody');
