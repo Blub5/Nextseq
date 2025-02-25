@@ -1,5 +1,5 @@
 <?php
-// Ensure output buffering is on to capture any stray output
+// Start output buffering
 ob_start();
 
 // Set content type
@@ -7,12 +7,12 @@ header('Content-Type: application/json');
 
 // Enable error reporting and logging
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // Set to 1 temporarily if you can view the output directly
+ini_set('display_errors', 0); // Set to 1 temporarily for direct output
 ini_set('log_errors', 1);
-ini_set('error_log', '/tmp/php_errors.log'); // Adjust path if needed
+ini_set('error_log', dirname(__FILE__) . '/php_errors.log'); // Log to script directory
 
-// Log script start
-$logFile = '/tmp/save_preliminary.log'; // Adjust path if needed
+// Log to a file in the same directory as the script
+$logFile = dirname(__FILE__) . '/save_preliminary.log';
 file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Script started\n", FILE_APPEND);
 
 // Database connection
@@ -56,7 +56,7 @@ file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Decoded data: " . print_r(
 // Check required fields
 $required_fields = ['RunName', 'ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
 foreach ($required_fields as $field) {
-    if (!isset($data[$field]) || $data[$field] === '') {
+    if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
         file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Missing or empty field: $field\n", FILE_APPEND);
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => "Missing or empty required field: $field"]);
@@ -75,7 +75,6 @@ try {
     }
     
     $projectPool = $data['ProjectPool'];
-    file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Checking ProjectPool: $projectPool\n", FILE_APPEND);
     $checkStmt->bind_param("s", $projectPool);
     if (!$checkStmt->execute()) {
         $error = $checkStmt->error;
@@ -103,17 +102,20 @@ try {
         throw new Exception('Prepare failed: ' . $error);
     }
 
-    $runName = $data['RunName'];
-    $application = $data['Application'];
-    $genomeSize = (int)$data['GenomeSize'];
-    $coverage = (float)$data['Coverage'];
-    $sampleCount = (int)$data['SampleCount'];
-    $conc = (float)$data['Conc'];
-    $avgLibSize = (int)$data['AvgLibSize'];
+    // Match data types to table schema
+    $runName = substr((string)$data['RunName'], 0, 50); // VARCHAR(50), NOT NULL
+    $projectPool = substr((string)$data['ProjectPool'], 0, 255); // VARCHAR(255), NOT NULL
+    $application = isset($data['Application']) ? substr((string)$data['Application'], 0, 255) : null; // VARCHAR(255), NULLABLE
+    $genomeSize = isset($data['GenomeSize']) ? (int)$data['GenomeSize'] : null; // INT(11), NULLABLE
+    $coverage = isset($data['Coverage']) ? (float)$data['Coverage'] : null; // DECIMAL(10,2), NULLABLE
+    $sampleCount = isset($data['SampleCount']) ? (int)$data['SampleCount'] : null; // INT(11), NULLABLE
+    $conc = isset($data['Conc']) ? (float)$data['Conc'] : null; // DECIMAL(10,4), NULLABLE
+    $avgLibSize = isset($data['AvgLibSize']) ? (int)$data['AvgLibSize'] : null; // INT(11), NULLABLE
 
     file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Binding params: RunName=$runName, ProjectPool=$projectPool, Application=$application, GenomeSize=$genomeSize, Coverage=$coverage, SampleCount=$sampleCount, Conc=$conc, AvgLibSize=$avgLibSize\n", FILE_APPEND);
 
-    $stmt->bind_param("sssiddi", $runName, $projectPool, $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize);
+    // Bind parameters matching table types: s (varchar), s (varchar), s (varchar), i (int), d (decimal), i (int), d (decimal), i (int)
+    $stmt->bind_param("sssiddid", $runName, $projectPool, $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize);
 
     if (!$stmt->execute()) {
         $error = $stmt->error;
