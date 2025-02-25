@@ -22,9 +22,14 @@
 
   <main class="main-content">
     <div class="spreadsheet-container">
-      <div class="run-name-container" style="margin-bottom: 10px;">
-        <label for="runNameInput" style="font-weight: bold; margin-right: 10px;">Run Name:</label>
-        <input type="text" id="runNameInput" placeholder="Enter a unique run name" style="padding: 5px; font-size: 14px; width: 200px;">
+      <div class="run-selection-container" style="margin-bottom: 10px;">
+        <label for="runSelect" style="font-weight: bold; margin-right: 10px;">Select Run:</label>
+        <select id="runSelect" style="padding: 5px; font-size: 14px;">
+          <option value="">Select Existing Run</option>
+          <option value="new">New Run</option>
+          <!-- Existing runs will be populated dynamically -->
+        </select>
+        <input type="text" id="newRunNameInput" placeholder="Enter new run name" style="display: none; padding: 5px; font-size: 14px; margin-left: 10px;">
       </div>
 
       <div class="table-wrapper">
@@ -54,11 +59,12 @@
 
       <div class="controls">
         <button id="addRowButton">Voeg rij toe</button>
+        <button id="calculateUINGSPoolButton" style="background-color: #088c04; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: bold; margin-left: 10px;">Bereken NGS UI Pool</button>
       </div>
     </div>
 
     <div class="loader" style="display: none;"></div>
-    <div class="error-message" style="display: none;">Error Message</div>
+    <div class="error-message" id="error-messages" style="display: none;">Error Message</div>
 
     <div class="flowcell-info">
       <div class="flowcell-details">

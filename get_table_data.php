@@ -37,6 +37,7 @@ try {
     $table = $data['table'] ?? '';
     $sortColumn = $data['sortColumn'] ?? 'timestamp';
     $sortDirection = $data['sortDirection'] ?? 'desc';
+    $filter = $data['filter'] ?? []; // Optional filter, e.g., ['RunName' => 'TestRun1']
 
     if (!in_array($table, ['mixdiffpools', 'nlp_data'])) {
         throw new Exception('Invalid table name');
@@ -45,7 +46,7 @@ try {
     $validColumns = [
         'mixdiffpools' => ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 
                           'Conc', 'AvgLibSize', 'Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 
-                          'UI NGS Pool', 'timestamp'],
+                          'UI NGS Pool', 'timestamp', 'RunName'],
         'nlp_data' => ['conc', 'avgLib', 'totalVolume', 'flowcell', 'nM', 'pMol', 'libUl', 
                        'rsbUl', 'concCalc', 'timestamp']
     ];
@@ -66,27 +67,52 @@ try {
         $columns[] = $row['Field'];
     }
 
+    // Build WHERE clause for filtering
+    $whereClause = '';
+    $bindParams = [];
+    $bindTypes = '';
+    if (!empty($filter)) {
+        $conditions = [];
+        foreach ($filter as $key => $value) {
+            if (in_array($key, $columns)) {
+                $conditions[] = "`$key` = ?";
+                $bindParams[] = $value;
+                $bindTypes .= 's'; // Assuming all filters are strings; adjust if needed
+            }
+        }
+        if ($conditions) {
+            $whereClause = ' WHERE ' . implode(' AND ', $conditions);
+        }
+    }
+
     if ($table === 'mixdiffpools' && $sortColumn === 'ProjectPool') {
-        $query = "SELECT * FROM `$table` ORDER BY 
+        $query = "SELECT * FROM `$table`$whereClause ORDER BY 
                   CASE 
                       WHEN ProjectPool REGEXP '^NGS-[0-9]+$' 
                       THEN CAST(SUBSTRING_INDEX(ProjectPool, '-', -1) AS UNSIGNED)
                       ELSE 999999999 
                   END $sortDirection";
     } else {
-        $query = "SELECT * FROM `$table` ORDER BY `$sortColumn` $sortDirection";
+        $query = "SELECT * FROM `$table`$whereClause ORDER BY `$sortColumn` $sortDirection";
     }
 
-    // Debug: Log the query
-    error_log("Query: $query");
-
-    $result = $conn->query($query);
-    if (!$result) {
-        throw new Exception('Query failed: ' . $conn->error);
+    // Prepare and execute query
+    if (!empty($bindParams)) {
+        $stmt = $conn->prepare($query);
+        if (!$stmt) {
+            throw new Exception('Prepare failed: ' . $conn->error);
+        }
+        $stmt->bind_param($bindTypes, ...$bindParams);
+        if (!$stmt->execute()) {
+            throw new Exception('Execute failed: ' . $stmt->error);
+        }
+        $result = $stmt->get_result();
+    } else {
+        $result = $conn->query($query);
+        if (!$result) {
+            throw new Exception('Query failed: ' . $conn->error);
+        }
     }
-
-    // Debug: Log the number of rows returned
-    error_log("Rows returned: " . $result->num_rows);
 
     $data = [];
     while ($row = $result->fetch_assoc()) {
@@ -99,6 +125,7 @@ try {
         'columns' => $columns
     ]);
 
+    if (isset($stmt)) $stmt->close();
     $conn->close();
 
 } catch (Exception $e) {
