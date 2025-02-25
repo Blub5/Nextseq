@@ -280,6 +280,7 @@ function calculateClustersForRow(row) {
 
 function determineFlowcell(totalClusters) {
     const flowcells = getSettings().flowcells;
+    console.log('Inside determineFlowcell - Total Clusters:', totalClusters);
     if (totalClusters <= flowcells.P1) return 'P1';
     if (totalClusters <= flowcells.P2) return 'P2';
     if (totalClusters <= flowcells.P3) return 'P3';
@@ -293,15 +294,27 @@ function updatePreliminaryFlowcell() {
         const val = clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0;
         return sum + val;
     }, 0);
+    
+    // Add console logs to debug
+    console.log('Total Clusters Calculated:', totalClusters);
+    
     const overallFlowcell = determineFlowcell(totalClusters);
+    
+    // Log the determined flowcell
+    console.log('Determined Flowcell:', overallFlowcell);
+    
     const flowcellOutput = document.getElementById('flowcellOutput');
     flowcellOutput.textContent = `Current Flowcell: ${overallFlowcell}`;
+    
+    // Log the flowcell settings for reference
+    const flowcellSettings = getSettings().flowcells;
+    console.log('Flowcell Thresholds:', flowcellSettings);
+    
     const percentageHeader = document.querySelector('#spreadsheetTable th[data-field="%(Flowcell)"]');
     if (percentageHeader) {
         percentageHeader.textContent = `%${overallFlowcell}`;
     }
 }
-
 function getInputValue(row, fieldName) {
     const input = row.querySelector(`[data-field="${fieldName}"]`);
     if (!input) return '';
