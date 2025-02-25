@@ -23,7 +23,8 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     exit;
 }
 
-$required_fields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
+// Added 'RunName' to the list of required fields
+$required_fields = ['RunName', 'ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field]) || $data[$field] === '') {
         http_response_code(400);
@@ -33,9 +34,10 @@ foreach ($required_fields as $field) {
 }
 
 try {
+    // Updated SQL to include RunName in the WHERE clause
     $stmt = $conn->prepare("UPDATE mixdiffpools SET 
         Application = ?, GenomeSize = ?, Coverage = ?, SampleCount = ?, Conc = ?, AvgLibSize = ?
-        WHERE ProjectPool = ?");
+        WHERE RunName = ? AND ProjectPool = ?");
     
     if (!$stmt) {
         throw new Exception('Prepare failed: ' . $conn->error);
@@ -47,18 +49,22 @@ try {
     $sampleCount = (int)$data['SampleCount'];
     $conc = (float)$data['Conc'];
     $avgLibSize = (int)$data['AvgLibSize'];
+    $runName = $data['RunName'];
     $projectPool = $data['ProjectPool'];
 
-    $stmt->bind_param("siddids", $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize, $projectPool);
+    // Bind parameters in the correct order:
+    // "s" for Application, "i" for GenomeSize, "d" for Coverage, "i" for SampleCount,
+    // "d" for Conc, "i" for AvgLibSize, "s" for RunName, "s" for ProjectPool.
+    $stmt->bind_param("siddidss", $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize, $runName, $projectPool);
 
     if (!$stmt->execute()) {
         throw new Exception('Execute failed: ' . $stmt->error);
     }
 
     if ($stmt->affected_rows > 0) {
-        echo json_encode(['success' => true, 'message' => "Updated ProjectPool '$projectPool'"]);
+        echo json_encode(['success' => true, 'message' => "Updated ProjectPool '$projectPool' for RunName '$runName'"]);
     } else {
-        echo json_encode(['success' => false, 'message' => "No row found with ProjectPool '$projectPool'"]);
+        echo json_encode(['success' => false, 'message' => "No row found with RunName '$runName' and ProjectPool '$projectPool'"]);
     }
 } catch (Exception $e) {
     http_response_code(500);
