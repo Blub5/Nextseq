@@ -2,6 +2,11 @@ let finalCalculationConfirmed = false;
 let lastUsedProjectPoolNumber = 0;
 let existingProjectPools = new Set();
 
+const poolColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9EC1CF', '#CC99C9',
+    '#F7A072', '#B2B1CF', '#66CC99', '#F9DC5C', '#F28C28', '#2980B9', '#27AE60', '#8E44AD'
+];
+
 function getSettings() {
     const savedSettings = JSON.parse(localStorage.getItem('mixdiffpoolsSettings'));
     return savedSettings || {
@@ -10,20 +15,6 @@ function getSettings() {
         applicationSettings: { cycli: 270 },
         projectPoolSettings: { prefix: 'NGS-' }
     };
-}
-
-const preliminaryRequiredFields = ['Application', 'GenomeSize', 'Coverage', 'SampleCount'];
-const fullRequiredFields = ['Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
-
-const poolColors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9EC1CF', '#CC99C9',
-    '#F7A072', '#B2B1CF', '#66CC99', '#F9DC5C', '#F28C28', '#2980B9', '#27AE60', '#8E44AD'
-];
-
-function getColorForProjectPool(projectPool) {
-    let hash = 0;
-    for (let i = 0; i < projectPool.length; i++) hash = projectPool.charCodeAt(i) + ((hash << 5) - hash);
-    return poolColors[Math.abs(hash) % poolColors.length];
 }
 
 function parseNumber(value) {
@@ -39,6 +30,12 @@ function parsePercentage(value) {
 function getPreciseValue(input) {
     if (!input) return 0;
     return input.dataset.preciseValue ? parseFloat(input.dataset.preciseValue) : parseFloat(input.value);
+}
+
+function getColorForProjectPool(projectPool) {
+    let hash = 0;
+    for (let i = 0; i < projectPool.length; i++) hash = projectPool.charCodeAt(i) + ((hash << 5) - hash);
+    return poolColors[Math.abs(hash) % poolColors.length];
 }
 
 async function fetchExistingProjectPools() {
@@ -418,6 +415,8 @@ function getInputValue(row, fieldName) {
     return input.tagName === 'SELECT' ? input.value : input.value.trim();
 }
 
+const preliminaryRequiredFields = ['Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
+
 function arePreliminaryFieldsFilled(row) {
     return preliminaryRequiredFields.every(field => {
         const input = row.querySelector(`[data-field="${field}"]`);
@@ -561,7 +560,15 @@ async function saveCalculations() {
             'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]')) || 0
         };
 
-        console.log('Sending to update_calculations.php:', JSON.stringify(data));
+        // Ensure Clusters is an integer
+        data.Clusters = parseInt(data.Clusters);
+        // Ensure decimals have correct precision
+        data['%Flowcell'] = parseFloat(data['%Flowcell']).toFixed(2);
+        data.nM = parseFloat(data.nM).toFixed(4);
+        data['%SamplePerFlowcell'] = parseFloat(data['%SamplePerFlowcell']).toFixed(2);
+        data['UI_NGS_Pool'] = parseFloat(data['UI_NGS_Pool']).toFixed(2);
+
+        console.log('Data sent to update_calculations.php:', JSON.stringify(data));
 
         try {
             const response = await fetch('update_calculations.php', {
@@ -572,10 +579,13 @@ async function saveCalculations() {
             const responseText = await response.text();
             console.log('Raw server response from update_calculations.php:', responseText);
 
-            if (!response.ok) throw new Error(`Server error: ${response.status} - ${responseText}`);
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} - ${responseText}`);
+            }
             const result = JSON.parse(responseText);
-            if (!result.success) throw new Error(result.message || 'Unknown error');
-
+            if (!result.success) {
+                throw new Error(result.message || 'Unknown error');
+            }
             console.log(`Successfully updated calculations for ${data.ProjectPool}`);
         } catch (error) {
             console.error(`Error saving calculations for ${data.ProjectPool}:`, error);
@@ -587,58 +597,13 @@ async function saveCalculations() {
     return allSaved;
 }
 
-function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
-    const progressBar = document.querySelector('.progress-bar');
-    const legendContainer = document.getElementById('progressLegend');
-    const progressPercentage = document.getElementById('progressPercentage');
-    
-    progressBar.innerHTML = '';
-    legendContainer.innerHTML = '';
-    
-    const projectPools = new Map();
-    rowCalculations.forEach(({ row, clusters }) => {
-        const projectPool = getInputValue(row, 'ProjectPool');
-        if (projectPool && clusters > 0) {
-            if (projectPools.has(projectPool)) projectPools.get(projectPool).clusters += clusters;
-            else projectPools.set(projectPool, { clusters, color: getColorForProjectPool(projectPool) });
-        }
-    });
-
-    const sortedPools = Array.from(projectPools.entries()).sort((a, b) => b[1].clusters - a[1].clusters);
-    let totalPercentage = 0;
-
-    sortedPools.forEach(([projectPool, data]) => {
-        const percentage = (data.clusters / flowcellMax) * 100;
-        if (percentage > 0) {
-            const segment = document.createElement('div');
-            segment.className = 'progress-segment';
-            segment.style.width = `${percentage}%`;
-            segment.style.backgroundColor = data.color;
-            segment.title = `${projectPool}: ${percentage.toFixed(1)}%`;
-            progressBar.appendChild(segment);
-
-            const legendItem = document.createElement('div');
-            legendItem.className = 'legend-item';
-            legendItem.innerHTML = `
-                <div class="legend-color" style="background-color: ${data.color}"></div>
-                <span>${projectPool} (${percentage.toFixed(1)}%)</span>
-            `;
-            legendContainer.appendChild(legendItem);
-        }
-        totalPercentage += percentage;
-    });
-
-    progressPercentage.textContent = `${totalPercentage.toFixed(1)}%`;
-    progressPercentage.style.color = totalPercentage > 90 ? '#FF4444' : totalPercentage > 70 ? '#FFA500' : '#FFFFFF';
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchExistingProjectPools();
     const runNames = await fetchRunNames();
     const runSelect = document.getElementById('runSelect');
     runSelect.value = 'new';
     document.getElementById('newRunNameInput').style.display = 'block';
-    
+
     runNames.forEach(runName => {
         const option = document.createElement('option');
         option.value = runName;
@@ -686,6 +651,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             realTimeCalculate(row);
         }
     });
-    
+
     await addRow();
 });
