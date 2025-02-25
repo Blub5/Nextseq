@@ -5,6 +5,9 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+// Include config for database connection
+include('config.php');
+
 function handleError($errno, $errstr, $errfile, $errline) {
     http_response_code(500);
     echo json_encode([
@@ -19,8 +22,9 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
-    
+    // Database connection
+    $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
     }
@@ -29,6 +33,7 @@ try {
         throw new Exception('Method not allowed, use POST');
     }
 
+    // Get and decode POST data
     $data = json_decode(file_get_contents('php://input'), true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception('Invalid JSON: ' . json_last_error_msg());
@@ -57,6 +62,7 @@ try {
 
     $sortDirection = strtoupper($sortDirection) === 'DESC' ? 'DESC' : 'ASC';
 
+    // Get table columns
     $columnsResult = $conn->query("SHOW COLUMNS FROM `$table`");
     if (!$columnsResult) {
         throw new Exception('Failed to get table columns: ' . $conn->error);
@@ -77,7 +83,7 @@ try {
             if (in_array($key, $columns)) {
                 $conditions[] = "`$key` = ?";
                 $bindParams[] = $value;
-                $bindTypes .= 's'; // Assuming all filters are strings; adjust if needed
+                $bindTypes .= 's'; // Default to string, update if needed
             }
         }
         if ($conditions) {
@@ -85,6 +91,7 @@ try {
         }
     }
 
+    // Handle sorting logic for 'mixdiffpools'
     if ($table === 'mixdiffpools' && $sortColumn === 'ProjectPool') {
         $query = "SELECT * FROM `$table`$whereClause ORDER BY 
                   CASE 
@@ -114,6 +121,7 @@ try {
         }
     }
 
+    // Fetch data
     $data = [];
     while ($row = $result->fetch_assoc()) {
         $data[] = $row;

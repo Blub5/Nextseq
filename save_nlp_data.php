@@ -1,10 +1,14 @@
 <?php
+// Include the config.php file
+include('config.php');
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
 
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+// Use the constants from config.php to connect to the database
+$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
 if ($conn->connect_error) {
     http_response_code(500);
