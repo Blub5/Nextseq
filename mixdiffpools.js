@@ -112,27 +112,52 @@ async function loadRunData(runName) {
                 } else {
                     input.type = 'text';
                     const rawValue = rowData[header] ?? '';
-                    const numericValue = parseFloat(rawValue) || 0;
+                    let formattedValue = rawValue;
+
+                    // Apply rounding/formatting based on your requirements
+                    if (header === 'Coverage') {
+                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
+                    } else if (header === 'SampleCount') {
+                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
+                    } else if (header === 'Conc') {
+                        formattedValue = parseFloat(rawValue).toFixed(2) || '0.00'; // 2 decimals
+                    } else if (header === 'AvgLibSize') {
+                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
+                    } else if (header === 'Clusters') {
+                        const numericValue = parseFloat(rawValue) || 0;
+                        formattedValue = numericValue ? numericValue.toExponential(2) : '0.00e+0'; // Scientific notation
+                        input.dataset.preciseValue = numericValue.toString();
+                    } else if (header === '%Flowcell') {
+                        const numericValue = parseFloat(rawValue) || 0;
+                        formattedValue = Math.round(numericValue); // Whole number
+                        input.dataset.preciseValue = numericValue.toString();
+                    } else if (header === 'nM') {
+                        const numericValue = parseFloat(rawValue) || 0;
+                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
+                        input.dataset.preciseValue = numericValue.toString();
+                    } else if (header === '%SamplePerFlowcell') {
+                        const numericValue = parseFloat(rawValue) || 0;
+                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
+                        input.dataset.preciseValue = numericValue.toString();
+                    } else if (header === 'UI NGS Pool') {
+                        const numericValue = parseFloat(rawValue) || 0;
+                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
+                        input.dataset.preciseValue = numericValue.toString();
+                    } else {
+                        formattedValue = rawValue; // No formatting for other fields like ProjectPool, GenomeSize
+                    }
 
                     if (header === 'ProjectPool') {
-                        input.value = rawValue;
+                        input.value = formattedValue;
                         input.readOnly = true;
                         input.style.backgroundColor = '#f0f0f0';
                     } else if (['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'].includes(header)) {
                         input.readOnly = true;
                         input.placeholder = 'Output';
                         input.style.backgroundColor = '#f0f0f0';
-                        input.dataset.preciseValue = numericValue.toString();
-
-                        if (header === '%Flowcell' || header === '%SamplePerFlowcell') {
-                            input.value = numericValue ? `${numericValue.toFixed(1)}%` : '';
-                        } else if (header === 'nM' || header === 'UI NGS Pool') {
-                            input.value = numericValue ? numericValue.toFixed(1) : '';
-                        } else if (header === 'Clusters') {
-                            input.value = numericValue ? numericValue.toExponential(2) : '';
-                        }
+                        input.value = formattedValue;
                     } else {
-                        input.value = rawValue;
+                        input.value = formattedValue;
                         input.placeholder = 'Insert';
                         input.style.color = '#333';
                     }

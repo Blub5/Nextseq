@@ -87,12 +87,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 const td = document.createElement('td');
                 let value = row[column];
     
+                // Apply rounding/formatting based on column name
                 if (column === 'timestamp') {
                     const dateObj = new Date(value);
                     value = dateObj.toLocaleString('nl-NL', {
                         day: '2-digit', month: '2-digit', year: 'numeric',
                         hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
+                } else if (column === 'Coverage') {
+                    value = Math.round(parseFloat(value) || 0); // Whole number
+                } else if (column === 'SampleCount') {
+                    value = Math.round(parseFloat(value) || 0); // Whole number
+                } else if (column === 'Conc') {
+                    value = parseFloat(value).toFixed(2) || '0.00'; // 2 decimals
+                } else if (column === 'AvgLibSize') {
+                    value = Math.round(parseFloat(value) || 0); // Whole number
+                } else if (column === 'Clusters') {
+                    const numericValue = parseFloat(value) || 0;
+                    value = numericValue ? numericValue.toExponential(2) : '0.00e+0'; // Scientific notation
+                } else if (column === '%Flowcell') {
+                    value = Math.round(parseFloat(value) || 0); // Whole number
+                } else if (column === 'nM') {
+                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
+                } else if (column === '%SamplePerFlowcell') {
+                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
+                } else if (column === 'UI NGS Pool') {
+                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
                 }
     
                 td.textContent = value ?? '';
@@ -184,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         value = value.padEnd(25);
                     } else if (column === 'Clusters') {
                         value = parseFloat(value).toExponential(2);
-                    } else if (column === '%(Flowcell)') {
+                    } else if (column === '%Flowcell') {
                         value = Math.round(parseFloat(value));
                     } else if (column === 'nM') {
                         value = parseFloat(value).toFixed(1);
