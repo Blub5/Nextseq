@@ -31,7 +31,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 80px;
+    padding-top: 60px; /* Updated from 80px to match other pages */
 }
 
 /* Header Styling */
@@ -40,13 +40,13 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 15px 100px;
+    padding: 10px 100px; /* Updated from 15px 100px to match other pages */
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 100;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Updated from 15px to 10px shadow to match */
 }
 
 .logo img {
@@ -73,6 +73,7 @@ body {
     color: #088c04;
     transform: scale(1.1);
 }
+
 /* Main Content */
 .main-content {
     width: 100%;
