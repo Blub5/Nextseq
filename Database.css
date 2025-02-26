@@ -47,11 +47,11 @@ body {
     align-items: center;
     z-index: 100;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Consistent with other pages */
-    height: 60px; /* Explicit height to enforce consistency */
+    /* Removed height: 60px; to match natural height of other pages */
 }
 
 .logo img {
-    height: 40px; /* Changed from 45px to match other pages */
+    height: 40px; /* Consistent with other pages */
 }
 
 .navbar {
