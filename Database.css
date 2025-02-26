@@ -50,17 +50,10 @@ body {
 }
 
 .logo img {
-    height: 50px; /* Increased from 40px for more prominence */
-    transition: transform 0.3s ease, filter 0.3s ease; /* Smooth hover effects */
-    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7)); /* Subtle glow effect */
-    border-radius: 50%; /* Optional: circular shape for emphasis */
-    padding: 5px; /* Space around the logo */
-    background: rgba(255, 255, 255, 0.1); /* Slight background contrast */
-}
-
-.logo img:hover {
-    transform: scale(1.1); /* Slight zoom on hover */
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)); /* Brighter glow on hover */
+    height: 40px; /* Consistent with other pages */
+    background: rgba(255, 255, 255, 0.3); /* Licht witte achtergrond voor contrast */
+    padding: 4px; /* Kleine padding om het logo te omkaderen */
+    border-radius: 4px; /* Subtiele afronding voor netheid */
 }
 
 .navbar {
