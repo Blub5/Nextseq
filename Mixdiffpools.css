@@ -75,7 +75,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow-y: auto;
+  position: relative;
 }
 
 .run-selection-container {
@@ -86,8 +86,10 @@ body {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 8px;
+  flex-grow: 1;
 }
 
 #spreadsheetTable {
@@ -179,7 +181,10 @@ input::placeholder {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 5px;
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
 }
 
 .action-button {

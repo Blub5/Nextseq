@@ -240,7 +240,7 @@ function showErrorToUser(message, type = 'error') {
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
-        setTimeout(() => errorDiv.style.display = 'none', 5000); // Auto-hide after 5 seconds
+        setTimeout(() => errorDiv.style.display = 'none', 5000);
     }
 }
 
