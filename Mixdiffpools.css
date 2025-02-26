@@ -4,12 +4,15 @@
   box-sizing: border-box;
   font-family: 'Poppins', Arial, sans-serif;
 }
+
 ::-webkit-scrollbar {
   display: none;
 }
+
 * {
-  -ms-overflow-style: none;  
+  -ms-overflow-style: none;
 }
+
 body {
   min-height: 100vh;
   background-size: cover;
@@ -17,15 +20,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 60px; 
-  gap: 15px; 
+  padding-top: 60px;
+  gap: 15px;
 }
+
 .header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 10px 100px; 
+  padding: 10px 100px;
   background: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: space-between;
@@ -33,13 +37,16 @@ body {
   z-index: 100;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
 .logo img {
-  height: 40px; 
+  height: 40px;
 }
+
 .navbar {
   display: flex;
-  gap: 30px;
+  gap: 20px;
 }
+
 .navbar a {
   font-size: 18px;
   color: #fff;
@@ -49,54 +56,85 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
+
 .navbar a:hover {
   background-color: #fff;
   color: #088c04;
   transform: scale(1.1);
 }
+
 .spreadsheet-container {
   width: 100%;
   max-width: 1300px;
-  height: calc(100vh - 280px); 
+  height: calc(100vh - 280px);
   padding: 15px;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  background-color: #fff;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px; 
-  margin-top: 20px; 
+  gap: 10px;
+  overflow-y: auto;
 }
+
 .run-selection-container {
   display: flex;
   align-items: center;
 }
+
 .table-wrapper {
-  flex-grow: 1;
   width: 100%;
-  overflow-y: auto;
   overflow-x: auto;
   border: 1px solid #ddd;
   border-radius: 8px;
-  height: 100%; 
 }
+
 #spreadsheetTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
   table-layout: fixed;
 }
-#spreadsheetTable th, 
+
+#spreadsheetTable th,
 #spreadsheetTable td {
   border: 1px solid #ddd;
   padding: 4px 6px;
   text-align: left;
-  transition: background-color 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 100px;
 }
+
+/* Specific Column Widths */
+#spreadsheetTable th[data-field="ProjectPool"],
+#spreadsheetTable td[data-field="ProjectPool"] { width: 120px; }
+#spreadsheetTable th[data-field="Application"],
+#spreadsheetTable td[data-field="Application"] { width: 100px; }
+#spreadsheetTable th[data-field="GenomeSize"],
+#spreadsheetTable td[data-field="GenomeSize"] { width: 80px; }
+#spreadsheetTable th[data-field="Coverage"],
+#spreadsheetTable td[data-field="Coverage"] { width: 80px; }
+#spreadsheetTable th[data-field="SampleCount"],
+#spreadsheetTable td[data-field="SampleCount"] { width: 80px; }
+#spreadsheetTable th[data-field="Conc"],
+#spreadsheetTable td[data-field="Conc"] { width: 80px; }
+#spreadsheetTable th[data-field="AvgLibSize"],
+#spreadsheetTable td[data-field="AvgLibSize"] { width: 80px; }
+#spreadsheetTable th[data-field="Clusters"],
+#spreadsheetTable td[data-field="Clusters"] { width: 100px; }
+#spreadsheetTable th[data-field="%Flowcell"],
+#spreadsheetTable td[data-field="%Flowcell"] { width: 80px; }
+#spreadsheetTable th[data-field="nM"],
+#spreadsheetTable td[data-field="nM"] { width: 80px; }
+#spreadsheetTable th[data-field="%SamplePerFlowcell"],
+#spreadsheetTable td[data-field="%SamplePerFlowcell"] { width: 100px; }
+#spreadsheetTable th[data-field="UI NGS Pool"],
+#spreadsheetTable td[data-field="UI NGS Pool"] { width: 80px; }
+#spreadsheetTable th[data-field="Acties"],
+#spreadsheetTable td[data-field="Acties"] { width: 100px; }
+
 #spreadsheetTable th {
   background-color: #088c04;
   color: white;
@@ -104,31 +142,18 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 25px; 
-}
-#spreadsheetTable tbody tr {
   height: 25px;
 }
+
 #spreadsheetTable tbody tr:nth-child(even) {
-  background-color: #f8f9ff;
+  background-color: #f2f2f2;
 }
+
 #spreadsheetTable tbody tr:hover {
   background-color: #dfe4ff;
 }
-select {
-  width: 100%;
-  height: 25px;
-  font-size: 12px;
-  padding: 3px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-}
-select:focus {
-  border-color: #088c04;
-  outline: none;
-}
+
+select,
 input {
   width: 100%;
   height: 25px;
@@ -136,20 +161,28 @@ input {
   padding: 3px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  background-color: white;
 }
+
+select:focus,
+input:focus {
+  border-color: #088c04;
+  outline: none;
+}
+
 input::placeholder {
   color: #aaa;
   font-style: italic;
 }
+
 .controls {
   display: flex;
   justify-content: center;
-  margin-top: 5px; 
+  gap: 10px;
+  margin-top: 5px;
 }
-#runSelect, #newRunNameInput {
-  width: 200px;
-}
-#addRowButton {
+
+.action-button {
   background-color: #088c04;
   color: white;
   border: none;
@@ -157,14 +190,15 @@ input::placeholder {
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   font-weight: bold;
 }
-#addRowButton:hover {
-  background-color: #045202;
+
+.action-button:hover {
+  background-color: #066a03;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 .removeButton {
   background-color: #ff4444;
   color: white;
@@ -173,59 +207,60 @@ input::placeholder {
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
+
 .removeButton:hover {
   background-color: #cc0000;
-  transform: translateY(-2px);
 }
+
 .flowcell-info {
   background-color: #088c04;
   color: white;
   padding: 15px;
   border-radius: 8px;
-  margin-top: 0; 
-  font-weight: bold;
   width: 100%;
   max-width: 1300px;
 }
+
 .flowcell-details {
   display: flex;
   justify-content: space-around;
   margin-bottom: 10px;
 }
+
 .flowcell-details span {
   flex: 1;
   text-align: center;
 }
+
 .progress-container {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  padding: 10px; 
+  padding: 10px;
   width: 100%;
-  margin-top: 5px; 
 }
+
 .progress-bar-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
 }
+
 .progress-bar {
   flex-grow: 1;
   height: 30px;
   background-color: white;
   border-radius: 15px;
   overflow: hidden;
-  position: relative;
-  display: flex;
+  border: 1px solid #ccc;
 }
+
 .progress-segment {
   height: 100%;
   transition: width 0.3s ease-in-out;
-  position: relative;
 }
+
 .progress-segment:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -235,11 +270,13 @@ input::placeholder {
   width: 2px;
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 #progressPercentage {
   min-width: 60px;
   text-align: right;
   font-weight: bold;
 }
+
 .progress-legend {
   display: flex;
   flex-wrap: wrap;
@@ -247,6 +284,7 @@ input::placeholder {
   margin-top: 15px;
   justify-content: center;
 }
+
 .legend-item {
   display: flex;
   align-items: center;
@@ -257,24 +295,23 @@ input::placeholder {
   padding: 4px 12px;
   border-radius: 15px;
 }
+
 .legend-color {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
-#error-messages {
-  background-color: #ffebee;
-  color: #c62828;
+
+.error-message {
+  background-color: #f44336;
+  color: white;
   padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
-  display: none;
+  border-radius: 5px;
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   max-width: 400px;
-  word-wrap: break-word;
+  display: none;
 }

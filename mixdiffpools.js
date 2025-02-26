@@ -22,11 +22,6 @@ function parseNumber(value) {
     return Number(value);
 }
 
-function parsePercentage(value) {
-    if (typeof value === 'string') return parseFloat(value.replace('%', '')) || 0;
-    return value || 0;
-}
-
 function getPreciseValue(input) {
     if (!input) return 0;
     return input.dataset.preciseValue ? parseFloat(input.dataset.preciseValue) : parseFloat(input.value);
@@ -53,7 +48,6 @@ async function fetchExistingProjectPools() {
         lastUsedProjectPoolNumber = Math.max(0, ...Array.from(existingProjectPools)
             .filter(pp => pp.match(/^NGS-\d+$/))
             .map(pp => parseInt(pp.replace('NGS-', ''))));
-        console.log('Fetched existing ProjectPools:', Array.from(existingProjectPools), 'Last number:', lastUsedProjectPoolNumber);
         return lastUsedProjectPoolNumber;
     } catch (error) {
         console.error('Error fetching existing ProjectPools:', error);
@@ -86,8 +80,6 @@ async function loadRunData(runName) {
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Unknown error');
 
-        console.log('Fetched data for run:', runName, result.data);
-
         const tbody = document.querySelector('#spreadsheetTable tbody');
         tbody.innerHTML = '';
 
@@ -114,52 +106,29 @@ async function loadRunData(runName) {
                     const rawValue = rowData[header] ?? '';
                     let formattedValue = rawValue;
 
-                    // Apply rounding/formatting based on your requirements
-                    if (header === 'Coverage') {
-                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
-                    } else if (header === 'SampleCount') {
-                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
+                    if (header === 'Coverage' || header === 'SampleCount' || header === 'AvgLibSize') {
+                        formattedValue = Math.round(parseFloat(rawValue) || 0);
                     } else if (header === 'Conc') {
-                        formattedValue = parseFloat(rawValue).toFixed(2) || '0.00'; // 2 decimals
-                    } else if (header === 'AvgLibSize') {
-                        formattedValue = Math.round(parseFloat(rawValue) || 0); // Whole number
+                        formattedValue = parseFloat(rawValue).toFixed(2) || '0.00';
                     } else if (header === 'Clusters') {
                         const numericValue = parseFloat(rawValue) || 0;
-                        formattedValue = numericValue ? numericValue.toExponential(2) : '0.00e+0'; // Scientific notation
+                        formattedValue = numericValue ? numericValue.toExponential(2) : '0.00e+0';
                         input.dataset.preciseValue = numericValue.toString();
-                    } else if (header === '%Flowcell') {
+                    } else if (header === '%Flowcell' || header === 'nM' || header === '%SamplePerFlowcell' || header === 'UI NGS Pool') {
                         const numericValue = parseFloat(rawValue) || 0;
-                        formattedValue = Math.round(numericValue); // Whole number
-                        input.dataset.preciseValue = numericValue.toString();
-                    } else if (header === 'nM') {
-                        const numericValue = parseFloat(rawValue) || 0;
-                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
-                        input.dataset.preciseValue = numericValue.toString();
-                    } else if (header === '%SamplePerFlowcell') {
-                        const numericValue = parseFloat(rawValue) || 0;
-                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
-                        input.dataset.preciseValue = numericValue.toString();
-                    } else if (header === 'UI NGS Pool') {
-                        const numericValue = parseFloat(rawValue) || 0;
-                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0'; // 1 decimal
+                        formattedValue = numericValue ? numericValue.toFixed(1) : '0.0';
                         input.dataset.preciseValue = numericValue.toString();
                     } else {
-                        formattedValue = rawValue; // No formatting for other fields like ProjectPool, GenomeSize
+                        formattedValue = rawValue;
                     }
 
-                    if (header === 'ProjectPool') {
-                        input.value = formattedValue;
+                    if (header === 'ProjectPool' || ['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'].includes(header)) {
                         input.readOnly = true;
-                        input.style.backgroundColor = '#f0f0f0';
-                    } else if (['Clusters', '%Flowcell', 'nM', '%SamplePerFlowcell', 'UI NGS Pool'].includes(header)) {
-                        input.readOnly = true;
-                        input.placeholder = 'Output';
-                        input.style.backgroundColor = '#f0f0f0';
                         input.value = formattedValue;
+                        input.style.backgroundColor = '#f0f0f0';
                     } else {
                         input.value = formattedValue;
                         input.placeholder = 'Insert';
-                        input.style.color = '#333';
                     }
                 }
                 td.appendChild(input);
@@ -196,19 +165,9 @@ async function loadRunData(runName) {
             newRow.appendChild(tdAction);
 
             tbody.appendChild(newRow);
-            console.log('Row data loaded:', rowData);
         });
 
-        Array.from(tbody.querySelectorAll('tr')).forEach(row => {
-            realTimeCalculate(row);
-            console.log('Post-calc row:', {
-                ProjectPool: getInputValue(row, 'ProjectPool'),
-                Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-                '%Flowcell': getPreciseValue(row.querySelector('[data-field="%Flowcell"]')),
-                '%SamplePerFlowcell': getPreciseValue(row.querySelector('[data-field="%SamplePerFlowcell"]')),
-                nM: getPreciseValue(row.querySelector('[data-field="nM"]'))
-            });
-        });
+        Array.from(tbody.querySelectorAll('tr')).forEach(row => realTimeCalculate(row));
         updateFinalPercentagesAndFlowcell();
         updatePreliminaryFlowcell();
     } catch (error) {
@@ -281,13 +240,7 @@ function showErrorToUser(message, type = 'error') {
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
-        errorDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
-        errorDiv.style.color = type === 'success' ? '#155724' : '#721c24';
-        errorDiv.style.padding = '10px';
-        errorDiv.style.borderRadius = '5px';
-        errorDiv.style.marginTop = '10px';
-    } else {
-        alert(message);
+        setTimeout(() => errorDiv.style.display = 'none', 5000); // Auto-hide after 5 seconds
     }
 }
 
@@ -423,17 +376,13 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
     const progressPercentage = document.getElementById('progressPercentage');
     const legendContainer = document.getElementById('progressLegend');
 
-    if (!progressBar || !progressPercentage || !legendContainer) {
-        console.warn('Progress bar, percentage, or legend elements not found in the DOM');
-        return;
-    }
+    if (!progressBar || !progressPercentage || !legendContainer) return;
 
     progressBar.innerHTML = '';
     legendContainer.innerHTML = '';
 
     const totalPercentage = rowCalculations.reduce((sum, { percentageOfFlowcell }) => sum + percentageOfFlowcell, 0);
 
-    let cumulativeWidth = 0;
     rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
         const projectPool = getInputValue(row, 'ProjectPool');
         const color = getColorForProjectPool(projectPool);
@@ -446,8 +395,6 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
         segment.title = `${projectPool}: ${percentageOfFlowcell.toFixed(1)}%`;
         progressBar.appendChild(segment);
 
-        cumulativeWidth += width;
-
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         legendItem.innerHTML = `
@@ -457,21 +404,13 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
         legendContainer.appendChild(legendItem);
     });
 
-    progressBar.style.width = `${Math.min(totalPercentage, 100)}%`;
     progressPercentage.textContent = `${totalPercentage.toFixed(1)}%`;
-
-    if (totalPercentage > 100) {
-        showErrorToUser(`Warning: Total flowcell usage exceeds 100% (${totalPercentage.toFixed(1)}%)`);
-    }
 }
 
 async function calculateAndSaveAllData() {
-    console.log('Starting calculateAndSaveAllData');
     const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-
-    // Step 1: Calculate all fields
     const totalClusters = Array.from(rows).reduce((sum, row) => {
-        realTimeCalculate(row); // Ensure all calculations are up-to-date
+        realTimeCalculate(row);
         const clustersInput = row.querySelector('[data-field="Clusters"]');
         return sum + (clustersInput && clustersInput.dataset.preciseValue ? parseFloat(clustersInput.dataset.preciseValue) : 0);
     }, 0);
@@ -504,7 +443,6 @@ async function calculateAndSaveAllData() {
 
     document.getElementById('trisOutput').textContent = `ul Tris aan pool toevoegen: ${trisToAdd.toFixed(1)}`;
 
-    // Step 2: Prepare all data for saving
     const runSelect = document.getElementById('runSelect');
     const newRunNameInput = document.getElementById('newRunNameInput');
     const runName = runSelect.value === 'new' ? newRunNameInput.value.trim() : runSelect.value;
@@ -534,16 +472,9 @@ async function calculateAndSaveAllData() {
         allData.push(data);
     });
 
-    // Step 3: Validate all data
-    let allValid = true;
-    allData.forEach(data => {
+    const allValid = allData.every(data => {
         const requiredFields = ['ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
-        requiredFields.forEach(field => {
-            if (!data[field] || data[field] === 0) {
-                showErrorToUser(`Missing or invalid value for ${field} in row ${data.ProjectPool}`);
-                allValid = false;
-            }
-        });
+        return requiredFields.every(field => data[field] && data[field] !== 0);
     });
 
     if (!allValid) {
@@ -551,9 +482,7 @@ async function calculateAndSaveAllData() {
         return;
     }
 
-    // Step 4: Save all data
     if (confirm(`Are you sure you want to save all data for run "${runName}"?`)) {
-        console.log('Saving all data:', JSON.stringify({ runName: runName, rows: allData }));
         try {
             const response = await fetch('save_all_data.php', {
                 method: 'POST',
@@ -563,7 +492,7 @@ async function calculateAndSaveAllData() {
             const result = await response.json();
             if (result.success) {
                 showErrorToUser('All data saved successfully!', 'success');
-                existingProjectPools = new Set(allData.map(row => row.ProjectPool)); // Update local cache
+                existingProjectPools = new Set(allData.map(row => row.ProjectPool));
             } else {
                 showErrorToUser('Failed to save data: ' + result.message);
             }
@@ -571,57 +500,6 @@ async function calculateAndSaveAllData() {
             showErrorToUser('Error saving data: ' + error.message);
         }
     }
-}
-
-async function saveCalculations() {
-    const rows = document.querySelectorAll('#spreadsheetTable tbody tr');
-    let allSaved = true;
-
-    console.log('Starting saveCalculations for', rows.length, 'rows');
-
-    for (const row of rows) {
-        const data = {
-            ProjectPool: getInputValue(row, 'ProjectPool'),
-            Clusters: getPreciseValue(row.querySelector('[data-field="Clusters"]')),
-            '%Flowcell': parseFloat(row.querySelector('[data-field="%Flowcell"]').dataset.preciseValue) || 0,
-            nM: getPreciseValue(row.querySelector('[data-field="nM"]')),
-            '%SamplePerFlowcell': parseFloat(row.querySelector('[data-field="%SamplePerFlowcell"]').dataset.preciseValue) || 0,
-            'UI_NGS_Pool': getPreciseValue(row.querySelector('[data-field="UI NGS Pool"]')) || 0
-        };
-
-        data.Clusters = parseInt(data.Clusters);
-        data['%Flowcell'] = parseFloat(data['%Flowcell']).toFixed(2);
-        data.nM = parseFloat(data.nM).toFixed(4);
-        data['%SamplePerFlowcell'] = parseFloat(data['%SamplePerFlowcell']).toFixed(2);
-        data['UI_NGS_Pool'] = parseFloat(data['UI_NGS_Pool']).toFixed(2);
-
-        console.log('Data sent to update_calculations.php:', JSON.stringify(data));
-
-        try {
-            const response = await fetch('update_calculations.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const responseText = await response.text();
-            console.log('Raw server response from update_calculations.php:', responseText);
-
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status} - ${responseText}`);
-            }
-            const result = JSON.parse(responseText);
-            if (!result.success) {
-                throw new Error(result.message || 'Unknown error');
-            }
-            console.log(`Successfully updated calculations for ${data.ProjectPool}`);
-        } catch (error) {
-            console.error(`Error saving calculations for ${data.ProjectPool}:`, error);
-            showErrorToUser(`Error saving calculations for ${data.ProjectPool}: ${error.message}`);
-            allSaved = false;
-        }
-    }
-
-    return allSaved;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -651,10 +529,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.getElementById('addRowButton').addEventListener('click', addRow);
-
-    document.getElementById('calculateUINGSPoolButton').addEventListener('click', async () => {
-        await calculateAndSaveAllData();
-    });
+    document.getElementById('calculateUINGSPoolButton').addEventListener('click', calculateAndSaveAllData);
 
     const tbody = document.querySelector('#spreadsheetTable tbody');
     tbody.addEventListener('input', e => {

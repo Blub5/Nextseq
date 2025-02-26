@@ -1,3 +1,4 @@
+/* Reset and General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -31,9 +32,9 @@ body {
     flex-direction: column;
     align-items: center;
     padding-top: 80px;
-    gap: 20px;
 }
 
+/* Header Styling */
 .header {
     position: fixed;
     top: 0;
@@ -54,39 +55,42 @@ body {
 
 .navbar {
     display: flex;
-    gap: 25px;
+    gap: 20px;
 }
 
 .navbar a {
     font-size: 18px;
     color: #fff;
     text-decoration: none;
-    padding: 10px 25px;
-    border-radius: 10px;
+    padding: 8px 20px;
+    border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
-.navbar a:hover, .navbar a.active {
-    background-color: #088c04;
-    color: #fff;
-    transform: scale(1.05);
+.navbar a:hover {
+    background-color: #fff;
+    color: #088c04;
+    transform: scale(1.1);
 }
-
+/* Main Content */
 .main-content {
     width: 100%;
     max-width: 1400px;
     padding: 20px;
 }
 
+/* Database Container */
 .database-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     width: 100%;
+    position: relative;
 }
 
+/* Page Title */
 .page-title {
     font-size: 28px;
     color: #088c04;
@@ -95,6 +99,7 @@ body {
     font-weight: 600;
 }
 
+/* Controls */
 .controls {
     display: flex;
     flex-wrap: wrap;
@@ -104,7 +109,8 @@ body {
     margin-bottom: 25px;
 }
 
-.control-select {
+.control-select,
+.control-input {
     padding: 10px;
     font-size: 14px;
     border: 2px solid #ddd;
@@ -115,17 +121,12 @@ body {
 }
 
 .control-input {
-    padding: 10px;
-    font-size: 14px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    flex-grow: 1;
     max-width: 300px;
-    transition: border-color 0.3s ease;
+    flex-grow: 1;
 }
 
-.control-select:focus, .control-input:focus {
+.control-select:focus,
+.control-input:focus {
     border-color: #088c04;
     outline: none;
 }
@@ -148,6 +149,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* Table Wrapper */
 .table-wrapper {
     background: #fff;
     border-radius: 10px;
@@ -169,7 +171,8 @@ body {
     font-size: 13px;
 }
 
-#dataTable th, #dataTable td {
+#dataTable th,
+#dataTable td {
     border: 1px solid #e0e0e0;
     padding: 10px;
     text-align: left;
@@ -222,6 +225,7 @@ body {
     opacity: 1;
 }
 
+/* Delete Button */
 .delete-button {
     background-color: #ff4444;
     color: white;
@@ -239,6 +243,22 @@ body {
     transform: translateY(-2px);
 }
 
+/* Error Message Styling */
+.error-message {
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading and Error States */
 .loading {
     text-align: center;
     padding: 20px;

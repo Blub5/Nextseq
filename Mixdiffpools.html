@@ -35,19 +35,19 @@
         <table id="spreadsheetTable">
           <thead>
             <tr>
-              <th>ProjectPool</th>
-              <th>Application</th>
-              <th>GenomeSize</th>
-              <th>Coverage</th>
-              <th>SampleCount</th>
-              <th>Conc</th>
-              <th>AvgLibSize</th>
-              <th>Clusters</th>
-              <th data-field="%(Flowcell)">%P1</th>
-              <th>nM</th>
-              <th>%Sample per (Flowcell)</th>
-              <th>UI NGS Pool</th>
-              <th>Acties</th>
+              <th data-field="ProjectPool">ProjectPool</th>
+              <th data-field="Application">Application</th>
+              <th data-field="GenomeSize">GenomeSize</th>
+              <th data-field="Coverage">Coverage</th>
+              <th data-field="SampleCount">SampleCount</th>
+              <th data-field="Conc">Conc</th>
+              <th data-field="AvgLibSize">AvgLibSize</th>
+              <th data-field="Clusters">Clusters</th>
+              <th data-field="%Flowcell">%P1</th>
+              <th data-field="nM">nM</th>
+              <th data-field="%SamplePerFlowcell">%Sample per (Flowcell)</th>
+              <th data-field="UI NGS Pool">UI NGS Pool</th>
+              <th data-field="Acties">Acties</th>
             </tr>
           </thead>
           <tbody>
@@ -57,13 +57,13 @@
       </div>
 
       <div class="controls">
-        <button id="addRowButton">Voeg rij toe</button>
-        <button id="calculateUINGSPoolButton" style="background-color: #088c04; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: bold; margin-left: 10px;">Bereken NGS UI Pool</button>
+        <button id="addRowButton" class="action-button">Voeg rij toe</button>
+        <button id="calculateUINGSPoolButton" class="action-button">Bereken NGS UI Pool</button>
       </div>
     </div>
 
     <div class="loader" style="display: none;"></div>
-    <div class="error-message" id="error-messages" style="display: none;">Error Message</div>
+    <div class="error-message" id="error-messages">Error Message</div>
 
     <div class="flowcell-info">
       <div class="flowcell-details">

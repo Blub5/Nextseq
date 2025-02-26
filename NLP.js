@@ -3,7 +3,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const resultsTable = document.getElementById('resultsTable');
     const inputs = document.querySelectorAll('input[type="number"]');
     const flowcellSelect = document.getElementById('flowcell');
-    
+
+    function showErrorToUser(message) {
+        const errorDiv = document.getElementById('error-messages');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000); // Hide after 5 seconds
+        } else {
+            alert(message); // Fallback if div is missing
+        }
+    }
+
     function validateNumericInput(input) {
         let value = input.value.replace(/[^\d.-]/g, '');
         const decimalCount = (value.match(/\./g) || []).length;
@@ -57,10 +68,9 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Data saved successfully');
         } catch (error) {
             console.error('Error saving data:', error);
-            alert('Error saving data: ' + error.message);
+            showErrorToUser('Error saving data: ' + error.message);
         }
     }
-
 
     inputs.forEach(input => {
         input.addEventListener('input', function() {
@@ -68,12 +78,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-
     const lastFlowcell = localStorage.getItem('lastFlowcell');
     if (lastFlowcell) {
         flowcellSelect.value = lastFlowcell;
     }
-
 
     calculateBtn.addEventListener('click', async function() {
         try {
@@ -89,23 +97,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error('Alle waarden moeten groter zijn dan 0');
             }
 
-
             localStorage.setItem('lastFlowcell', flowcell);
 
             const results = calculateValues(conc, avgLib, totalVolume, flowcell);
-            
-
-            const inputValues = {
-                conc,
-                avgLib,
-                totalVolume,
-                flowcell
-            };
+            const inputValues = { conc, avgLib, totalVolume, flowcell };
 
             await updateResultsTableAndSave(results, inputValues);
         } catch (error) {
             console.error('Calculation error:', error);
-            alert(error.message);
+            showErrorToUser(error.message);
         }
     });
 });

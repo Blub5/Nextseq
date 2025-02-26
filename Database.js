@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBtn = document.getElementById('exportBtn');
     const searchInput = document.getElementById('searchInput');
     const tableContainer = document.getElementById('tableContainer');
+    const errorDiv = document.getElementById('error-messages');
     
     let currentSort = { column: 'timestamp', direction: 'desc' };
     let tableData = [];
@@ -16,9 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     refreshBtn.addEventListener('click', () => loadTableData(tableSelect.value));
-    
     searchInput.addEventListener('input', filterTable);
-    
     exportBtn.addEventListener('click', exportToCSV);
 
     async function loadTableData(tableName) {
@@ -34,14 +33,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error('Failed to fetch data.');
 
             const data = await response.json();
-            // Debug: Log the full response
-            console.log('Response:', data);
             if (!data.success) throw new Error(data.message);
 
             tableData = data.data;
             displayTable(tableData, data.columns, tableName);
         } catch (error) {
-            tableContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            showError(error.message);
         }
     }
 
@@ -50,20 +47,20 @@ document.addEventListener('DOMContentLoaded', function() {
             tableContainer.innerHTML = '<div>No data available</div>';
             return;
         }
-    
+
         const table = document.createElement('table');
         table.id = "dataTable";
-        table.style.width = "100%";  
-        table.style.tableLayout = "fixed";  
-    
+        table.style.width = "100%";
+        table.style.tableLayout = "fixed";
+
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-    
+
         columns.forEach(column => {
             const th = document.createElement('th');
             th.textContent = column;
             th.className = 'sort-icon';
-            th.style.fontSize = "13px"; 
+            th.style.fontSize = "13px";
             if (column === currentSort.column) {
                 th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
             }
@@ -71,23 +68,21 @@ document.addEventListener('DOMContentLoaded', function() {
             headerRow.appendChild(th);
         });
 
-        // Add "Actions" column header
         const actionTh = document.createElement('th');
         actionTh.textContent = 'Actions';
         actionTh.style.fontSize = "13px";
         headerRow.appendChild(actionTh);
-    
+
         thead.appendChild(headerRow);
         table.appendChild(thead);
-    
+
         const tbody = document.createElement('tbody');
         data.forEach(row => {
             const tr = document.createElement('tr');
             columns.forEach(column => {
                 const td = document.createElement('td');
                 let value = row[column];
-    
-                // Apply rounding/formatting based on column name
+
                 if (column === 'timestamp') {
                     const dateObj = new Date(value);
                     value = dateObj.toLocaleString('nl-NL', {
@@ -95,45 +90,38 @@ document.addEventListener('DOMContentLoaded', function() {
                         hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
                 } else if (column === 'Coverage') {
-                    value = Math.round(parseFloat(value) || 0); // Whole number
+                    value = Math.round(parseFloat(value) || 0);
                 } else if (column === 'SampleCount') {
-                    value = Math.round(parseFloat(value) || 0); // Whole number
+                    value = Math.round(parseFloat(value) || 0);
                 } else if (column === 'Conc') {
-                    value = parseFloat(value).toFixed(2) || '0.00'; // 2 decimals
+                    value = parseFloat(value).toFixed(2) || '0.00';
                 } else if (column === 'AvgLibSize') {
-                    value = Math.round(parseFloat(value) || 0); // Whole number
+                    value = Math.round(parseFloat(value) || 0);
                 } else if (column === 'Clusters') {
                     const numericValue = parseFloat(value) || 0;
-                    value = numericValue ? numericValue.toExponential(2) : '0.00e+0'; // Scientific notation
+                    value = numericValue ? numericValue.toExponential(2) : '0.00e+0';
                 } else if (column === '%Flowcell') {
-                    value = Math.round(parseFloat(value) || 0); // Whole number
+                    value = Math.round(parseFloat(value) || 0);
                 } else if (column === 'nM') {
-                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
+                    value = parseFloat(value).toFixed(1) || '0.0';
                 } else if (column === '%SamplePerFlowcell') {
-                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
+                    value = parseFloat(value).toFixed(1) || '0.0';
                 } else if (column === 'UI NGS Pool') {
-                    value = parseFloat(value).toFixed(1) || '0.0'; // 1 decimal
+                    value = parseFloat(value).toFixed(1) || '0.0';
                 }
-    
+
                 td.textContent = value ?? '';
-                td.style.fontSize = "13px"; 
-                td.style.wordWrap = "break-word"; 
-                td.style.whiteSpace = "normal"; 
+                td.style.fontSize = "13px";
+                td.style.wordWrap = "break-word";
+                td.style.whiteSpace = "normal";
                 tr.appendChild(td);
             });
 
-            // Add Delete button for mixdiffpools table only
             const actionTd = document.createElement('td');
             if (tableName === 'mixdiffpools') {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.className = 'delete-button';
-                deleteBtn.style.backgroundColor = '#ff4444';
-                deleteBtn.style.color = 'white';
-                deleteBtn.style.border = 'none';
-                deleteBtn.style.padding = '4px 8px';
-                deleteBtn.style.borderRadius = '4px';
-                deleteBtn.style.cursor = 'pointer';
                 deleteBtn.addEventListener('click', () => deleteRow(row.ProjectPool));
                 actionTd.appendChild(deleteBtn);
             }
@@ -141,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             tbody.appendChild(tr);
         });
-    
+
         table.appendChild(tbody);
         tableContainer.innerHTML = '';
         tableContainer.appendChild(table);
@@ -164,10 +152,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
 
-            alert(`Row with ProjectPool ${projectPool} deleted successfully.`);
-            loadTableData(tableSelect.value); // Refresh table
+            showError(`Row with ProjectPool ${projectPool} deleted successfully.`, 'success');
+            loadTableData(tableSelect.value);
         } catch (error) {
-            alert(`Error deleting row: ${error.message}`);
+            showError(`Error deleting row: ${error.message}`);
         }
     }
 
@@ -187,11 +175,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function exportToCSV() {
-        if (!tableData.length) return alert('No data to export.');
-        
+        if (!tableData.length) return showError('No data to export.');
+
         const columns = Object.keys(tableData[0]);
         const csvContent = [
-            columns.join(';'), 
+            columns.join(';'),
             ...tableData.map(row =>
                 columns.map(column => {
                     let value = row[column];
@@ -201,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             day: '2-digit', month: '2-digit', year: 'numeric',
                             hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
-                        value = value.padEnd(25);
                     } else if (column === 'Clusters') {
                         value = parseFloat(value).toExponential(2);
                     } else if (column === '%Flowcell') {
@@ -210,20 +197,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         value = parseFloat(value).toFixed(1);
                     } else {
                         if (typeof value === 'string') {
-                            value = `"${value.replace(/"/g, '""')}"`; 
+                            value = `"${value.replace(/"/g, '""')}"`;
                         } else if (typeof value === 'number') {
                             value = value.toLocaleString('en-US', { minimumFractionDigits: 2 });
                         }
                     }
                     return value;
-                }).join(';') 
+                }).join(';')
             )
         ].join('\n');
-    
+
         const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `${tableSelect.value}.csv`;
         a.click();
+    }
+
+    function showError(message, type = 'error') {
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
     }
 });
