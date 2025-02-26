@@ -31,7 +31,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 60px; /* Updated from 80px to match other pages */
+    padding-top: 60px; /* Consistent with other pages */
 }
 
 /* Header Styling */
@@ -40,17 +40,18 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10px 100px; /* Updated from 15px 100px to match other pages */
+    padding: 10px 100px; /* Consistent with other pages */
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 100;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Updated from 15px to 10px shadow to match */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Consistent with other pages */
+    height: 60px; /* Explicit height to enforce consistency */
 }
 
 .logo img {
-    height: 45px;
+    height: 40px; /* Changed from 45px to match other pages */
 }
 
 .navbar {
