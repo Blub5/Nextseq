@@ -47,13 +47,11 @@ body {
     align-items: center;
     z-index: 100;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Consistent with other pages */
+    height: 60px; /* Explicit height to enforce consistency */
 }
 
 .logo img {
-    height: 40px; /* Consistent with other pages */
-    background: rgba(255, 255, 255, 0.3); /* Licht witte achtergrond voor contrast */
-    padding: 4px; /* Kleine padding om het logo te omkaderen */
-    border-radius: 4px; /* Subtiele afronding voor netheid */
+    height: 40px; /* Changed from 45px to match other pages */
 }
 
 .navbar {
