@@ -4,21 +4,20 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
-  }
-  
-  body {
+}
+
+body {
     min-height: 100vh;
-    background: url('koeien.png') no-repeat center center fixed; /* Adjust path if needed */
+    background: url('koeien.png') no-repeat center center fixed;
     background-size: cover;
     color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 60px; /* Space for fixed header */
-  }
-  
-  /* Header Styling */
-  .header {
+    padding-top: 60px;
+}
+
+.header {
     position: fixed;
     top: 0;
     left: 0;
@@ -30,13 +29,13 @@
     align-items: center;
     z-index: 100;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  }
-  
-  .logo img {
+}
+
+.logo img {
     height: 40px;
-  }
-  
-  .navbar {
+}
+
+.navbar {
     display: flex;
     gap: 20px;
 }
@@ -45,20 +44,20 @@
     font-size: 18px;
     color: #fff;
     text-decoration: none;
-    padding: 8px 20px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .navbar a:hover {
     background-color: #fff;
     color: #088c04;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
-  
-  /* Content Wrapper */
-  .content-wrapper {
+
+.content-wrapper {
     display: flex;
     justify-content: center;
     gap: 20px;
@@ -66,122 +65,116 @@
     max-width: 1300px;
     margin: 20px auto;
     padding: 20px;
-  }
-  
-  /* Section Styling */
-  .procedure-section,
-  .calculator-container,
-  .guidelines-section {
+}
+
+.procedure-section,
+.calculator-container,
+.guidelines-section {
     flex: 0 0 350px;
     background-color: white;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     height: fit-content;
-  }
-  
-  /* Headings */
-  h2, h3 {
+}
+
+h2, h3 {
     color: #088c04;
     margin-bottom: 15px;
     text-align: center;
-  }
-  
-  /* Table Styling */
-  .procedure-table,
-  .guidelines-table,
-  .results-table table {
+}
+
+.procedure-table,
+.guidelines-table,
+.results-table table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-  }
-  
-  .procedure-table th,
-  .procedure-table td,
-  .guidelines-table th,
-  .guidelines-table td,
-  .results-table th,
-  .results-table td {
+}
+
+.procedure-table th,
+.procedure-table td,
+.guidelines-table th,
+.guidelines-table td,
+.results-table th,
+.results-table td {
     padding: 12px;
     text-align: left;
     border: 1px solid #ddd;
-  }
-  
-  .procedure-table th,
-  .guidelines-table th,
-  .results-table th {
+}
+
+.procedure-table th,
+.guidelines-table th,
+.results-table th {
     background-color: #088c04;
     color: white;
     font-weight: bold;
-  }
-  
-  .procedure-table tbody tr:nth-child(even),
-  .guidelines-table tbody tr:nth-child(even),
-  .results-table tbody tr:nth-child(even) {
+}
+
+.procedure-table tbody tr:nth-child(even),
+.guidelines-table tbody tr:nth-child(even),
+.results-table tbody tr:nth-child(even) {
     background-color: #f2f2f2;
-  }
-  
-  .procedure-table tbody tr:hover,
-  .guidelines-table tbody tr:hover,
-  .results-table tbody tr:hover {
+}
+
+.procedure-table tbody tr:hover,
+.guidelines-table tbody tr:hover,
+.results-table tbody tr:hover {
     background-color: #dfe4ff;
-  }
-  
-  /* Links in Tables */
-  .procedure-table a {
+}
+
+.procedure-table a {
     color: #088c04;
     text-decoration: none;
     transition: color 0.3s ease;
-  }
-  
-  .procedure-table a:hover {
-    color: #066a03;
+}
+
+.procedure-table a:hover {
+    color: #045202;
     text-decoration: underline;
-  }
-  
-  /* Calculator Form Styling */
-  .calculator label {
+}
+
+.calculator label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
-  }
-  
-  .calculator input,
-  .calculator select {
+}
+
+.calculator input,
+.calculator select {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
-  }
-  
-  .calculator input:focus,
-  .calculator select:focus {
+}
+
+.calculator input:focus,
+.calculator select:focus {
     border-color: #088c04;
     outline: none;
-  }
-  
-  .calculator button {
-    padding: 10px 15px;
+}
+
+.calculator button {
+    padding: 10px 20px;
     background-color: #088c04;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     width: 100%;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-weight: bold;
-  }
-  
-  .calculator button:hover {
-    background-color: #066a03;
-    transform: translateY(-2px);
-  }
-  
-  /* Error Message Styling */
-  .error-message {
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.calculator button:hover {
+    background-color: #045202;
+    transform: scale(1.05);
+}
+
+.error-message {
     background-color: #f44336;
     color: white;
     padding: 10px;
@@ -192,4 +185,4 @@
     z-index: 1000;
     max-width: 400px;
     display: none;
-  }
+}

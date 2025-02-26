@@ -51,16 +51,17 @@ body {
   font-size: 18px;
   color: #fff;
   text-decoration: none;
-  padding: 8px 20px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
   background-color: rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .navbar a:hover {
   background-color: #fff;
   color: #088c04;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .spreadsheet-container {
@@ -109,7 +110,6 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Specific Column Widths */
 #spreadsheetTable th[data-field="ProjectPool"],
 #spreadsheetTable td[data-field="ProjectPool"] { width: 120px; }
 #spreadsheetTable th[data-field="Application"],
@@ -191,32 +191,34 @@ input::placeholder {
   background-color: #088c04;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  font-weight: bold;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .action-button:hover {
-  background-color: #066a03;
-  transform: translateY(-2px);
+  background-color: #045202;
+  transform: scale(1.05);
 }
 
 .removeButton {
   background-color: #ff4444;
   color: white;
   border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .removeButton:hover {
   background-color: #cc0000;
+  transform: scale(1.05);
 }
 
 .flowcell-info {

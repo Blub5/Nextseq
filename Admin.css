@@ -4,6 +4,7 @@
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
 }
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -52,16 +53,17 @@ body {
     font-size: 18px;
     color: #fff;
     text-decoration: none;
-    padding: 8px 20px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .navbar a:hover {
     background-color: #fff;
     color: #088c04;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .settings-container {
@@ -129,20 +131,19 @@ body {
     background-color: #088c04;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: bold;
+    font-weight: 500;
     display: block;
     margin: 30px auto 0;
 }
 
 .save-button:hover {
     background-color: #045202;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
 }
 
 .save-message {
@@ -161,7 +162,7 @@ body {
 }
 
 .save-message.error {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f44336;
+    color: white;
     border: 1px solid #f5c6cb;
 }

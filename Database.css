@@ -31,27 +31,25 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 60px; /* Consistent with other pages */
+    padding-top: 60px;
 }
 
-/* Header Styling */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10px 100px; /* Consistent with other pages */
+    padding: 10px 100px;
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 100;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Consistent with other pages */
-    /* Removed height: 60px; to match natural height of other pages */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .logo img {
-    height: 40px; /* Consistent with other pages */
+    height: 40px;
 }
 
 .navbar {
@@ -63,26 +61,25 @@ body {
     font-size: 18px;
     color: #fff;
     text-decoration: none;
-    padding: 8px 20px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .navbar a:hover {
     background-color: #fff;
     color: #088c04;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
-/* Main Content */
 .main-content {
     width: 100%;
     max-width: 1400px;
     padding: 20px;
 }
 
-/* Database Container */
 .database-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
@@ -92,7 +89,6 @@ body {
     position: relative;
 }
 
-/* Page Title */
 .page-title {
     font-size: 28px;
     color: #088c04;
@@ -101,7 +97,6 @@ body {
     font-weight: 600;
 }
 
-/* Controls */
 .controls {
     display: flex;
     flex-wrap: wrap;
@@ -138,20 +133,18 @@ body {
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .button:hover {
     background-color: #045202;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
 }
 
-/* Table Wrapper */
 .table-wrapper {
     background: #fff;
     border-radius: 10px;
@@ -227,25 +220,23 @@ body {
     opacity: 1;
 }
 
-/* Delete Button */
 .delete-button {
     background-color: #ff4444;
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 10px 20px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .delete-button:hover {
     background-color: #cc0000;
-    transform: translateY(-2px);
+    transform: scale(1.05);
 }
 
-/* Error Message Styling */
 .error-message {
     background-color: #f44336;
     color: white;
@@ -260,7 +251,6 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Loading and Error States */
 .loading {
     text-align: center;
     padding: 20px;
