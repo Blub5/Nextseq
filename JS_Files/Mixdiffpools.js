@@ -35,7 +35,7 @@ function getColorForProjectPool(projectPool) {
 
 async function fetchExistingProjectPools() {
     try {
-        const response = await fetch('get_table_data.php', {
+        const response = await fetch('../PHP_Files/get_table_data.php', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ table: 'mixdiffpools' })
@@ -58,7 +58,7 @@ async function fetchExistingProjectPools() {
 
 async function fetchRunNames() {
     try {
-        const response = await fetch('../PHP/get_run_names.php/..', { method: 'GET', headers: { 'Accept': 'application/json' } });
+        const response = await fetch('../PHP_Files/get_run_names.php', { method: 'GET', headers: { 'Accept': 'application/json' } });
         if (!response.ok) throw new Error(`Failed to fetch run names: ${response.status}`);
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Unknown error');
@@ -71,7 +71,7 @@ async function fetchRunNames() {
 
 async function loadRunData(runName) {
     try {
-        const response = await fetch('get_table_data.php', {
+        const response = await fetch('../PHP_Files/get_run_names.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ table: 'mixdiffpools', filter: { RunName: runName } })
@@ -143,7 +143,7 @@ async function loadRunData(runName) {
                 const projectPool = rowData.ProjectPool;
                 if (confirm(`Are you sure you want to delete ${projectPool}?`)) {
                     try {
-                        const response = await fetch('delete_projectpool.php', {
+                        const response = await fetch('../PHP_Files/delete_projectpool.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ ProjectPool: projectPool })
@@ -484,7 +484,7 @@ async function calculateAndSaveAllData() {
 
     if (confirm(`Are you sure you want to save all data for run "${runName}"?`)) {
         try {
-            const response = await fetch('save_all_data.php', {
+            const response = await fetch('../PHP_Files/save_all_data.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ runName: runName, rows: allData })
