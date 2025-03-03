@@ -6,7 +6,7 @@ ob_start();
 header('Content-Type: application/json');
 
 // Define log file for debugging
-$logFile = dirname(__FILE__) . '/save_preliminary.log';
+$logFile = __DIR__ . '/save_preliminary.log';
 file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Script started\n", FILE_APPEND);
 
 // Establish database connection

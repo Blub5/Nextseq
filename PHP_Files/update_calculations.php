@@ -1,10 +1,10 @@
 <?php
 ob_start();
-header('Content-Type: 'application/json');
+header('Content-Type: application/json');
 
 // Enable error logging
 ini_set('log_errors', 1);
-ini_set('error_log', dirname(__FILE__) . '/update_calculations_errors.log');
+ini_set('error_log', __DIR__ . '/update_calculations_errors.log');
 
 // Establish database connection
 $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
