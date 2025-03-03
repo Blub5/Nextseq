@@ -34,7 +34,6 @@ function formatMass(massInGrams) {
     return `${(massInGrams * 1e15).toFixed(3)} fg`;
 }
 
-
 function formatMolarity(molarityInM) {
     if (molarityInM >= 1) return `${molarityInM.toFixed(3)} M`;
     if (molarityInM >= 1e-3) return `${(molarityInM * 1e3).toFixed(3)} mM`;
@@ -56,13 +55,10 @@ function calculateRequiredMass() {
         return;
     }
 
-  
     const molarityInM = desiredMolarity * MOLARITY_CONVERSIONS[molarityUnit];
     const volumeInL = volume * VOLUME_CONVERSIONS[volumeUnit];
 
-
     const requiredMassGrams = molarityInM * volumeInL * molecularWeight;
-
 
     document.getElementById('massResult').textContent = 
         `Required Mass: ${formatMass(requiredMassGrams)}`;
@@ -80,9 +76,7 @@ function calculateMolarity() {
         return;
     }
 
-
     const massInGrams = mass * MASS_CONVERSIONS[massUnit];
- 
     const volumeInL = volume * VOLUME_CONVERSIONS[volumeUnit];
 
     const molarityInM = massInGrams / (volumeInL * molecularWeight);

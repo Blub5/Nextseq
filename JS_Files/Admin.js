@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('saveSettings').addEventListener('click', saveSettings);
 });
+
 function loadSettings() {
     const savedSettings = JSON.parse(localStorage.getItem('mixdiffpoolsSettings')) || defaultSettings;
     
@@ -35,10 +36,8 @@ function loadSettings() {
     
     document.getElementById('cycli').value = savedSettings.applicationSettings.cycli;
 
-
     document.getElementById('projectpool-prefix').value = savedSettings.projectPoolSettings?.prefix || defaultSettings.projectPoolSettings.prefix;
 }
-
 
 function saveSettings() {
     const settings = {
@@ -70,7 +69,6 @@ function saveSettings() {
 }
 
 function validateSettings(settings) {
-
     for (let key in settings.flowcells) {
         if (!settings.flowcells[key] || isNaN(settings.flowcells[key])) return false;
     }
