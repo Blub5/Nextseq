@@ -261,8 +261,8 @@ input::placeholder {
   border-radius: 15px;
   overflow: hidden;
   border: 1px solid #ccc;
+  display: flex;
 }
-
 .progress-segment {
   height: 100%;
   transition: width 0.3s ease-in-out;
