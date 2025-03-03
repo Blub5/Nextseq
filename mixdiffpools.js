@@ -502,6 +502,20 @@ async function calculateAndSaveAllData() {
     }
 }
 
+function resetFlowcellUI() {
+    const flowcellOutput = document.getElementById('flowcellOutput');
+    const trisOutput = document.getElementById('trisOutput');
+    const progressBar = document.getElementById('flowcellProgress');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const legendContainer = document.getElementById('progressLegend');
+
+    if (flowcellOutput) flowcellOutput.textContent = 'Current Flowcell: P1';
+    if (trisOutput) trisOutput.textContent = `ul Tris aan pool toevoegen: ${getSettings().poolSettings.basePoolVolume.toFixed(1)}`;
+    if (progressBar) progressBar.innerHTML = '';
+    if (progressPercentage) progressPercentage.textContent = '0%';
+    if (legendContainer) legendContainer.innerHTML = '';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchExistingProjectPools();
     const runNames = await fetchRunNames();
@@ -518,10 +532,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     runSelect.addEventListener('change', async () => {
         const newRunNameInput = document.getElementById('newRunNameInput');
+        const tbody = document.querySelector('#spreadsheetTable tbody');
         if (runSelect.value === 'new') {
             newRunNameInput.style.display = 'block';
-            document.querySelector('#spreadsheetTable tbody').innerHTML = '';
-            await addRow();
+            tbody.innerHTML = ''; // Clear the table
+            resetFlowcellUI();    // Reset the flowcell UI
+            await addRow();       // Add a new row
         } else {
             newRunNameInput.style.display = 'none';
             if (runSelect.value) await loadRunData(runSelect.value);
