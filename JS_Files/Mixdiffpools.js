@@ -58,7 +58,7 @@ async function fetchExistingProjectPools() {
 
 async function fetchRunNames() {
     try {
-        const response = await fetch('get_run_names.php', { method: 'GET', headers: { 'Accept': 'application/json' } });
+        const response = await fetch('../PHP/get_run_names.php/..', { method: 'GET', headers: { 'Accept': 'application/json' } });
         if (!response.ok) throw new Error(`Failed to fetch run names: ${response.status}`);
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Unknown error');
