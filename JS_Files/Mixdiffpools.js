@@ -71,17 +71,31 @@ async function fetchRunNames() {
 
 async function loadRunData(runName) {
     try {
-        const response = await fetch('../PHP_Files/get_run_names.php', {
+        const response = await fetch('../PHP_Files/get_table_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ table: 'mixdiffpools', filter: { RunName: runName } })
         });
         if (!response.ok) throw new Error(`Failed to fetch run data: ${response.status}`);
         const result = await response.json();
+
         if (!result.success) throw new Error(result.message || 'Unknown error');
 
         const tbody = document.querySelector('#spreadsheetTable tbody');
         tbody.innerHTML = '';
+
+        // Ensure result.data is an array
+        if (!Array.isArray(result.data)) {
+            console.warn('Invalid data format received for run:', runName, result);
+            showErrorToUser(`No valid data found for run "${runName}" or server returned invalid format.`);
+            return;
+        }
+
+        // If no rows are returned, inform the user
+        if (result.data.length === 0) {
+            showErrorToUser(`No data found for run "${runName}".`, 'info');
+            return;
+        }
 
         result.data.forEach(rowData => {
             const newRow = document.createElement('tr');
