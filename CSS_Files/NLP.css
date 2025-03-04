@@ -1,188 +1,50 @@
-/* Reset and General Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', Arial, sans-serif;
-}
-
 body {
-    min-height: 100vh;
     background: url('koeien.png') no-repeat center center fixed;
     background-size: cover;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 60px;
 }
 
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 10px 100px;
     background: rgba(0, 0, 0, 0.9);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.logo img {
-    height: 40px;
-}
-
-.navbar {
-    display: flex;
-    gap: 20px;
-}
-
-.navbar a {
-    font-size: 18px;
+.navbar-nav .nav-link {
     color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
     transition: all 0.3s ease;
-    font-weight: 500;
 }
 
-.navbar a:hover {
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
     background-color: #fff;
     color: #088c04;
     transform: scale(1.05);
 }
 
-.content-wrapper {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 1300px;
-    margin: 20px auto;
-    padding: 20px;
-}
-
-.procedure-section,
-.calculator-container,
-.guidelines-section {
-    flex: 0 0 350px;
+.content-wrapper > div {
     background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    height: fit-content;
 }
 
-h2, h3 {
-    color: #088c04;
-    margin-bottom: 15px;
-    text-align: center;
+.table-success {
+    --bs-table-bg: #088c04;
 }
 
-.procedure-table,
-.guidelines-table,
-.results-table table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.procedure-table th,
-.procedure-table td,
-.guidelines-table th,
-.guidelines-table td,
-.results-table th,
-.results-table td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-.procedure-table th,
-.guidelines-table th,
-.results-table th {
+.btn-success {
     background-color: #088c04;
-    color: white;
-    font-weight: bold;
-}
-
-.procedure-table tbody tr:nth-child(even),
-.guidelines-table tbody tr:nth-child(even),
-.results-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.procedure-table tbody tr:hover,
-.guidelines-table tbody tr:hover,
-.results-table tbody tr:hover {
-    background-color: #dfe4ff;
-}
-
-.procedure-table a {
-    color: #088c04;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.procedure-table a:hover {
-    color: #045202;
-    text-decoration: underline;
-}
-
-.calculator label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.calculator input,
-.calculator select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.calculator input:focus,
-.calculator select:focus {
     border-color: #088c04;
-    outline: none;
 }
 
-.calculator button {
-    padding: 10px 20px;
-    background-color: #088c04;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.calculator button:hover {
+.btn-success:hover {
     background-color: #045202;
+    border-color: #045202;
     transform: scale(1.05);
 }
 
 .error-message {
-    background-color: #f44336;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 1000;
     max-width: 400px;
-    display: none;
 }
