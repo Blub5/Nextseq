@@ -6,6 +6,7 @@
     font-family: 'Poppins', Arial, sans-serif;
 }
 
+/* Body Styles */
 body {
     min-height: 100vh;
     background: url('koeien.png') no-repeat center center fixed;
@@ -75,4 +76,27 @@ body {
 #dataTable td {
     word-wrap: break-word;
     white-space: normal;
+}
+
+/* Adjust main content height to account for fixed navbar */
+main {
+    height: calc(100vh - 60px);
+}
+
+/* Ensure the card takes up the full height of main */
+.card {
+    height: 100%;
+}
+
+/* Make card-body a flex container to manage its children vertically */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Allow table-responsive to grow and scroll vertically if needed */
+.table-responsive {
+    flex-grow: 1;
+    overflow-y: auto;
 }
