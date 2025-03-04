@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadTableData(tableName) {
         try {
-            tableContainer.innerHTML = '<div class="loading text-center py-3">Loading data...</div>';
+            tableContainer.innerHTML = '<div class="loading">Loading data...</div>';
             
             const response = await fetch('../PHP_Files/get_table_data.php', {
                 method: 'POST',
@@ -44,13 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayTable(data, columns, tableName) {
         if (!data.length) {
-            tableContainer.innerHTML = '<div class="text-center py-3">No data available</div>';
+            tableContainer.innerHTML = '<div>No data available</div>';
             return;
         }
 
         const table = document.createElement('table');
         table.id = "dataTable";
-        table.className = "table table-bordered table-hover"; // Bootstrap classes
+        table.style.width = "100%";
+        table.style.tableLayout = "fixed";
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const th = document.createElement('th');
             th.textContent = column;
             th.className = 'sort-icon';
+            th.style.fontSize = "13px";
             if (column === currentSort.column) {
                 th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
             }
@@ -68,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const actionTh = document.createElement('th');
         actionTh.textContent = 'Actions';
+        actionTh.style.fontSize = "13px";
         headerRow.appendChild(actionTh);
 
         thead.appendChild(headerRow);
@@ -108,6 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 td.textContent = value ?? '';
+                td.style.fontSize = "13px";
+                td.style.wordWrap = "break-word";
+                td.style.whiteSpace = "normal";
                 tr.appendChild(td);
             });
 
@@ -115,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tableName === 'mixdiffpools') {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'btn btn-danger btn-sm delete-button';
+                deleteBtn.className = 'delete-button';
                 deleteBtn.addEventListener('click', () => deleteRow(row.ProjectPool));
                 actionTd.appendChild(deleteBtn);
             }
@@ -211,8 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function showError(message, type = 'error') {
         if (errorDiv) {
             errorDiv.textContent = message;
-            errorDiv.className = `alert ${type === 'success' ? 'alert-success' : 'alert-danger'} error-message`;
             errorDiv.style.display = 'block';
+            errorDiv.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
     }
