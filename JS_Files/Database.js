@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const tableContainer = document.getElementById('tableContainer');
     const errorDiv = document.getElementById('error-messages');
-    
+
     let currentSort = { column: 'timestamp', direction: 'desc' };
     let tableData = [];
 
@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadTableData(tableName) {
         try {
-            tableContainer.innerHTML = '<div class="loading">Loading data...</div>';
-            
+            tableContainer.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
             const response = await fetch('../PHP_Files/get_table_data.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) throw new Error('Failed to fetch data.');
-
             const data = await response.json();
             if (!data.success) throw new Error(data.message);
 
@@ -44,14 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayTable(data, columns, tableName) {
         if (!data.length) {
-            tableContainer.innerHTML = '<div>No data available</div>';
+            tableContainer.innerHTML = '<div class="alert alert-info text-center">No data available</div>';
             return;
         }
 
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'table-responsive';
+
         const table = document.createElement('table');
-        table.id = "dataTable";
-        table.style.width = "100%";
-        table.style.tableLayout = "fixed";
+        table.id = 'dataTable';
+        table.className = 'table table-striped table-hover table-bordered';
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const th = document.createElement('th');
             th.textContent = column;
             th.className = 'sort-icon';
-            th.style.fontSize = "13px";
             if (column === currentSort.column) {
                 th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
             }
@@ -70,9 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const actionTh = document.createElement('th');
         actionTh.textContent = 'Actions';
-        actionTh.style.fontSize = "13px";
         headerRow.appendChild(actionTh);
-
         thead.appendChild(headerRow);
         table.appendChild(thead);
 
@@ -111,9 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 td.textContent = value ?? '';
-                td.style.fontSize = "13px";
-                td.style.wordWrap = "break-word";
-                td.style.whiteSpace = "normal";
                 tr.appendChild(td);
             });
 
@@ -121,24 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tableName === 'mixdiffpools') {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'delete-button';
+                deleteBtn.className = 'btn btn-danger btn-sm';
                 deleteBtn.addEventListener('click', () => deleteRow(row.ProjectPool));
                 actionTd.appendChild(deleteBtn);
             }
             tr.appendChild(actionTd);
-
             tbody.appendChild(tr);
         });
 
         table.appendChild(tbody);
+        tableWrapper.appendChild(table);
         tableContainer.innerHTML = '';
-        tableContainer.appendChild(table);
+        tableContainer.appendChild(tableWrapper);
     }
 
     async function deleteRow(projectPool) {
-        if (!confirm(`Are you sure you want to delete ProjectPool ${projectPool}?`)) {
-            return;
-        }
+        if (!confirm(`Are you sure you want to delete ProjectPool ${projectPool}?`)) return;
 
         try {
             const response = await fetch('../PHP_Files/delete_projectpool.php', {
@@ -148,11 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) throw new Error('Failed to delete row.');
-
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
 
-            showError(`Row with ProjectPool ${projectPool} deleted successfully.`, 'success');
+            showError(`Row with ProjectPool ${projectPool} deleted successfully`, 'success');
             loadTableData(tableSelect.value);
         } catch (error) {
             showError(`Error deleting row: ${error.message}`);
@@ -161,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function filterTable() {
         const query = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll("#dataTable tbody tr");
+        const rows = document.querySelectorAll('#dataTable tbody tr');
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(query) ? '' : 'none';
@@ -176,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function exportToCSV() {
         if (!tableData.length) return showError('No data to export.');
-
         const columns = Object.keys(tableData[0]);
         const csvContent = [
             columns.join(';'),
@@ -196,11 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else if (column === 'nM') {
                         value = parseFloat(value).toFixed(1);
                     } else {
-                        if (typeof value === 'string') {
-                            value = `"${value.replace(/"/g, '""')}"`;
-                        } else if (typeof value === 'number') {
-                            value = value.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                        }
+                        if (typeof value === 'string') value = `"${value.replace(/"/g, '""')}"`;
+                        else if (typeof value === 'number') value = value.toLocaleString('en-US', { minimumFractionDigits: 2 });
                     }
                     return value;
                 }).join(';')
@@ -216,9 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showError(message, type = 'error') {
         if (errorDiv) {
+            errorDiv.className = `alert ${type === 'success' ? 'alert-success' : 'alert-danger'}`;
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
-            errorDiv.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
     }
