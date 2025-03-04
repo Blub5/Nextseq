@@ -57,87 +57,55 @@ The application consists of several key pages:
 - **Admin.html** – Configure settings like flowcell capacities and pool preferences.
 - **Calculations.html** – Perform mass and molarity calculations.
 
-### Example: Managing a Project Pool
-1. Go to `Mixdiffpools.html`.
-2. Select "New Run" or choose an existing run.
-3. Enter details (e.g., Application, GenomeSize, Coverage).
-4. The system calculates Clusters and %Flowcell automatically.
-5. Click **"Bereken NGS UI Pool"** to save the data.
-6. Data is stored via `save_all_data.php` in the database.
-
-## File Structure
-
-### **Frontend (HTML, CSS, JS)**
-- `Mixdiffpools.html` – Main interface for project pool management.
-- `NLP.html` – Calculator for nM calculations.
-- `Database.html` – Database viewer.
-- `Admin.html` – Settings page.
-- `Calculations.html` – Calculator for mass/molarity.
-
-### **Styling (CSS)**
-- `Mixdiffpools.css` – Styles spreadsheet layout.
-- `NLP.css` – Formats calculator.
-- `Database.css` – Designs database table.
-- `Admin.css` – Styles settings form.
-- `Calculations.css` – Enhances calculator UI.
-
-### **Frontend Logic (JavaScript)**
-- `Mixdiffpools.js` – Manages spreadsheet logic and sends data.
-- `NLP.js` – Handles nM calculations.
-- `Database.js` – Fetches and filters database data.
-- `Admin.js` – Saves settings.
-- `Calculations.js` – Performs unit conversions.
-
-### **Backend Logic (PHP)**
-- `get_run_names.php` – Fetches unique run names.
-- `save_all_data.php` – Saves/updates mixdiffpools.
-- `update_calculations.php` – Updates calculated fields.
-- `get_latest_projectpool.php` – Retrieves the latest project pool.
-- `save_preliminary.php` – Inserts preliminary data.
-- `update_preliminary.php` – Updates preliminary data.
-- `get_table_data.php` – Fetches sorted/filtered data.
-- `delete_projectpool.php` – Deletes project pool entry.
-- `save_nlp_data.php` – Stores nM calculation results.
-
-### **Database (SQL)**
-- `mixdiffpools.sql` – Defines project pool table.
-- `nlp_data.sql` – Sets up nM calculation data table.
-
 ## Workflow/Pipeline
 
-The system operates as follows:
-1. **User Input** – Users interact with HTML pages.
-2. **Frontend Processing** – JavaScript validates inputs and sends requests.
-3. **Backend Handling** – PHP processes requests and interacts with MySQL.
-4. **Data Return** – Results are sent back to the frontend for display.
+The user follows this workflow when using the application:
 
-### **Visual Representation**
+### **1. Check Settings in Admin Panel**
+- User navigates to **Admin.html**.
+- Ensures that all settings (e.g., flowcell capacities, preferences) are correctly configured before proceeding.
+
+### **2. Create or Select a Run in Mixdiffpools**
+#### **Option A: Creating a New Run**
+1. User selects "New Run" and provides a run name.
+2. User adds the necessary rows.
+3. User fills in required input fields.
+4. User verifies all details.
+5. User clicks **"Calculate NGS UI POOL"**.
+6. Data is submitted and stored in the database.
+7. User proceeds to **NLP.html**.
+
+#### **Option B: Editing an Existing Run**
+1. User selects an existing run from the dropdown.
+2. User edits the necessary information.
+3. User can add new rows for additional data.
+4. User verifies that the details are correct.
+5. User clicks **"Calculate NGS UI POOL"**.
+6. Data is updated in the database.
+7. User proceeds to **NLP.html**.
+
+### **3. Perform NLP Calculations**
+1. User arrives at **NLP.html**.
+2. User inputs required values.
+3. User clicks **"Calculate"**.
+4. Data is submitted and stored.
+
+### **4. Optional Features**
+- User can review the submitted data in the web interface.
+- User can download an Excel file containing **Mixdiffpools** or **NLP** data.
+- User can remove rows as needed.
+- User can filter and search through all data entries.
+- User can use the **Required Mass Calculator** for calculations.
+- User can use the **Molarity Calculator** for additional computations.
+
+### **5. Data Flow Overview**
 ```mermaid
 graph LR
-    A[User] --> B[Frontend: HTML/CSS/JS]
-    B --> C[Backend: PHP]
-    C --> D[Database: MySQL]
-    D --> C
-    C --> B
-    B --> A
-```
-
-### **Detailed Pipeline: Saving Project Pool Data**
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Mixdiffpools.js
-    participant B as save_all_data.php
-    participant D as NGSweb DB
-
-    U->>F: Enter project pool details
-    F->>F: Calculate Clusters, %Flowcell
-    U->>F: Click "Bereken NGS UI Pool"
-    F->>B: POST data
-    B->>D: Insert/Update mixdiffpools
-    D->>B: Confirm success
-    B->>F: Success response
-    F->>U: Show confirmation
+    A[User] --> B[Admin.html: Configure Settings]
+    B --> C[Mixdiffpools.html: Create/Edit Run]
+    C --> D[NLP.html: Perform Calculations]
+    D --> E[Database.html: Review & Export Data]
+    E -->|Optional| F[Download Data / Perform Additional Calcs]
 ```
 
 
