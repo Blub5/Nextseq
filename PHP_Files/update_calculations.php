@@ -1,4 +1,5 @@
 <?php
+include 'config.php';
 ob_start();
 header('Content-Type: application/json');
 
@@ -7,7 +8,7 @@ ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/update_calculations_errors.log');
 
 // Establish database connection
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error);
     http_response_code(500);

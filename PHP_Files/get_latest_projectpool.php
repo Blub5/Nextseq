@@ -1,12 +1,9 @@
 <?php
+include 'config.php';
 ob_start();
 header('Content-Type: application/json');
 
-error_reporti
-ng(E_ALL);
-ini_set('display_errors', 0);
-
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
     http_response_code(500);
