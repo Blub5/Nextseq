@@ -2,8 +2,7 @@
 ob_start();
 header('Content-Type: application/json');
 
-error_reporti
-ng(E_ALL);
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');

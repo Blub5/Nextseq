@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch('../PHP/delete_projectpool.php', {
+            const response = await fetch('delete_projectpool.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ProjectPool: projectPool })
