@@ -4,91 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MixDiffPools Settings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS_Files/Admin.css">
 </head>
 <body>
     <header class="header">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div class="logo">
-                <img src="../Pictures/Wur.png" alt="Logo" class="img-fluid" style="max-height: 40px;" onerror="this.style.display='none'">
-            </div>
-            <nav class="navbar navbar-expand-lg">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../HTML_Files/NLP.html">NLP</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../HTML_Files/Database.html">Database</a></li>
-                        <li class="nav-item"><a class="nav-link active" href="../HTML_Files/Admin.html">Admin</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../HTML_Files/Calculations.html">Calculations</a></li>
-                    </ul>
-                </div>
-            </nav>
+        <div class="logo">
+            <img src="../Pictures/Wur.png" alt="Logo" onerror="this.style.display='none'">
         </div>
+        <nav class="navbar">
+            <a href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a>
+            <a href="../HTML_Files/NLP.html">NLP</a>
+            <a href="../HTML_Files/Database.html">Database</a>
+            <a href="../HTML_Files/Admin.html">Admin</a>
+            <a href="../HTML_Files/Calculations.html">Calculations</a>
+        </nav>
     </header>
 
-    <div class="container my-5">
-        <div class="card shadow-sm settings-container">
-            <div class="card-body">
-                <h2 class="card-title text-success text-center">MixDiffPools Settings</h2>
-                <div class="settings-section mb-4">
-                    <h3 class="text-success">ProjectPool Settings</h3>
-                    <div class="mb-3">
-                        <label for="projectpool-prefix" class="form-label">ProjectPool Prefix:</label>
-                        <input type="text" class="form-control" id="projectpool-prefix" placeholder="e.g. NGS-">
-                    </div>
-                </div>
-                <div class="settings-section mb-4">
-                    <h3 class="text-success">Flowcell Capacities</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="p1-capacity" class="form-label">P1 Capacity:</label>
-                            <input type="number" class="form-control" id="p1-capacity">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="p2-capacity" class="form-label">P2 Capacity:</label>
-                            <input type="number" class="form-control" id="p2-capacity">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="p3-capacity" class="form-label">P3 Capacity:</label>
-                            <input type="number" class="form-control" id="p3-capacity">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="p4-capacity" class="form-label">P4 Capacity:</label>
-                            <input type="number" class="form-control" id="p4-capacity">
-                        </div>
-                    </div>
-                </div>
-                <div class="settings-section mb-4">
-                    <h3 class="text-success">Pool Settings</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="base-pool-volume" class="form-label">Base Pool Volume:</label>
-                            <input type="number" class="form-control" id="base-pool-volume">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="expected-nm" class="form-label">Expected nM:</label>
-                            <input type="number" class="form-control" id="expected-nm" step="0.1">
-                        </div>
-                    </div>
-                </div>
-                <div class="settings-section mb-4">
-                    <h3 class="text-success">Application Settings</h3>
-                    <div class="mb-3">
-                        <label for="cycli" class="form-label">Cycli:</label>
-                        <input type="number" class="form-control" id="cycli">
-                    </div>
-                </div>
-                <button id="saveSettings" class="btn btn-success w-100">Save Settings</button>
-                <div id="saveMessage" class="mt-3 d-none"></div>
+    <div class="settings-container">
+        <h2>MixDiffPools Settings</h2>
+        
+
+        <div class="settings-section">
+            <h3>ProjectPool Settings</h3>
+            <div class="setting-item">
+                <label for="projectpool-prefix">ProjectPool Prefix:</label>
+                <input type="text" id="projectpool-prefix" name="projectpool-prefix" placeholder="e.g. NGS-">
             </div>
         </div>
+
+        <div class="settings-section">
+            <h3>Flowcell Capacities</h3>
+            <div class="setting-item">
+                <label for="p1-capacity">P1 Capacity:</label>
+                <input type="number" id="p1-capacity" name="p1-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p2-capacity">P2 Capacity:</label>
+                <input type="number" id="p2-capacity" name="p2-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p3-capacity">P3 Capacity:</label>
+                <input type="number" id="p3-capacity" name="p3-capacity">
+            </div>
+            <div class="setting-item">
+                <label for="p4-capacity">P4 Capacity:</label>
+                <input type="number" id="p4-capacity" name="p4-capacity">
+            </div>
+        </div>
+
+
+        <div class="settings-section">
+            <h3>Pool Settings</h3>
+            <div class="setting-item">
+                <label for="base-pool-volume">Base Pool Volume:</label>
+                <input type="number" id="base-pool-volume" name="base-pool-volume">
+            </div>
+            <div class="setting-item">
+                <label for="expected-nm">Expected nM:</label>
+                <input type="number" id="expected-nm" name="expected-nm" step="0.1">
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Application Settings</h3>
+            <div class="setting-item">
+                <label for="cycli">Cycli:</label>
+                <input type="number" id="cycli" name="cycli">
+            </div>
+        </div>
+
+        <button id="saveSettings" class="save-button">Save Settings</button>
+        <div id="saveMessage" class="save-message"></div>
     </div>
 
     <script src="../JS_Files/Admin.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
