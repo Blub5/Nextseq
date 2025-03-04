@@ -1,5 +1,4 @@
 <?php
-include 'config.php';
 // Start output buffering to ensure clean JSON output
 ob_start();
 
@@ -7,11 +6,11 @@ ob_start();
 header('Content-Type: application/json');
 
 // Define log file for debugging
-$logFile = __DIR__ . '/save_preliminary.log';
+$logFile = dirname(__FILE__) . '/save_preliminary.log';
 file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Script started\n", FILE_APPEND);
 
 // Establish database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
 if ($conn->connect_error) {
     file_put_contents($logFile, date('[Y-m-d H:i:s] ') . "Connection failed: " . $conn->connect_error . "\n", FILE_APPEND);
     http_response_code(500);

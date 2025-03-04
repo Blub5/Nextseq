@@ -1,13 +1,17 @@
 <?php
-include 'config.php';
 header('Content-Type: application/json');
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+$servername = "localhost";
+$username = "NGSweb";
+$password = "BioinformatixUser2025!";
+$dbname = "NGSweb";
+
 try {
-    $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $input = file_get_contents('php://input');

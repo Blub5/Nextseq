@@ -1,8 +1,7 @@
 <?php
-include 'config.php';
 header('Content-Type: application/json');
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
 
 if ($conn->connect_error) {
     http_response_code(500);
