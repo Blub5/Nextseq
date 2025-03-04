@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database View</title>
+    <title>Advanced Database Management</title>
     <link rel="stylesheet" href="../CSS_Files/Database.css">
 </head>
 <body>
@@ -22,19 +22,56 @@
 
     <main class="main-content">
         <div class="database-container">
-            <h1 class="page-title">Database Management</h1>
+            <h1 class="page-title">Advanced Database Management</h1>
+            
             <div class="controls">
                 <select id="tableSelect" class="control-select">
                     <option value="mixdiffpools">Mixdiffpools Data</option>
                     <option value="nlp_data">NLP Data</option>
                 </select>
-                <input type="text" id="searchInput" placeholder="Search..." class="control-input" />
-                <button id="refreshBtn" class="button">Refresh</button>
-                <button id="exportBtn" class="button">Export CSV</button>
+                
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Advanced Search..." class="control-input" />
+                    <div id="filterDropdown" class="filter-dropdown">
+                        <button id="filterToggle" class="button filter-button">Filters</button>
+                        <div id="columnFilters" class="column-filters">
+                            <!-- Dynamic filters will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="refreshBtn" class="button">Refresh Data</button>
+                    <div class="export-dropdown">
+                        <button id="exportBtn" class="button">Export</button>
+                        <div class="export-options">
+                            <button id="exportCSV">CSV</button>
+                            <button id="exportJSON">JSON</button>
+                            <button id="exportExcel">Excel</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="table-controls">
+                <div class="column-visibility">
+                    <button id="columnVisibilityToggle" class="button">Columns</button>
+                    <div id="columnVisibilityMenu" class="column-visibility-menu">
+                        <!-- Columns will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
             <div class="error-message" id="error-messages" style="display: none;">Error Message</div>
+            
             <div class="table-wrapper">
                 <div id="tableContainer" class="table-container"></div>
+            </div>
+
+            <div class="pagination-container">
+                <button id="prevPage" class="pagination-button">Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button id="nextPage" class="pagination-button">Next</button>
             </div>
         </div>
     </main>

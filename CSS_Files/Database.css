@@ -5,7 +5,115 @@
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
 }
+/* Enhanced Database Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+}
 
+body {
+    min-height: 100vh;
+    background: url('koeien.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 100px;
+    z-index: 1000;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.filter-dropdown {
+    position: relative;
+}
+
+.column-filters {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    z-index: 100;
+}
+
+.export-dropdown {
+    position: relative;
+}
+
+.export-options {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+}
+
+.export-options button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    background: none;
+    border: none;
+}
+
+.table-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.column-visibility-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.column-visibility-menu label {
+    display: block;
+    margin: 5px 0;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.responsive-table {
+    width: 100%;
+    display: grid;
+    overflow-x: auto;
+}
 ::-webkit-scrollbar {
     width: 8px;
 }
