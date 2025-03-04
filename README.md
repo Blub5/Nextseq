@@ -7,8 +7,6 @@ NGS Web Application is a tool designed for managing Next-Generation Sequencing (
 - [Usage](#usage)
 - [File Structure](#file-structure)
 - [Workflow/Pipeline](#workflowpipeline)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 To deploy the application locally, follow these steps:
@@ -142,23 +140,5 @@ sequenceDiagram
     F->>U: Show confirmation
 ```
 
-## Contributing
-We welcome contributions! To contribute:
-1. **Fork** the repository.
-2. **Create a branch** for your changes:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. **Commit** your changes:
-   ```bash
-   git commit -m "Add feature"
-   ```
-4. **Push** to your branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. **Submit a pull request**.
 
-## License
-This project is licensed under the **MIT License**.
 
