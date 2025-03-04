@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         try {
-            const response = await fetch('../PHP_Files/save_nlp_data.php', {
+            const response = await fetch('save_nlp_data.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchLatestRunFlowcell() {
         try {
-            const response = await fetch('../PHP_Files/get_table_data.php', {
+            const response = await fetch('get_table_data.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(result.message || 'No recent run found');
             }
 
+            // Group by RunName and sum Clusters to match the latest run
             const runs = {};
             result.data.forEach(row => {
                 if (!runs[row.RunName]) {
@@ -113,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 runs[row.RunName].totalClusters += parseFloat(row.Clusters) || 0;
             });
 
+            // Find the run with the latest timestamp
             const latestRun = Object.entries(runs).reduce((latest, [runName, data]) => {
                 if (!latest || new Date(data.timestamp) > new Date(latest.timestamp)) {
                     return { runName, ...data };
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             console.error('Error fetching latest flowcell:', error);
             showErrorToUser('Could not fetch latest flowcell; defaulting to P1: ' + error.message);
-            return 'P1';
+            return 'P1'; // Default fallback
         }
     }
 
@@ -135,9 +137,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Load the latest flowcell on page load
     (async () => {
         const latestFlowcell = await fetchLatestRunFlowcell();
         flowcellSelect.value = latestFlowcell;
+        // Optionally disable the dropdown to prevent manual changes
+        // flowcellSelect.disabled = true;
     })();
 
     calculateBtn.addEventListener('click', async function() {
@@ -145,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const conc = parseFloat(document.getElementById('conc').value);
             const avgLib = parseFloat(document.getElementById('avgLib').value);
             const totalVolume = parseFloat(document.getElementById('totalVolume').value);
-            const flowcell = flowcellSelect.value;
+            const flowcell = flowcellSelect.value; // Uses the latest run's flowcell
 
             if (!conc || !avgLib || !totalVolume) {
                 throw new Error('Vul alle vereiste velden in');
