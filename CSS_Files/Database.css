@@ -31,11 +31,6 @@ body {
     color: #333;
 }
 
-/* Adjust for fixed navbar */
-main {
-    padding-top: 70px; /* Space for fixed navbar */
-}
-
 /* Database Container */
 .database-container {
     background: rgba(255, 255, 255, 0.95);
@@ -84,10 +79,11 @@ main {
 #dataTable th,
 #dataTable td {
     border: 1px solid #e0e0e0;
-    padding: 10px;
+    padding: 6px 10px; /* Reduced vertical padding from 10px to 6px */
     text-align: left;
     word-wrap: break-word;
     white-space: normal;
+    line-height: 1.2; /* Tightened line height for less vertical space */
 }
 
 #dataTable th {
@@ -131,7 +127,7 @@ main {
     background-color: #ff4444;
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 4px 8px; /* Reduced padding for a tighter button */
     border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
@@ -155,7 +151,7 @@ main {
 /* Loading and Error States */
 .loading, .error {
     text-align: center;
-    padding: 20px;
+    padding: 10px; /* Reduced from 20px for consistency */
     font-size: 16px;
 }
 
