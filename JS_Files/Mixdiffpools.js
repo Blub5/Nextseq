@@ -209,7 +209,7 @@ async function addRow() {
             options.forEach(opt => {
                 const option = document.createElement('option');
                 option.value = opt;
-                option.textContent = opt || 'Selecteer...';
+                option.textContent = opt || 'Select...';
                 select.appendChild(option);
             });
             td.appendChild(select);
