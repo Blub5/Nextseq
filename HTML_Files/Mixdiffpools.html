@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS_Files/Mixdiffpools.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -28,9 +28,9 @@
         </div>
     </nav>
 
-    <main class="container-fluid mt-5 pt-4">
+    <main class="d-flex justify-content-center align-items-center flex-grow-1">
         <div class="spreadsheet-container bg-white shadow rounded p-3">
-            <div class="run-selection-container mb-3 d-flex align-items-center">
+            <div class="run-selection-container mb-3 d-flex align-items-center justify-content-center">
                 <label for="runSelect" class="fw-bold me-2">Select Run:</label>
                 <select id="runSelect" class="form-select w-auto">
                     <option value="new">New Run</option>
@@ -38,27 +38,29 @@
                 <input type="text" id="newRunNameInput" class="form-control ms-2" placeholder="Enter new run name" style="max-width: 200px;">
             </div>
 
-            <div class="table-wrapper" style="max-height: 50vh; overflow-y: auto;">
-                <table id="spreadsheetTable" class="table table-bordered table-hover">
-                    <thead class="table-dark sticky-top">
-                        <tr>
-                            <th>ProjectPool</th>
-                            <th>Application</th>
-                            <th>GenomeSize</th>
-                            <th>Coverage</th>
-                            <th>SampleCount</th>
-                            <th>Conc</th>
-                            <th>AvgLibSize</th>
-                            <th>Clusters</th>
-                            <th>%P1</th>
-                            <th>nM</th>
-                            <th>%Sample per (Flowcell)</th>
-                            <th>UI NGS Pool</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <div class="table-wrapper">
+                <div class="table-responsive">
+                    <table id="spreadsheetTable" class="table table-bordered table-hover table-sm">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th>ProjectPool</th>
+                                <th>Application</th>
+                                <th>GenomeSize</th>
+                                <th>Coverage</th>
+                                <th>SampleCount</th>
+                                <th>Conc</th>
+                                <th>AvgLibSize</th>
+                                <th>Clusters</th>
+                                <th>%P1</th>
+                                <th>nM</th>
+                                <th>%Sample per (Flowcell)</th>
+                                <th>UI NGS Pool</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="controls d-flex justify-content-center gap-2 mt-3">
