@@ -1,0 +1,28 @@
+/* Custom button styles */
+.btn-primary {
+    background-color: #088c04;
+    border-color: #088c04;
+}
+
+.btn-primary:hover {
+    background-color: #045202;
+    border-color: #045202;
+}
+
+/* Table header styling */
+.table thead th {
+    background-color: #088c04;
+    color: white;
+}
+
+/* Optional: Background image and container styling */
+body {
+    background-image: url('../Pictures/koeien.jpg');
+    background-size: cover;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+}
