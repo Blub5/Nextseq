@@ -1,5 +1,5 @@
 <?php
-include '/home/ngslab/config/config.php'
+include 'config.php';
 header('Content-Type: application/json');
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

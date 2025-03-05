@@ -1,5 +1,5 @@
 <?php
-include '/home/ngslab/config/config.php'
+include 'config.php';
 ob_start();
 header('Content-Type: application/json');
 
