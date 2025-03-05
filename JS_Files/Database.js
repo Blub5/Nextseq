@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             tableContainer.innerHTML = '<div class="loading">Loading data...</div>';
             
-            const response = await fetch('get_table_data.php', {
+            const response = await fetch('../PHP/get_table_data.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ table: tableName, sortColumn: currentSort.column, sortDirection: currentSort.direction })
