@@ -1,4 +1,5 @@
 <?php
+include 'config.php';
 ob_start();
 header('Content-Type: application/json');
 
@@ -19,7 +20,7 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
@@ -37,7 +38,7 @@ try {
     $table = $data['table'] ?? '';
     $sortColumn = $data['sortColumn'] ?? 'timestamp';
     $sortDirection = $data['sortDirection'] ?? 'desc';
-    $filter = $data['filter'] ?? []; // Optional filter, e.g., ['RunName' => 'TestRun1']
+    $filter = $data['filter'] ?? [];
 
     if (!in_array($table, ['mixdiffpools', 'nlp_data'])) {
         throw new Exception('Invalid table name');
@@ -67,7 +68,6 @@ try {
         $columns[] = $row['Field'];
     }
 
-    // Build WHERE clause for filtering
     $whereClause = '';
     $bindParams = [];
     $bindTypes = '';
@@ -77,7 +77,7 @@ try {
             if (in_array($key, $columns)) {
                 $conditions[] = "`$key` = ?";
                 $bindParams[] = $value;
-                $bindTypes .= 's'; // Assuming all filters are strings; adjust if needed
+                $bindTypes .= 's';
             }
         }
         if ($conditions) {
@@ -96,7 +96,6 @@ try {
         $query = "SELECT * FROM `$table`$whereClause ORDER BY `$sortColumn` $sortDirection";
     }
 
-    // Prepare and execute query
     if (!empty($bindParams)) {
         $stmt = $conn->prepare($query);
         if (!$stmt) {

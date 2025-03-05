@@ -1,5 +1,5 @@
 <?php
-// File: delete_projectpool.php
+include 'config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 header('Content-Type: application/json');
@@ -17,7 +17,7 @@ function handleError($errno, $errstr, $errfile, $errline) {
 set_error_handler('handleError');
 
 try {
-    $conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);

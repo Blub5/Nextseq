@@ -1,8 +1,9 @@
 <?php
+include 'config.php';
 ob_start();
 header('Content-Type: application/json');
 
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
     http_response_code(500);
@@ -23,7 +24,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     exit;
 }
 
-// Added 'RunName' to the list of required fields
 $required_fields = ['RunName', 'ProjectPool', 'Application', 'GenomeSize', 'Coverage', 'SampleCount', 'Conc', 'AvgLibSize'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field]) || $data[$field] === '') {
@@ -34,7 +34,6 @@ foreach ($required_fields as $field) {
 }
 
 try {
-    // Updated SQL to include RunName in the WHERE clause
     $stmt = $conn->prepare("UPDATE mixdiffpools SET 
         Application = ?, GenomeSize = ?, Coverage = ?, SampleCount = ?, Conc = ?, AvgLibSize = ?
         WHERE RunName = ? AND ProjectPool = ?");
@@ -52,9 +51,6 @@ try {
     $runName = $data['RunName'];
     $projectPool = $data['ProjectPool'];
 
-    // Bind parameters in the correct order:
-    // "s" for Application, "i" for GenomeSize, "d" for Coverage, "i" for SampleCount,
-    // "d" for Conc, "i" for AvgLibSize, "s" for RunName, "s" for ProjectPool.
     $stmt->bind_param("siddidss", $application, $genomeSize, $coverage, $sampleCount, $conc, $avgLibSize, $runName, $projectPool);
 
     if (!$stmt->execute()) {
