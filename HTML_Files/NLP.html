@@ -4,164 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculate nM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS_Files/NLP.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <img src="../Pictures/Wur.png" alt="Logo" onerror="this.style.display='none'">
-        </div>
-        <nav class="navbar">
-            <a href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a>
-            <a href="../HTML_Files/NLP.html">NLP</a>
-            <a href="../HTML_Files/Database.html">Database</a>
-            <a href="../HTML_Files/Admin.html">Admin</a>
-            <a href="../HTML_Files/Calculations.html">Calculations</a>
-        </nav>
-    </header>
-
-    <main class="main-content">
-        <div class="error-message" id="error-messages" style="display: none;">Error Message</div>
-
-        <div class="content-wrapper">
-            <div class="procedure-section">
-                <h3>Procedure</h3>
-                <table class="procedure-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Steps/th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Create a pool by steering the robot at 4nM</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Measure volume, approximately 80-85% of the calculated volume</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Take 200 µl</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Purify with ampureXP ratio 0.7</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Elueer in 100 µl</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>QC (conc+ profile)</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>Enter values</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="../Pictures/Wur.png" alt="Logo" height="40" onerror="this.style.display='none'">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/NLP.html">NLP</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Database.html">Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Admin.html">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Calculations.html">Calculations</a></li>
+                </ul>
             </div>
-            <div class="calculator-container">
-                <h2>Calculate nM</h2>
-                <div class="calculator">
-                    <label for="conc">Concentratie NGS lib pool (ng/μL):</label>
-                    <input type="number" id="conc" step="0.01" placeholder="Vul concentratie in">
-                    <label for="avgLib">Gemiddelde librarysize (bp):</label>
-                    <input type="number" id="avgLib" step="1" placeholder="Vul gemiddelde in">
-                    <label for="totalVolume">Total volume (μL):</label>
-                    <input type="number" id="totalVolume" step="0.01" placeholder="Vul volume in">
-                    <label for="flowcell">Flowcell:</label>
-                    <select id="flowcell">
-                        <option value="P1">P1</option>
-                        <option value="P2">P2</option>
-                        <option value="P3">P3</option>
-                        <option value="P4">P4</option>
-                    </select>
-                    <button id="calculateBtn">Bereken</button>
-                    <div class="results-table" id="resultsTable" style="display: none;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Parameter</th>
-                                    <th>Waarde</th>
-                                </tr>
+        </div>
+    </nav>
+
+    <main class="container-fluid mt-5 pt-4">
+        <div class="error-message alert alert-danger position-fixed top-0 end-0 m-3" id="error-messages" style="display: none;">Error Message</div>
+
+        <div class="row justify-content-center g-3">
+            <div class="col-md-4">
+                <div class="procedure-section bg-white shadow rounded p-3">
+                    <h3 class="text-center">Procedure</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr><th>No.</th><th>Steps</th></tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>nM</td>
-                                    <td id="nMResult">-</td>
-                                </tr>
-                                <tr>
-                                    <td>pMol</td>
-                                    <td id="pMolResult">-</td>
-                                </tr>
-                                <tr>
-                                    <td>Library Volume (μL)</td>
-                                    <td id="libUlResult">-</td>
-                                </tr>
-                                <tr>
-                                    <td>RSB Volume (μL)</td>
-                                    <td id="rsbUlResult">-</td>
-                                </tr>
-                                <tr>
-                                    <td>Conc calc</td>
-                                    <td id="concCalcResult">-</td>
-                                </tr>
+                                <tr><td>1</td><td>Create a pool by steering the robot at 4nM</td></tr>
+                                <tr><td>2</td><td>Measure volume, approximately 80-85% of the calculated volume</td></tr>
+                                <tr><td>3</td><td>Take 200 µl</td></tr>
+                                <tr><td>4</td><td>Purify with ampureXP ratio 0.7</td></tr>
+                                <tr><td>5</td><td>Elueer in 100 µl</td></tr>
+                                <tr><td>6</td><td>QC (conc+ profile)</td></tr>
+                                <tr><td>7</td><td>Enter values</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <div class="guidelines-section">
-                <h3>Richtlijnen NGS lib prep</h3>
-                <table class="guidelines-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Type</th>
-                            <th>Size (bp)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>DNA prep</td>
-                            <td>750</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>16s/XT v2</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>RNAseq</td>
-                            <td>650</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>Takara Pico v3 Kit</td>
-                            <td>1000</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="col-md-4">
+                <div class="calculator-container bg-white shadow rounded p-3">
+                    <h2 class="text-center">Calculate nM</h2>
+                    <div class="calculator">
+                        <div class="mb-3">
+                            <label for="conc" class="form-label fw-bold">Concentratie NGS lib pool (ng/μL):</label>
+                            <input type="number" id="conc" class="form-control" step="0.01" placeholder="Vul concentratie in">
+                        </div>
+                        <div class="mb-3">
+                            <label for="avgLib" class="form-label fw-bold">Gemiddelde librarysize (bp):</label>
+                            <input type="number" id="avgLib" class="form-control" step="1" placeholder="Vul gemiddelde in">
+                        </div>
+                        <div class="mb-3">
+                            <label for="totalVolume" class="form-label fw-bold">Total volume (μL):</label>
+                            <input type="number" id="totalVolume" class="form-control" step="0.01" placeholder="Vul volume in">
+                        </div>
+                        <div class="mb-3">
+                            <label for="flowcell" class="form-label fw-bold">Flowcell:</label>
+                            <select id="flowcell" class="form-select">
+                                <option value="P1">P1</option>
+                                <option value="P2">P2</option>
+                                <option value="P3">P3</option>
+                                <option value="P4">P4</option>
+                            </select>
+                        </div>
+                        <button id="calculateBtn" class="btn btn-success w-100">Bereken</button>
+                        <div class="results-table mt-3" id="resultsTable" style="display: none;">
+                            <table class="table table-bordered">
+                                <thead class="table-dark"><tr><th>Parameter</th><th>Waarde</th></tr></thead>
+                                <tbody>
+                                    <tr><td>nM</td><td id="nMResult">-</td></tr>
+                                    <tr><td>pMol</td><td id="pMolResult">-</td></tr>
+                                    <tr><td>Library Volume (μL)</td><td id="libUlResult">-</td></tr>
+                                    <tr><td>RSB Volume (μL)</td><td id="rsbUlResult">-</td></tr>
+                                    <tr><td>Conc calc</td><td id="concCalcResult">-</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="guidelines-section bg-white shadow rounded p-3">
+                    <h3 class="text-center">Richtlijnen NGS lib prep</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr><th>No.</th><th>Type</th><th>Size (bp)</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>DNA prep</td><td>750</td></tr>
+                                <tr><td>2</td><td>16s/XT v2</td><td>-</td></tr>
+                                <tr><td>3</td><td>RNAseq</td><td>650</td></tr>
+                                <tr><td>4</td><td>-</td><td>-</td></tr>
+                                <tr><td>5</td><td>-</td><td>-</td></tr>
+                                <tr><td>6</td><td>Takara Pico v3 Kit</td><td>1000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../JS_Files/NLP.js"></script>
 </body>
 </html>

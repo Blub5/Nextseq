@@ -1,3 +1,4 @@
+/* Reset and General Styles */
 * {
   margin: 0;
   padding: 0;
@@ -6,98 +7,56 @@
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
 }
 
-* {
-  -ms-overflow-style: none;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #088c04;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #045202;
 }
 
 body {
   min-height: 100vh;
   background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
+  background-size: cover;
   color: #333;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 60px;
-  gap: 15px;
 }
 
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px 100px;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 100;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+/* Adjust for fixed navbar */
+main {
+  padding-top: 70px; /* Space for fixed navbar */
 }
 
-.logo img {
-  height: 40px;
-}
-
-.navbar {
-  display: flex;
-  gap: 20px;
-}
-
-.navbar a {
-  font-size: 18px;
-  color: #fff;
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.navbar a:hover {
-  background-color: #fff;
-  color: #088c04;
-  transform: scale(1.05);
-}
-
+/* Spreadsheet Container */
 .spreadsheet-container {
   width: 100%;
   max-width: 1300px;
-  height: calc(100vh - 280px);
   padding: 15px;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
   background-color: #fff;
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
 }
 
-.run-selection-container {
-  display: flex;
-  align-items: center;
-}
-
+/* Table Wrapper */
 .table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  max-height: 50vh; /* Limit table height, scroll vertically */
   overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  flex-grow: 1;
 }
 
+/* Table Styling */
 #spreadsheetTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  table-layout: fixed;
 }
 
 #spreadsheetTable th,
@@ -110,33 +69,6 @@ body {
   text-overflow: ellipsis;
 }
 
-#spreadsheetTable th[data-field="ProjectPool"],
-#spreadsheetTable td[data-field="ProjectPool"] { width: 120px; }
-#spreadsheetTable th[data-field="Application"],
-#spreadsheetTable td[data-field="Application"] { width: 100px; }
-#spreadsheetTable th[data-field="GenomeSize"],
-#spreadsheetTable td[data-field="GenomeSize"] { width: 80px; }
-#spreadsheetTable th[data-field="Coverage"],
-#spreadsheetTable td[data-field="Coverage"] { width: 80px; }
-#spreadsheetTable th[data-field="SampleCount"],
-#spreadsheetTable td[data-field="SampleCount"] { width: 80px; }
-#spreadsheetTable th[data-field="Conc"],
-#spreadsheetTable td[data-field="Conc"] { width: 80px; }
-#spreadsheetTable th[data-field="AvgLibSize"],
-#spreadsheetTable td[data-field="AvgLibSize"] { width: 80px; }
-#spreadsheetTable th[data-field="Clusters"],
-#spreadsheetTable td[data-field="Clusters"] { width: 100px; }
-#spreadsheetTable th[data-field="%Flowcell"],
-#spreadsheetTable td[data-field="%Flowcell"] { width: 80px; }
-#spreadsheetTable th[data-field="nM"],
-#spreadsheetTable td[data-field="nM"] { width: 80px; }
-#spreadsheetTable th[data-field="%SamplePerFlowcell"],
-#spreadsheetTable td[data-field="%SamplePerFlowcell"] { width: 100px; }
-#spreadsheetTable th[data-field="UI NGS Pool"],
-#spreadsheetTable td[data-field="UI NGS Pool"] { width: 80px; }
-#spreadsheetTable th[data-field="Acties"],
-#spreadsheetTable td[data-field="Acties"] { width: 100px; }
-
 #spreadsheetTable th {
   background-color: #088c04;
   color: white;
@@ -144,7 +76,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 25px;
 }
 
 #spreadsheetTable tbody tr:nth-child(even) {
@@ -155,72 +86,26 @@ body {
   background-color: #dfe4ff;
 }
 
-select,
-input {
-  width: 100%;
-  height: 25px;
-  font-size: 12px;
-  padding: 3px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: white;
-}
-
-select:focus,
-input:focus {
-  border-color: #088c04;
-  outline: none;
-}
-
-input::placeholder {
-  color: #aaa;
-  font-style: italic;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  position: absolute;
-  bottom: 15px;
-  left: 0;
-  right: 0;
-}
-
-.action-button {
+/* Controls */
+.controls .btn {
   background-color: #088c04;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
 }
 
-.action-button:hover {
+.controls .btn:hover {
   background-color: #045202;
-  transform: scale(1.05);
 }
 
 .removeButton {
   background-color: #ff4444;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
 }
 
 .removeButton:hover {
   background-color: #cc0000;
-  transform: scale(1.05);
 }
 
+/* Flowcell Info */
 .flowcell-info {
   background-color: #088c04;
   color: white;
@@ -241,11 +126,11 @@ input::placeholder {
   text-align: center;
 }
 
+/* Progress Bar */
 .progress-container {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 10px;
-  width: 100%;
 }
 
 .progress-bar-wrapper {
@@ -254,34 +139,10 @@ input::placeholder {
   gap: 10px;
 }
 
-.progress-bar {
-  flex-grow: 1;
-  height: 30px;
+.progress {
+  height: 20px;
   background-color: white;
-  border-radius: 15px;
-  overflow: hidden;
   border: 1px solid #ccc;
-  display: flex;
-}
-.progress-segment {
-  height: 100%;
-  transition: width 0.3s ease-in-out;
-}
-
-.progress-segment:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 2px;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-#progressPercentage {
-  min-width: 60px;
-  text-align: right;
-  font-weight: bold;
 }
 
 .progress-legend {
@@ -310,15 +171,11 @@ input::placeholder {
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Error Message */
 .error-message {
-  background-color: #f44336;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
   max-width: 400px;
-  display: none;
 }

@@ -1,3 +1,4 @@
+/* Reset and General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,12 +7,20 @@
 }
 
 ::-webkit-scrollbar {
-    display: none;
+    width: 8px;
 }
 
-* {
-    -ms-overflow-style: none;  
-    scrollbar-width: none; 
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #088c04;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #045202;
 }
 
 body {
@@ -19,137 +28,63 @@ body {
     background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 60px;
-    gap: 15px;
 }
 
+/* Adjust for fixed navbar */
+main {
+    padding-top: 70px; /* Space for fixed navbar */
+}
+
+/* Calculator Container */
 .calculator-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px; /* Adjusted for side-by-side layout */
+}
+
+/* Calculator Section */
+.calculator-section {
     background: white;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    margin: 20px auto;
 }
 
-.calculator-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
+/* Headings */
 .calculator-section h3 {
     color: #088c04;
     margin-bottom: 15px;
 }
 
+/* Formula */
+.formula {
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Input Group */
 .input-group {
-    display: flex;
-    align-items: center;
     margin-bottom: 10px;
-    gap: 10px;
 }
 
-.input-group label {
-    min-width: 200px;
-    font-weight: bold;
-}
-
-.input-group input {
-    width: 200px;
+/* Form Elements */
+.form-control,
+.form-select {
     height: 35px;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }
 
-.input-with-unit {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.input-with-unit input {
-    width: 150px;
-}
-
-.input-with-unit select {
-    width: 70px;
-    height: 35px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-}
-
-.result {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #d4edda;
-    color: #155724;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
+/* Calculate Button */
 .calculate-button {
     background-color: #088c04;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    margin-top: 10px;
 }
 
 .calculate-button:hover {
     background-color: #045202;
-    transform: scale(1.05);
 }
 
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 10px 100px;
-    background: rgba(0, 0, 0, 0.9);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.logo img {
-    height: 40px;
-}
-
-.navbar {
-    display: flex;
-    gap: 20px;
-}
-
-.navbar a {
-    font-size: 18px;
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.navbar a:hover {
-    background-color: #fff;
-    color: #088c04;
-    transform: scale(1.05);
+/* Result */
+.result {
+    margin-top: 15px;
 }

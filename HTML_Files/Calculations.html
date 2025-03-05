@@ -4,111 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Required Mass Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS_Files/Calculations.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <img src="../Pictures/Wur.png" alt="Logo" onerror="this.style.display='none'">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="../Pictures/Wur.png" alt="Logo" height="40" onerror="this.style.display='none'">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/NLP.html">NLP</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Database.html">Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Admin.html">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../HTML_Files/Calculations.html">Calculations</a></li>
+                </ul>
+            </div>
         </div>
-        <nav class="navbar">
-            <a href="../HTML_Files/Mixdiffpools.html">Mixdiffpools</a>
-            <a href="../HTML_Files/NLP.html">NLP</a>
-            <a href="../HTML_Files/Database.html">Database</a>
-            <a href="../HTML_Files/Admin.html">Admin</a>
-            <a href="../HTML_Files/Calculations.html">Calculations</a>
-        </nav>
-    </header>
+    </nav>
 
-    <div class="calculator-container">
-
-        <div class="calculator-section">
-            <h3>Required Mass Calculator</h3>
-            <p class="formula">required mass (g) = desired molarity (mol/L) × total solution volume (L) × molecular weight (g/mol)</p>
-            
-            <div class="input-group">
-                <label>Molecular Weight (g/mol):</label>
-                <input type="number" id="molecularWeight" step="0.000001" placeholder="Enter molecular weight...">
-            </div>
-
-            <div class="input-group">
-                <label>Desired Molarity:</label>
-                <div class="input-with-unit">
-                    <input type="number" id="desiredMolarity" step="0.000001" placeholder="Enter molarity...">
-                    <select id="molarityUnit">
-                        <option value="M">M</option>
-                        <option value="mM">mM</option>
-                        <option value="μM">μM</option>
-                        <option value="nM">nM</option>
-                        <option value="pM">pM</option>
-                        <option value="fM">fM</option>
-                    </select>
+    <div class="container mt-5 pt-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="calculator-section bg-white shadow rounded p-3">
+                    <h3 class="text-center">Required Mass Calculator</h3>
+                    <p class="formula text-center">required mass (g) = desired molarity (mol/L) × total solution volume (L) × molecular weight (g/mol)</p>
+                    <div class="mb-3">
+                        <label for="molecularWeight" class="form-label fw-bold">Molecular Weight (g/mol):</label>
+                        <input type="number" id="molecularWeight" class="form-control" step="0.000001" placeholder="Enter molecular weight...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="desiredMolarity" class="form-label fw-bold">Desired Molarity:</label>
+                        <div class="input-group">
+                            <input type="number" id="desiredMolarity" class="form-control" step="0.000001" placeholder="Enter molarity...">
+                            <select id="molarityUnit" class="form-select">
+                                <option value="M">M</option><option value="mM">mM</option><option value="μM">μM</option>
+                                <option value="nM">nM</option><option value="pM">pM</option><option value="fM">fM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="volume" class="form-label fw-bold">Total Solution Volume:</label>
+                        <div class="input-group">
+                            <input type="number" id="volume" class="form-control" step="0.000001" placeholder="Enter volume...">
+                            <select id="volumeUnit" class="form-select">
+                                <option value="L">L</option><option value="ml">ml</option><option value="μl">μl</option>
+                                <option value="nl">nl</option><option value="pl">pl</option><option value="fl">fl</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success w-100" onclick="calculateRequiredMass()">Calculate Required Mass</button>
+                    <div class="result alert alert-success mt-3" id="massResult">Result will appear here</div>
                 </div>
             </div>
-
-            <div class="input-group">
-                <label>Total Solution Volume:</label>
-                <div class="input-with-unit">
-                    <input type="number" id="volume" step="0.000001" placeholder="Enter volume...">
-                    <select id="volumeUnit">
-                        <option value="L">L</option>
-                        <option value="ml">ml</option>
-                        <option value="μl">μl</option>
-                        <option value="nl">nl</option>
-                        <option value="pl">pl</option>
-                        <option value="fl">fl</option>
-                    </select>
+            <div class="col-md-6">
+                <div class="calculator-section bg-white shadow rounded p-3">
+                    <h3 class="text-center">Molarity Calculator</h3>
+                    <p class="formula text-center">molarity (mol/L) = mass (g) / (total solution volume (L) × molecular weight (g/mol))</p>
+                    <div class="mb-3">
+                        <label for="molarityMW" class="form-label fw-bold">Molecular Weight (g/mol):</label>
+                        <input type="number" id="molarityMW" class="form-control" step="0.000001" placeholder="Enter molecular weight...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="mass" class="form-label fw-bold">Mass:</label>
+                        <div class="input-group">
+                            <input type="number" id="mass" class="form-control" step="0.000001" placeholder="Enter mass...">
+                            <select id="massUnit" class="form-select">
+                                <option value="kg">kg</option><option value="g">g</option><option value="mg">mg</option>
+                                <option value="μg">μg</option><option value="ng">ng</option><option value="pg">pg</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="molarityVolume" class="form-label fw-bold">Total Solution Volume:</label>
+                        <div class="input-group">
+                            <input type="number" id="molarityVolume" class="form-control" step="0.000001" placeholder="Enter volume...">
+                            <select id="molarityVolumeUnit" class="form-select">
+                                <option value="L">L</option><option value="ml">ml</option><option value="μl">μl</option>
+                                <option value="nl">nl</option><option value="pl">pl</option><option value="fl">fl</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success w-100" onclick="calculateMolarity()">Calculate Molarity</button>
+                    <div class="result alert alert-success mt-3" id="molarityResult">Result will appear here</div>
                 </div>
             </div>
-
-            <button class="calculate-button" onclick="calculateRequiredMass()">Calculate Required Mass</button>
-            <div class="result" id="massResult">Result will appear here</div>
-        </div>
-
- 
-        <div class="calculator-section">
-            <h3>Molarity Calculator</h3>
-            <p class="formula">molarity (mol/L) = mass (g) / (total solution volume (L) × molecular weight (g/mol))</p>
-            
-            <div class="input-group">
-                <label>Molecular Weight (g/mol):</label>
-                <input type="number" id="molarityMW" step="0.000001" placeholder="Enter molecular weight...">
-            </div>
-
-            <div class="input-group">
-                <label>Mass:</label>
-                <div class="input-with-unit">
-                    <input type="number" id="mass" step="0.000001" placeholder="Enter mass...">
-                    <select id="massUnit">
-                        <option value="kg">kg</option>
-                        <option value="g">g</option>
-                        <option value="mg">mg</option>
-                        <option value="μg">μg</option>
-                        <option value="ng">ng</option>
-                        <option value="pg">pg</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Total Solution Volume:</label>
-                <div class="input-with-unit">
-                    <input type="number" id="molarityVolume" step="0.000001" placeholder="Enter volume...">
-                    <select id="molarityVolumeUnit">
-                        <option value="L">L</option>
-                        <option value="ml">ml</option>
-                        <option value="μl">μl</option>
-                        <option value="nl">nl</option>
-                        <option value="pl">pl</option>
-                        <option value="fl">fl</option>
-                    </select>
-                </div>
-            </div>
-
-            <button class="calculate-button" onclick="calculateMolarity()">Calculate Molarity</button>
-            <div class="result" id="molarityResult">Result will appear here</div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../JS_Files/Calculations.js"></script>
 </body>
 </html>

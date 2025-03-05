@@ -2,6 +2,7 @@
 .btn-primary {
     background-color: #088c04;
     border-color: #088c04;
+    transition: all 0.3s ease; /* Align with other files */
 }
 
 .btn-primary:hover {
@@ -13,20 +14,28 @@
 .table thead th {
     background-color: #088c04;
     color: white;
+    font-weight: 600; /* Consistent with other files */
 }
 
-/* Optional: Background image and container styling */
+/* Global background styling */
 body {
-    background-image: url('../Pictures/koeien.jpg');
+    background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
     background-size: cover;
+    min-height: 100vh;
+    color: #333;
 }
 
-.container {
+/* Bootstrap container override */
+.container,
+.container-fluid {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 20px;
     border-radius: 8px;
 }
+
+/* Universal table container */
 .fixed-table-container {
-    max-height: 70vh;
+    max-height: 60vh; /* Standardized with Database.css */
     overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }

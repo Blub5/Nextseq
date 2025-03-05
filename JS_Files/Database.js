@@ -50,17 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const table = document.createElement('table');
         table.id = "dataTable";
-        table.style.width = "100%";
-        table.style.tableLayout = "fixed";
+        table.className = 'table table-bordered table-hover';
 
         const thead = document.createElement('thead');
+        thead.className = 'table-dark sticky-top';
         const headerRow = document.createElement('tr');
 
         columns.forEach(column => {
             const th = document.createElement('th');
             th.textContent = column;
             th.className = 'sort-icon';
-            th.style.fontSize = "13px";
             if (column === currentSort.column) {
                 th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
             }
@@ -70,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const actionTh = document.createElement('th');
         actionTh.textContent = 'Actions';
-        actionTh.style.fontSize = "13px";
         headerRow.appendChild(actionTh);
 
         thead.appendChild(headerRow);
@@ -111,18 +109,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 td.textContent = value ?? '';
-                td.style.fontSize = "13px";
-                td.style.wordWrap = "break-word";
-                td.style.whiteSpace = "normal";
                 tr.appendChild(td);
             });
 
             const actionTd = document.createElement('td');
-            if (tableName === 'mixdiffpools') {
+            if (tableName === 'mixdiffpools' || tableName === 'nlp_data') {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'delete-button';
-                deleteBtn.addEventListener('click', () => deleteRow(row.ProjectPool));
+                deleteBtn.className = 'delete-button btn btn-danger btn-sm';
+                deleteBtn.addEventListener('click', () => deleteRow(row, tableName));
                 actionTd.appendChild(deleteBtn);
             }
             tr.appendChild(actionTd);
@@ -135,16 +130,17 @@ document.addEventListener('DOMContentLoaded', function() {
         tableContainer.appendChild(table);
     }
 
-    async function deleteRow(projectPool) {
-        if (!confirm(`Are you sure you want to delete ProjectPool ${projectPool}?`)) {
+    async function deleteRow(row, tableName) {
+        const identifier = tableName === 'mixdiffpools' ? row.ProjectPool : row.id; // Adjust 'id' based on actual NLP data key
+        if (!confirm(`Are you sure you want to delete ${tableName === 'mixdiffpools' ? 'ProjectPool' : 'entry'} ${identifier}?`)) {
             return;
         }
 
         try {
-            const response = await fetch('../PHP_Files/delete_projectpool.php', {
+            const response = await fetch('../PHP_Files/delete_row.php', { // Update PHP endpoint as needed
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ProjectPool: projectPool })
+                body: JSON.stringify({ table: tableName, identifier: identifier })
             });
 
             if (!response.ok) throw new Error('Failed to delete row.');
@@ -152,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
 
-            showError(`Row with ProjectPool ${projectPool} deleted successfully.`, 'success');
+            showError(`Row with ${tableName === 'mixdiffpools' ? 'ProjectPool' : 'ID'} ${identifier} deleted successfully.`, 'success');
             loadTableData(tableSelect.value);
         } catch (error) {
             showError(`Error deleting row: ${error.message}`);
@@ -217,8 +213,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function showError(message, type = 'error') {
         if (errorDiv) {
             errorDiv.textContent = message;
+            errorDiv.className = `alert ${type === 'success' ? 'alert-success' : 'alert-danger'} mt-3`;
             errorDiv.style.display = 'block';
-            errorDiv.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
     }
