@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const refreshBtn = document.getElementById('refreshBtn');
     const exportBtn = document.getElementById('exportBtn');
     const searchInput = document.getElementById('searchInput');
-    const tableContainer = document.getElementById('tableContainer');
+    const tableWrapper = document.getElementById('tableWrapper'); // Updated to target tableWrapper
+    const dataTable = document.getElementById('dataTable'); // Target the table directly
     const errorDiv = document.getElementById('error-messages');
     
     let currentSort = { column: 'timestamp', direction: 'desc' };
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadTableData(tableName) {
         try {
-            tableContainer.innerHTML = '<div class="loading">Loading data...</div>';
+            tableWrapper.innerHTML = '<div class="loading">Loading data...</div>'; // Use tableWrapper for loading
             
             const response = await fetch('../PHP_Files/get_table_data.php', {
                 method: 'POST',
@@ -44,18 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayTable(data, columns, tableName) {
         if (!data.length) {
-            tableContainer.innerHTML = '<div>No data available</div>';
+            tableWrapper.innerHTML = '<div>No data available</div>'; // Use tableWrapper for no data
             return;
         }
 
-        const table = document.createElement('table');
-        table.id = "dataTable";
-        table.className = 'table table-bordered table-hover';
+        const thead = dataTable.querySelector('thead');
+        const tbody = dataTable.querySelector('tbody');
+        thead.innerHTML = ''; // Clear existing thead
+        tbody.innerHTML = ''; // Clear existing tbody
 
-        const thead = document.createElement('thead');
-        thead.className = 'table-dark sticky-top';
         const headerRow = document.createElement('tr');
-
         columns.forEach(column => {
             const th = document.createElement('th');
             th.textContent = column;
@@ -72,9 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headerRow.appendChild(actionTh);
 
         thead.appendChild(headerRow);
-        table.appendChild(thead);
 
-        const tbody = document.createElement('tbody');
         data.forEach(row => {
             const tr = document.createElement('tr');
             columns.forEach(column => {
@@ -125,9 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.appendChild(tr);
         });
 
-        table.appendChild(tbody);
-        tableContainer.innerHTML = '';
-        tableContainer.appendChild(table);
+        tableWrapper.innerHTML = ''; // Clear loading/no data message
+        tableWrapper.appendChild(dataTable); // Re-append the table
     }
 
     async function deleteRow(row, tableName) {
@@ -137,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch('../PHP_Files/delete_row.php', { // Update PHP endpoint as needed
+            const response = await fetch('../PHP_Files/delete_row.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ table: tableName, identifier: identifier })
