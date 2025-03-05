@@ -26,3 +26,7 @@ body {
     padding: 20px;
     border-radius: 8px;
 }
+.fixed-table-container {
+    max-height: 70vh;
+    overflow-y: auto;
+}
