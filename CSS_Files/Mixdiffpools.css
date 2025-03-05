@@ -15,7 +15,7 @@
 
 body {
   min-height: 100vh;
-  background-size: cover;
+  background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
   color: #333;
   display: flex;
   flex-direction: column;
