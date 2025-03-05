@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '/home/ngslab/config/config.php'
 header('Content-Type: application/json');
 
 ini_set('display_errors', 0);

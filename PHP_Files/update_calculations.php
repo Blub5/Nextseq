@@ -1,26 +1,9 @@
 <?php
+include '/home/ngslab/config/config.php'
 ob_start();
-header('Content-Type: 'application/json');
+header('Content-Type: application/json');
 
-// Enable error logging
-ini_set('log_errors', 1);
-ini_set('error_log', dirname(__FILE__) . '/update_calculations_errors.log');
-
-// Establish database connection
-$conn = new mysqli('localhost', 'NGSweb', 'BioinformatixUser2025!', 'NGSweb');
-if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error);
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
-    exit;
-}
-
-// Ensure the request method is POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed, use POST']);
-    exit;
-}
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 // Retrieve and decode JSON input
 $rawInput = file_get_contents('php://input');
