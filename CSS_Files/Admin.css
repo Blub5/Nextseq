@@ -30,11 +30,6 @@ body {
     color: #333;
 }
 
-/* Adjust for fixed navbar */
-main {
-    padding-top: 70px; /* Space for fixed navbar */
-}
-
 /* Settings Container */
 .settings-container {
     width: 100%;

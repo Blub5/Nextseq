@@ -7,8 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS_Files/Admin.css">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+<body class="d-flex flex-column min-vh-100">
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="../Pictures/Wur.png" alt="Logo" height="40" onerror="this.style.display='none'">
@@ -26,9 +26,9 @@
                 </ul>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="container mt-5 pt-4">
+    <main class="d-flex justify-content-center align-items-center flex-grow-1">
         <div class="settings-container bg-white shadow rounded p-4">
             <h2 class="text-center">MixDiffPools Settings</h2>
             <div class="settings-section bg-light rounded p-3 mb-3">
@@ -57,7 +57,7 @@
             <button id="saveSettings" class="btn btn-success d-block mx-auto">Save Settings</button>
             <div id="saveMessage" class="alert mt-3" style="display: none;"></div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../JS_Files/Admin.js"></script>
