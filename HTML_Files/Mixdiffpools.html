@@ -31,65 +31,69 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="container-fluid mt-5 pt-4 d-flex flex-column">
-    <div class="spreadsheet-container bg-white shadow rounded p-3 flex-grow-1">
-      <!-- Run Selection -->
-      <div class="run-selection-container d-flex align-items-center mb-3">
-        <label for="runSelect" class="me-2">Select Run:</label>
-        <select id="runSelect" class="form-select w-auto me-2">
-          <option value="new">New Run</option>
-          <!-- Existing runs populated dynamically -->
-        </select>
-        <input type="text" id="newRunNameInput" class="form-control w-auto" placeholder="Enter new run name">
-      </div>
-
-      <!-- Spreadsheet Table -->
-      <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
-        <table id="spreadsheetTable" class="table table-bordered table-hover">
-          <thead class="table-dark sticky-top">
-            <tr>
-              <th data-field="ProjectPool">ProjectPool</th>
-              <th data-field="Application">Application</th>
-              <th data-field="GenomeSize">GenomeSize</th>
-              <th data-field="Coverage">Coverage</th>
-              <th data-field="SampleCount">SampleCount</th>
-              <th data-field="Conc">Conc</th>
-              <th data-field="AvgLibSize">AvgLibSize</th>
-              <th data-field="Clusters">Clusters</th>
-              <th data-field="%Flowcell">%P1</th>
-              <th data-field="nM">nM</th>
-              <th data-field="%SamplePerFlowcell">%Sample per (Flowcell)</th>
-              <th data-field="UI NGS Pool">UI NGS Pool</th>
-              <th data-field="Acties">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Rows added dynamically -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Control Buttons -->
-      <div class="controls d-flex justify-content-center gap-2 mt-3">
-        <button id="addRowButton" class="btn btn-success">Voeg rij toe</button>
-        <button id="calculateUINGSPoolButton" class="btn btn-success">Calculate NGS UI Pool</button>
-      </div>
-    </div>
-
-    <!-- Flowcell Information -->
-    <div class="flowcell-info bg-success text-white p-3 rounded mt-3">
-      <div class="d-flex justify-content-around mb-3">
-        <span id="flowcellOutput">Current Flowcell: P1</span>
-        <span id="trisOutput">Add luTris to pool: 0.00</span>
-      </div>
-      <div class="progress-container">
-        <div class="progress-bar-wrapper d-flex align-items-center">
-          <div class="progress flex-grow-1" style="height: 30px;">
-            <div id="flowcellProgress"></div>
+  <main class="container-fluid mt-5 pt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="spreadsheet-container bg-white shadow rounded p-3">
+          <!-- Run Selection -->
+          <div class="run-selection-container d-flex align-items-center mb-3">
+            <label for="runSelect" class="me-2">Select Run:</label>
+            <select id="runSelect" class="form-select w-auto me-2">
+              <option value="new">New Run</option>
+              <!-- Existing runs populated dynamically -->
+            </select>
+            <input type="text" id="newRunNameInput" class="form-control w-auto" placeholder="Enter new run name">
           </div>
-          <span id="progressPercentage" class="ms-2">0%</span>
+
+          <!-- Spreadsheet Table -->
+          <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+            <table id="spreadsheetTable" class="table table-bordered table-hover">
+              <thead class="table-dark sticky-top">
+                <tr>
+                  <th data-field="ProjectPool">ProjectPool</th>
+                  <th data-field="Application">Application</th>
+                  <th data-field="GenomeSize">GenomeSize</th>
+                  <th data-field="Coverage">Coverage</th>
+                  <th data-field="SampleCount">SampleCount</th>
+                  <th data-field="Conc">Conc</th>
+                  <th data-field="AvgLibSize">AvgLibSize</th>
+                  <th data-field="Clusters">Clusters</th>
+                  <th data-field="%Flowcell">%P1</th>
+                  <th data-field="nM">nM</th>
+                  <th data-field="%SamplePerFlowcell">%Sample per (Flowcell)</th>
+                  <th data-field="UI NGS Pool">UI NGS Pool</th>
+                  <th data-field="Acties">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Rows added dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="controls d-flex justify-content-center gap-2 mt-3">
+            <button id="addRowButton" class="btn btn-success">Voeg rij toe</button>
+            <button id="calculateUINGSPoolButton" class="btn btn-success">Calculate NGS UI Pool</button>
+          </div>
         </div>
-        <div id="progressLegend" class="mt-2 d-flex flex-wrap justify-content-center gap-2"></div>
+
+        <!-- Flowcell Information -->
+        <div class="flowcell-info bg-success text-white p-3 rounded mt-3">
+          <div class="d-flex justify-content-around mb-3">
+            <span id="flowcellOutput">Current Flowcell: P1</span>
+            <span id="trisOutput">Add luTris to pool: 0.00</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-wrapper d-flex align-items-center">
+              <div class="progress flex-grow-1" style="height: 30px;">
+                <div id="flowcellProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <span id="progressPercentage" class="ms-2">0%</span>
+            </div>
+            <div id="progressLegend" class="mt-2 d-flex flex-wrap justify-content-center gap-2"></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>

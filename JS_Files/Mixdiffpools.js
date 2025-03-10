@@ -386,39 +386,26 @@ function updateFinalPercentagesAndFlowcell() {
 }
 
 function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
-    const progressBar = document.getElementById('flowcellProgress');
-    const progressPercentage = document.getElementById('progressPercentage');
-    const legendContainer = document.getElementById('progressLegend');
-
-    if (!progressBar || !progressPercentage || !legendContainer) return;
-
-    progressBar.innerHTML = '';
-    legendContainer.innerHTML = '';
+    const progressBarContainer = document.querySelector('#flowcellProgress').parentElement;
+    progressBarContainer.innerHTML = ''; // Clear existing content
 
     const totalPercentage = rowCalculations.reduce((sum, { percentageOfFlowcell }) => sum + percentageOfFlowcell, 0);
 
-    rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
-        const projectPool = getInputValue(row, 'ProjectPool');
-        const color = getColorForProjectPool(projectPool);
-        const width = percentageOfFlowcell;
-
+    rowCalculations.forEach(({ percentageOfFlowcell, projectPool }) => {
+        const color = getColorForProjectPool(projectPool); // Assumes this function exists elsewhere
         const segment = document.createElement('div');
-        segment.className = 'progress-segment';
-        segment.style.width = `${width}%`;
+        segment.className = 'progress-bar';
+        segment.style.width = `${percentageOfFlowcell}%`;
         segment.style.backgroundColor = color;
+        segment.setAttribute('role', 'progressbar');
+        segment.setAttribute('aria-valuenow', percentageOfFlowcell);
+        segment.setAttribute('aria-valuemin', '0');
+        segment.setAttribute('aria-valuemax', '100');
         segment.title = `${projectPool}: ${percentageOfFlowcell.toFixed(1)}%`;
-        progressBar.appendChild(segment);
-
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        legendItem.innerHTML = `
-            <span class="legend-color" style="background-color: ${color};"></span>
-            ${projectPool}: ${percentageOfFlowcell.toFixed(1)}%
-        `;
-        legendContainer.appendChild(legendItem);
+        progressBarContainer.appendChild(segment);
     });
 
-    progressPercentage.textContent = `${totalPercentage.toFixed(1)}%`;
+    document.getElementById('progressPercentage').textContent = `${totalPercentage.toFixed(1)}%`;
 }
 
 async function calculateAndSaveAllData() {
