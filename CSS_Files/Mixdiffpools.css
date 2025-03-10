@@ -1,73 +1,90 @@
 /* Custom styles for MixDiffPools with Bootstrap */
 
+/* Background Image */
+body {
+  background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #333; /* Ensures text readability against the background */
+}
+
+/* Select Element Styling for Run Selection */
+select {
+  width: 100%;
+  height: 35px; /* Increased height for better text visibility */
+  font-size: 14px; /* Ensures text is readable */
+  padding: 5px; /* Adds internal spacing */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
+
 /* Table Customizations */
 #spreadsheetTable th,
 #spreadsheetTable td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #spreadsheetTable th {
-    background-color: #088c04;
-    color: white;
-    font-weight: bold;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  background-color: #088c04;
+  color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 #spreadsheetTable tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 #spreadsheetTable tbody tr:hover {
-    background-color: #dfe4ff;
+  background-color: #dfe4ff;
 }
 
 /* Form Elements */
-select,
 input {
-    width: 100%;
-    height: 25px;
-    font-size: 12px;
-    padding: 3px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
+  width: 100%;
+  height: 25px;
+  font-size: 12px;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
 }
 
 select:focus,
 input:focus {
-    border-color: #088c04;
-    outline: none;
+  border-color: #088c04;
+  outline: none;
 }
 
 input::placeholder {
-    color: #aaa;
-    font-style: italic;
+  color: #aaa;
+  font-style: italic;
 }
 
 /* Progress Bar and Legend */
 .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: white;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 4px 12px;
-    border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 15px;
 }
 
 .legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Error Message */
 .error-message {
-    max-width: 400px;
+  max-width: 400px;
 }
