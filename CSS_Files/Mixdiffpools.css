@@ -7,7 +7,7 @@
   font-family: 'Poppins', Arial, sans-serif;
 }
 
-/* Hide scrollbars but keep functionality */
+/* Scrollbar styling voor Webkit-browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -24,8 +24,11 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #045202;
 }
-/* Background Image */
+
+/* Scrollbar styling voor Firefox */
 body {
+  scrollbar-width: thin; /* Maakt de scrollbar dun */
+  scrollbar-color: #088c04 #f1f1f1; /* Thumb: groen, Track: lichtgrijs */
   background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
   background-size: cover;
   color: #333; /* Ensures text readability against the background */
