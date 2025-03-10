@@ -386,13 +386,23 @@ function updateFinalPercentagesAndFlowcell() {
 }
 
 function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
-    const progressBarContainer = document.querySelector('#flowcellProgress').parentElement;
+    // Get the correct progress container element
+    const progressBarContainer = document.querySelector('#progressContainer');
+    if (!progressBarContainer) {
+        console.error('Progress container element not found');
+        return;
+    }
+    
     progressBarContainer.innerHTML = ''; // Clear existing content
 
     const totalPercentage = rowCalculations.reduce((sum, { percentageOfFlowcell }) => sum + percentageOfFlowcell, 0);
 
-    rowCalculations.forEach(({ percentageOfFlowcell, projectPool }) => {
-        const color = getColorForProjectPool(projectPool); // Assumes this function exists elsewhere
+    rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
+        // Get the ProjectPool value from the row
+        const projectPoolInput = row.querySelector('[data-field="ProjectPool"]');
+        const projectPool = projectPoolInput ? projectPoolInput.value : 'Unknown';
+        
+        const color = getColorForProjectPool(projectPool);
         const segment = document.createElement('div');
         segment.className = 'progress-bar';
         segment.style.width = `${percentageOfFlowcell}%`;
@@ -406,6 +416,34 @@ function updateProgressBarAndLegend(rowCalculations, flowcellMax) {
     });
 
     document.getElementById('progressPercentage').textContent = `${totalPercentage.toFixed(1)}%`;
+
+    // Update legend if needed
+    const legendContainer = document.getElementById('progressLegend');
+    if (legendContainer) {
+        legendContainer.innerHTML = ''; // Clear existing legend
+        
+        rowCalculations.forEach(({ row, percentageOfFlowcell }) => {
+            if (percentageOfFlowcell > 0) {
+                const projectPoolInput = row.querySelector('[data-field="ProjectPool"]');
+                const projectPool = projectPoolInput ? projectPoolInput.value : 'Unknown';
+                
+                const color = getColorForProjectPool(projectPool);
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('span');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = color;
+                
+                const label = document.createElement('span');
+                label.textContent = `${projectPool}: ${percentageOfFlowcell.toFixed(1)}%`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendContainer.appendChild(legendItem);
+            }
+        });
+    }
 }
 
 async function calculateAndSaveAllData() {
@@ -506,13 +544,13 @@ async function calculateAndSaveAllData() {
 function resetFlowcellUI() {
     const flowcellOutput = document.getElementById('flowcellOutput');
     const trisOutput = document.getElementById('trisOutput');
-    const progressBar = document.getElementById('flowcellProgress');
+    const progressContainer = document.getElementById('progressContainer');
     const progressPercentage = document.getElementById('progressPercentage');
     const legendContainer = document.getElementById('progressLegend');
 
     if (flowcellOutput) flowcellOutput.textContent = 'Current Flowcell: P1';
     if (trisOutput) trisOutput.textContent = `ul Tris aan pool toevoegen: ${getSettings().poolSettings.basePoolVolume.toFixed(1)}`;
-    if (progressBar) progressBar.innerHTML = '';
+    if (progressContainer) progressContainer.innerHTML = '';
     if (progressPercentage) progressPercentage.textContent = '0%';
     if (legendContainer) legendContainer.innerHTML = '';
 }
