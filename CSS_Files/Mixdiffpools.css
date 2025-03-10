@@ -1,5 +1,29 @@
 /* Custom styles for MixDiffPools with Bootstrap */
+/* Reset and General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', Arial, sans-serif;
+}
 
+/* Hide scrollbars but keep functionality */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #088c04;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #045202;
+}
 /* Background Image */
 body {
   background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
