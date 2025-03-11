@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Calculator Elements and Functions
     const calculateBtn = document.getElementById('calculateBtn');
     const resultsTable = document.getElementById('resultsTable');
     const inputs = document.querySelectorAll('input[type="number"]');
@@ -163,4 +164,77 @@ document.addEventListener('DOMContentLoaded', function () {
             showErrorToUser(error.message);
         }
     });
+
+    // Guidelines Functionality
+    const saveRichtlijnenBtn = document.getElementById('saveRichtlijnenBtn');
+    const richtlijnenTable = document.getElementById('richtlijnenTable');
+
+    async function loadRichtlijnen() {
+        try {
+            const response = await fetch('../PHP_Files/get_richtlijnen.php');
+            const data = await response.json();
+            if (data.success) {
+                const rows = richtlijnenTable.querySelectorAll('tbody tr');
+                rows.forEach((row, index) => {
+                    const no = index + 1;
+                    const richtlijn = data.data.find(r => r.no == no);
+                    const typeInput = row.querySelector('input[name="type[]"]');
+                    const sizeBpInput = row.querySelector('input[name="size_bp[]"]');
+                    if (richtlijn) {
+                        typeInput.value = richtlijn.type;
+                        sizeBpInput.value = richtlijn.size_bp;
+                    } else {
+                        typeInput.value = '';
+                        sizeBpInput.value = '';
+                    }
+                });
+            } else {
+                console.error('Error fetching richtlijnen:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching richtlijnen:', error);
+        }
+    }
+
+    async function saveRichtlijnen() {
+        const rows = richtlijnenTable.querySelectorAll('tbody tr');
+        const richtlijnen = [];
+        rows.forEach((row, index) => {
+            const no = index + 1;
+            const typeInput = row.querySelector('input[name="type[]"]');
+            const sizeBpInput = row.querySelector('input[name="size_bp[]"]');
+            const type = typeInput.value.trim();
+            const sizeBp = sizeBpInput.value.trim();
+            if (type || sizeBp) {
+                richtlijnen.push({
+                    no: no,
+                    type: type,
+                    size_bp: sizeBp ? parseInt(sizeBp) : 0
+                });
+            }
+        });
+        try {
+            const response = await fetch('../PHP_Files/save_richtlijnen.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ richtlijnen })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Guidelines saved successfully');
+            } else {
+                alert('Error saving guidelines: ' + data.message);
+            }
+        } catch (error) {
+            alert('Error saving guidelines: ' + error.message);
+        }
+    }
+
+    // Load guidelines on page load
+    loadRichtlijnen();
+
+    // Save guidelines on button click
+    saveRichtlijnenBtn.addEventListener('click', saveRichtlijnen);
 });
