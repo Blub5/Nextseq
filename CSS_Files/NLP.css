@@ -107,6 +107,17 @@ h2, h3 {
     background-color: #045202;
 }
 
+/* Guidelines Section Button */
+.guidelines-section .btn {
+    background-color: #088c04;
+    color: white;
+    border: none;
+}
+
+.guidelines-section .btn:hover {
+    background-color: #045202;
+}
+
 /* Error Message */
 .error-message {
     position: fixed;
