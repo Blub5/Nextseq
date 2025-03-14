@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 include '/home/ngslab/ngsweb/PHP_Files/config.php';
 header('Content-Type: application/json');
 

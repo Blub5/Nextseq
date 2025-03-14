@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 include '/home/ngslab/ngsweb/PHP_Files/config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 0);

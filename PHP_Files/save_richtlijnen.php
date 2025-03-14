@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once 'config.php'; // Your database connection settings
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

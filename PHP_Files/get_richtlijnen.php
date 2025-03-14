@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once 'config.php'; // Your database connection settings
 
 try {
