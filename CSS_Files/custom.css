@@ -1,8 +1,7 @@
-/* Custom button styles */
 .btn-primary {
     background-color: #088c04;
     border-color: #088c04;
-    transition: all 0.3s ease; /* Align with other files */
+    transition: all 0.3s ease; 
 }
 
 .btn-primary:hover {
@@ -10,14 +9,14 @@
     border-color: #045202;
 }
 
-/* Table header styling */
+
 .table thead th {
     background-color: #088c04;
     color: white;
-    font-weight: 600; /* Consistent with other files */
+    font-weight: 600; 
 }
 
-/* Global background styling */
+
 body {
     background: url('../Pictures/koeien.jpg') no-repeat center center fixed;
     background-size: cover;
@@ -25,7 +24,7 @@ body {
     color: #333;
 }
 
-/* Bootstrap container override */
+
 .container,
 .container-fluid {
     background-color: rgba(255, 255, 255, 0.9);
@@ -33,9 +32,8 @@ body {
     border-radius: 8px;
 }
 
-/* Universal table container */
 .fixed-table-container {
-    max-height: 60vh; /* Standardized with Database.css */
+    max-height: 60vh; 
     overflow-y: auto;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden; 
 }
