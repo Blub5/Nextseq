@@ -1,112 +1,100 @@
-# NGS Web Application
+# NextSeq Web Application
 
-NGS Web Application is a tool designed for managing Next-Generation Sequencing (NGS) data. It provides features for calculating nM values, managing project pools, viewing database entries, and configuring application settings. The application integrates a frontend (HTML, CSS, JavaScript) with a backend (PHP) and a MySQL database.
+This repository contains a web application for managing NextSeq sequencing workflows, including pool management, calculations, and database operations.
 
-## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [File Structure](#file-structure)
-- [Workflow/Pipeline](#workflowpipeline)
+---
 
 ## Installation
-To deploy the application locally, follow these steps:
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/ngs-web-app.git
-```
+You can use this application locally or host it on a website/network.
 
-### 2. Set Up a Web Server
-- Install and configure a web server like **Apache** or **Nginx**.
-- Set the document root to the project's root directory (where the HTML files reside).
+### Local Installation
 
-### 3. Set Up the Database
-- Install **MySQL** or **MariaDB**.
-- Create a database named `NGSweb`:
-```bash
-mysql -u yourusername -p -e "CREATE DATABASE NGSweb;"
-```
-- Import SQL schema and sample data:
-```bash
-mysql -u yourusername -p NGSweb < SQL_Files/mixdiffpools.sql
-mysql -u yourusername -p NGSweb < SQL_Files/nlp_data.sql
-```
-- Update database credentials (username, password, host) in the relevant PHP files (e.g., `PHP_Files/*.php`).
+#### Requirements:
+- **XAMPP** (or similar local server environment)
+- **VSCode** (or any code editor)
+- **Web browser**
 
-### 4. Install PHP
-Ensure **PHP 8.1+** is installed with the necessary extensions:
-- `pdo_mysql`
-- `mysqli`
+#### Installation Steps:
+1. Install XAMPP following any standard online guide.
+2. Place the files from this repository in `C:\xampp\htdocs\Nextseq` or clone the repository to this location.
+3. Ensure Apache and MySQL services are running in XAMPP.
 
-### 5. Launch the Application
-- Start your web server.
-- Open a browser and go to: `http://localhost/ngs-web-app`.
-
-## Prerequisites
-- Web server (Apache, Nginx)
-- PHP 8.1+ with MySQL support
-- MySQL or MariaDB
-- Git (for cloning the repository)
-
-## Usage
-The application consists of several key pages:
-
-- **Mixdiffpools.html** – Manage project pools, calculate clusters, and determine flowcell usage.
-- **NLP.html** – Calculator for nM, pMol, and library volume.
-- **Database.html** – View, search, and export data.
-- **Admin.html** – Configure settings like flowcell capacities and pool preferences.
-- **Calculations.html** – Perform mass and molarity calculations.
-
-## Workflow/Pipeline
-
-The user follows this workflow when using the application:
-
-### **1. Check Settings in Admin Panel**
-- User navigates to **Admin.html**.
-- Ensures that all settings (e.g., flowcell capacities, preferences) are correctly configured before proceeding.
-
-### **2. Create or Select a Run in Mixdiffpools**
-#### **Option A: Creating a New Run**
-1. User selects "New Run" and provides a run name.
-2. User adds the necessary rows.
-3. User fills in required input fields.
-4. User verifies all details.
-5. User clicks **"Calculate NGS UI POOL"**.
-6. Data is submitted and stored in the database.
-7. User proceeds to **NLP.html**.
-
-#### **Option B: Editing an Existing Run**
-1. User selects an existing run from the dropdown.
-2. User edits the necessary information.
-3. User can add new rows for additional data.
-4. User verifies that the details are correct.
-5. User clicks **"Calculate NGS UI POOL"**.
-6. Data is updated in the database.
-7. User proceeds to **NLP.html**.
-
-### **3. Perform NLP Calculations**
-1. User arrives at **NLP.html**.
-2. User inputs required values.
-3. User clicks **"Calculate"**.
-4. Data is submitted and stored.
-
-### **4. Optional Features**
-- User can review the submitted data in the web interface.
-- User can download an Excel file containing **Mixdiffpools** or **NLP** data.
-- User can remove rows as needed.
-- User can filter and search through all data entries.
-- User can use the **Required Mass Calculator** for calculations.
-- User can use the **Molarity Calculator** for additional computations.
-
-### **5. Data Flow Overview**
-```mermaid
-graph LR
-    A[User] --> B[Admin.html: Configure Settings]
-    B --> C[Mixdiffpools.html: Create/Edit Run]
-    C --> D[NLP.html: Perform Calculations]
-    D --> E[Database.html: Review & Export Data]
-    E -->|Optional| F[Download Data / Perform Additional Calcs]
-```
+#### Configuration:
+The PHP code uses a `config.php` file that is not included in the repository for security reasons. Create a `config.php` file with the following credentials:
+<?php define('DB_HOST', 'localhost'); define('DB_USER', 'root'); // default XAMPP username define('DB_PASS', ''); // default XAMPP password define('DB_NAME', 'NGSweb'); ?>
 
 
+> **Note:** Update the file paths in PHP files to correctly reference the `config.php` file location. For example, use `PHP_Files/config.php` or an absolute path.
 
+Alternatively, you can host this application on an Apache server inside your network or on a website. The setup process is similar, but you need to install Apache, MySQL, PHP, etc., on the hosting device.
+
+---
+
+## Database Setup
+
+1. Open **phpMyAdmin**.
+2. Select or create a database named `NGSweb`.
+3. Click on the **Import** tab.
+4. Choose the provided `NGSweb.sql` file from your computer.
+5. Click **Go** to execute the script.
+
+---
+
+## Troubleshooting
+
+If you encounter errors:
+- Verify database credentials in `config.php`.
+- Check if the database name (`NGSweb`) is correct.
+- Ensure all required files are included.
+- Confirm that the `config.php` file matches the include paths in PHP files.
+- Use browser developer tools (Inspect Element > Console) to identify connection issues.
+
+---
+
+## File Structure
+
+### HTML Files
+| File Name              | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| **Calculations.html**  | Provides formulas for calculating mass and molarity for chemical solutions. |
+| **Admin.html**         | Contains settings for pools and project configurations.                    |
+| **Mixdiffpools.html**  | Spreadsheet for managing sequencing pools.                                 |
+| **Database.html**      | Interface for managing database operations.                                |
+| **NLP.html**           | Procedural steps for creating and purifying sequencing pools.              |
+
+### CSS Files
+| File Name              | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| **Calculations.css**   | Styles the calculator interface layout and functionality.                   |
+| **Database.css**       | Provides styling for database-related pages.                                |
+| **Mixdiffpools.css**   | Styles spreadsheet-like interfaces for sequencing pools management.         |
+| **Admin.css**          | Styles administrative settings pages and configurations.                   |
+| **NLP.css**            | Styles procedural sections related to sequencing workflows.                |
+| **custom.css**         | Shared styles across multiple pages of the application.                    |
+
+### JavaScript Files
+| File Name              | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| **Admin.js**           | Manages application settings and user preferences using local storage.      |
+| **Calculations.js**    | Handles scientific calculations related to molarity, mass, and volume conversions. |
+| **NLP.js**             | Facilitates calculations for library preparation workflows.                |
+| **Database.js**        | Interacts with database tables and manages data operations like export functionality. |
+| **Mixdiffpools.js**    | Manages project pools and performs advanced sequencing calculations.        |
+
+### PHP Files
+| File Name                      | Description                                                                 |
+|--------------------------------|-----------------------------------------------------------------------------|
+| **update_preliminary_data.php**| Updates preliminary data in the `mixdiffpools` table after validation of required fields like RunName, ProjectPool, etc. |
+| **get_table_data.php**         | Fetches data from specified database tables with optional filtering/sorting functionality. |
+| **get_richtlijnen.php**        | Retrieves guidelines from the `richtlijnen` table in JSON format for dynamic usage in UI components. |
+| **save_nlp_data.php**          | Inserts NLP-related data into relevant tables after validation of fields such as concentration and library size values. |
+| **save_all_data.php**          | Saves multiple rows of data into corresponding tables using batch processing techniques to enhance efficiency during bulk operations. |
+| **save_richtlijnen.php**       | Manages records dynamically within guidelines tables based on user input validations or deletions triggered by synchronization events between UI & DB states.|
+
+---
+
+## Hosting
+
+For network or web hosting:
+Its the same process just install Apache,MariaDB(phpmyadmin) and it wil work the same
